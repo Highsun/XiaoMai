@@ -1,140 +1,108 @@
 <template>
-  <div class="double-col">
-    <!-- left -->
-    <div class="poster">
-      <div class="poster-overlay">
-        <img src="../assets/images/poster.jpg" alt="poster" />
-        <!-- TODO: Add logo icon here -->
-        <div class="logo"></div>
-      </div>
+  <div class="auth-page">
+    <img class="background-img" src="../assets/images/poster.jpg" alt="poster" />
+
+    <div class="logo-area" @click="goHome" style="cursor: pointer">
+      <!-- TODO: 添加小麦LOGO -->
+      <img src="../assets/logo.png" alt="logo" class="logo-img" />
+      <span class="logo-text">小麦</span>
     </div>
 
-    <!-- right -->
-    <div class="login-container">
+    <div class="auth-box">
       <h2>登录</h2>
-      <form @submit.prevent="handleLogin">
-        <div class="form-group">
-          <label for="username">用户名</label>
-          <input v-model="username" id="username" type="text" placeholder="请输入用户名" />
+      <form @submit.prevent="handleLogin" novalidate>
+        <div class="form-group" :class="{ error: errors.account }">
+          <label for="account">账号</label>
+          <input
+            v-model="account"
+            id="account"
+            type="text"
+            placeholder="请输入用户名或邮箱"
+            @focus="clearError('account')"
+          />
+          <p v-if="errors.account" class="error-msg">{{ errors.account }}</p>
         </div>
-        <div class="form-group">
+
+        <div class="form-group" :class="{ error: errors.password }">
           <label for="password">密码</label>
-          <input v-model="password" id="password" type="password" placeholder="请输入密码" />
+          <div class="password-wrapper">
+            <input
+              v-model="password"
+              :type="showPassword ? 'text' : 'password'"
+              id="password"
+              placeholder="请输入密码"
+              @focus="clearError('password')"
+            />
+            <i
+              :class="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"
+              class="toggle-password"
+              @click="togglePasswordVisibility"
+            ></i>
+          </div>
+          <p v-if="errors.password" class="error-msg">{{ errors.password }}</p>
         </div>
+
         <button type="submit">登录</button>
+        <p class="hint">
+          没有账号？
+          <a href="#" @click.prevent="goToRegister">点击注册</a>
+        </p>
       </form>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, reactive } from 'vue'
+import { useRouter } from 'vue-router'
 
-const username = ref('')
+const account = ref('')
 const password = ref('')
+const showPassword = ref(false)
+
+const errors = reactive({
+  account: '',
+  password: '',
+})
+
+const router = useRouter()
+
+// 点击LOGO跳转到首页
+function goHome() {
+  router.push('/')
+}
+
+function togglePasswordVisibility() {
+  showPassword.value = !showPassword.value
+}
+
+function clearError(field) {
+  errors[field] = ''
+}
 
 function handleLogin() {
-  if (!username.value || !password.value) {
-    alert('用户名或密码错误')
+  // 清空所有错误提示
+  Object.keys(errors).forEach((key) => {
+    errors[key] = ''
+  })
+
+  // 依次验证，遇到第一个错误就返回提示
+  if (!account.value.trim()) {
+    errors.account = '请输入用户名或邮箱'
     return
   }
-  // TODO: Add login logic here
-  console.log('登录信息:', {
-    username: username.value,
-    password: password.value,
-  })
+  if (!password.value) {
+    errors.password = '请输入密码'
+    return
+  }
+
+  // TODO: 添加后端登录验证
+
+  alert('登录成功')
+  router.push('/')
+}
+
+function goToRegister() {
+  router.push('/register')
 }
 </script>
-
-<style scoped>
-.double-col {
-  display: flex;
-  height: 100vh;
-  font-family: Arial, sans-serif;
-}
-
-/* left */
-.poster {
-  flex: 1.15;
-  position: relative;
-  overflow: hidden;
-}
-
-.poster img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  filter: brightness(0.6);
-}
-.logo {
-  position: absolute;
-  top: 50px;
-  left: 50px;
-}
-.poster-overlay {
-  width: 100%;
-  height: 100%;
-  position: relative;
-}
-
-/* right */
-/* TODO: Alter color theme */
-.login-container {
-  flex: 1;
-  padding: 60px 40px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  background-color: #f8f9fa;
-}
-
-h2 {
-  font-size: 1.6rem;
-  margin-bottom: 2rem;
-  text-align: center;
-}
-
-form {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.form-group {
-  margin-bottom: 1.25rem;
-}
-
-label {
-  display: block;
-  margin-bottom: 0.4rem;
-  font-weight: 600;
-}
-
-input {
-  width: 350px;
-  padding: 0.75rem;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 1rem;
-  transition: border 0.2s;
-}
-input:focus {
-  border-color: #42b983;
-  outline: none;
-}
-
-button {
-  width: 350px;
-  padding: 0.75rem;
-  background-color: #42b983;
-  border: none;
-  color: white;
-  font-size: 1rem;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-button:hover {
-  background-color: #369c74;
-}
-</style>

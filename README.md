@@ -31,6 +31,10 @@ The entire stack emphasizes **ease of deployment**, **development clarity**, and
 > **Built with**: JavaScript (Vue.js) & Python (Flask)
 > **Version control**: Git + GitHub for real-world collaboration
 
+## Changelog
+
+Our website is about to be launched, look forward to it!
+
 ## License
 
 This project is licensed under the terms of the [MIT License](LICENSE).
