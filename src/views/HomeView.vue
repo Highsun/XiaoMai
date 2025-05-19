@@ -1,14 +1,14 @@
 <template>
   <div>
-    <button @click="goToLogin" style="width: 60px; margin: 20px auto auto 20px">账号</button>
+    <Navbar />
+    <div class="home-content">
+      <!-- TODO: 主页内容 -->
+    </div>
   </div>
 </template>
 
 <script setup>
-import { useRouter } from 'vue-router'
-const router = useRouter()
-
-function goToLogin() {
-  router.push('/login')
-}
+import Navbar from '../components/NavbarComp.vue'
 </script>
+
+<style scoped></style>

@@ -139,7 +139,6 @@ function handleRegister() {
     password: password.value,
   })
 
-  alert('注册成功，请登录')
   router.push('/login')
 }
 
@@ -152,3 +151,17 @@ function goToLogin() {
   router.push('/login')
 }
 </script>
+
+<style scoped>
+.logo-img {
+  height: 40px;
+  width: 40px;
+  object-fit: contain;
+  margin-right: 12px;
+}
+
+.logo-text {
+  color: #fff;
+  font-size: 1.8rem;
+}
+</style>

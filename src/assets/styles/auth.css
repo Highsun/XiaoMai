@@ -29,17 +29,6 @@
   z-index: 2;
 }
 
-.logo-img {
-  height: 40px;
-  width: 40px;
-  object-fit: contain;
-  margin-right: 12px;
-}
-
-.logo-text {
-  font-size: 1.8rem;
-}
-
 /* 登录/注册盒子 */
 .auth-box {
   position: absolute;
@@ -138,7 +127,7 @@ button:hover {
 .hint {
   margin-top: 1rem;
   font-size: 0.9rem;
-  color: #555;
+  color: #fff;
 }
 
 .hint a {

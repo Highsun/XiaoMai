@@ -7,7 +7,9 @@ import '@fortawesome/fontawesome-free/css/all.min.css'
 
 // CSS 样式表
 import './assets/styles/base.css'
+import './assets/styles/fonts.css'
 import './assets/styles/auth.css'
+import './assets/styles/navbar.css'
 
 const app = createApp(App)
 app.use(router)

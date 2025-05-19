@@ -98,7 +98,6 @@ function handleLogin() {
 
   // TODO: 添加后端登录验证
 
-  alert('登录成功')
   router.push('/')
 }
 
@@ -106,3 +105,17 @@ function goToRegister() {
   router.push('/register')
 }
 </script>
+
+<style scoped>
+.logo-img {
+  height: 40px;
+  width: 40px;
+  object-fit: contain;
+  margin-right: 12px;
+}
+
+.logo-text {
+  color: #fff;
+  font-size: 1.8rem;
+}
+</style>
