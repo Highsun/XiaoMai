@@ -3,6 +3,7 @@
     <!-- 左侧 Logo + 一级导航 -->
     <div class="navbar-left">
       <div class="logo-title" @click="goHome" style="cursor: pointer">
+        <!-- TODO: 添加小麦LOGO -->
         <img src="../assets/logo.png" alt="logo" class="logo-img" />
         <span class="logo-text">小麦</span>
       </div>
