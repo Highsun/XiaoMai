@@ -31,9 +31,47 @@ The entire stack emphasizes **ease of deployment**, **development clarity**, and
 > **Built with**: JavaScript (Vue.js) & Python (Flask)
 > **Version control**: Git + GitHub for real-world collaboration
 
-## Changelog
+## Getting Started
 
-Our website is about to be launched, look forward to it!
+This project is still under development, but if you are interested in our project, you can follow the steps below to run our website in dev-mode.
+
+### Node.js and npm
+
+This project is based on [Node.js](https://nodejs.org/zh-cn), make sure that your computer has installed the lateset version of Node.js.
+
+You can use the following commands on cmd(Windows) or terminal(macOS) to check whether the installation is successful.
+
+```bash
+node -v
+npm -v
+```
+
+The results should be something like this.
+
+```text
+v23.7.0
+10.9.2
+```
+
+### Project dependency
+
+Execute the following command under the root directory of the project.
+
+```bash
+npm install
+```
+
+This will automatically install all the dependencies of the project in the `package.json`.
+
+### Start the project
+
+Execute the following command to start the development server.
+
+```bash
+npm run dev
+```
+
+Visit the prompted URL(Usually http://localhost:5173/) in the browser to preview the project.
 
 ## License
 
