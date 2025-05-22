@@ -121,3 +121,92 @@
   background-color: transparent;
   color: #42b983;
 }
+
+/* 下拉菜单 */
+.dropdown-wrapper {
+  position: relative;
+}
+
+/* 菜单主体 */
+.dropdown-menu {
+  position: absolute;
+  top: 110%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  width: 110px;
+  padding: 8px 0;
+  z-index: 1000;
+  text-align: center;
+}
+
+/* 小三角箭头 */
+.dropdown-arrow {
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 8px solid #e0e0e0;
+}
+
+.dropdown-arrow::after {
+  content: '';
+  position: absolute;
+  top: 1px;
+  left: -8px;
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 8px solid white;
+}
+
+/* 列表样式 */
+.dropdown-menu ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.dropdown-menu li {
+  padding: 10px 0;
+}
+
+.dropdown-menu li a {
+  text-decoration: none;
+  color: #333;
+  font-size: 0.95rem;
+  display: block;
+  transition: color 0.2s;
+}
+
+.dropdown-menu li a:hover {
+  color: #42b983;
+}
+
+/* 动画过渡（向下淡入，向上淡出） */
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+  transition: all 0.25s ease;
+}
+
+.fade-slide-enter-from,
+.fade-slide-leave-to {
+  opacity: 0;
+  transform: translate(-50%, -10px);
+  left: 50%;
+}
+
+.fade-slide-enter-to,
+.fade-slide-leave-from {
+  opacity: 1;
+  transform: translate(-50%, 0);
+  left: 50%;
+}

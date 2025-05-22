@@ -24,6 +24,7 @@
           </ul>
         </div>
 
+        <!-- TODO: 绑定页面跳转 -->
         <div class="footer-section">
           <h3>快速导航</h3>
           <div class="footer-links">
@@ -40,6 +41,7 @@
           </div>
         </div>
 
+        <!-- TODO: 绑定账号 -->
         <div class="footer-section">
           <h3>关注我们</h3>
           <div class="footer-social">
