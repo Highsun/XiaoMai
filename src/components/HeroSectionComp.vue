@@ -1,7 +1,9 @@
 <template>
   <section class="hero-section">
     <div class="hero-main">
-      <div class="nav-btn left-btn" @click="prevSlide">‹</div>
+      <div class="nav-btn left-btn" @click="prevSlide">
+        <i class="fa-solid fa-circle-chevron-left"></i>
+      </div>
 
       <!-- 左侧文字内容 -->
       <div
@@ -24,7 +26,9 @@
         />
       </div>
 
-      <div class="nav-btn right-btn" @click="nextSlide">›</div>
+      <div class="nav-btn right-btn" @click="nextSlide">
+        <i class="fa-solid fa-circle-chevron-right"></i>
+      </div>
     </div>
 
     <!-- 指示器 -->
@@ -43,6 +47,7 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 
+// TODO: 后期替换为动态数据
 const slides = [
   {
     title: '林俊杰 JJ20 FINAL LAP 世界巡回演唱会',
@@ -101,6 +106,7 @@ function goTo(i) {
 }
 
 function goToTickets() {
+  // TODO: 跳转购票页面的逻辑
   console.log('跳转购票页')
 }
 
