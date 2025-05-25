@@ -9,8 +9,10 @@
       <!-- 热卖中 -->
       <ShowCategory title="热卖中🔥" :shows="HotShows" />
       <!-- 即将推出 -->
+      <ShowCategory title="即将推出🔜" :shows="Upcomings" />
       <!-- 分类预览 -->
       <!-- 艺术家 -->
+      <ArtistCategory title="艺术家" :artists="Artists" />
 
       <!-- 新闻 -->
       <Footer />
@@ -22,6 +24,7 @@
 import Navbar from '../components/NavbarComp.vue'
 import HeroSection from '../components/HeroSectionComp.vue'
 import ShowCategory from '../components/ShowCategoryComp.vue'
+import ArtistCategory from '../components/ArtistCategoryComp.vue'
 import Footer from '../components/FooterComp.vue'
 
 // 热卖中
@@ -53,6 +56,82 @@ const HotShows = [
     location: '苏州市·苏州奥林匹克体育中心体育馆',
     price: 480,
     img: new URL('../assets/images/homepage/hot_shows/WLH.HEIC', import.meta.url).href,
+  },
+]
+
+// 即将推出
+const Upcomings = [
+  {
+    name: 'G.E.M. 邓紫棋 I AM GLORIA 世界巡回演唱会 2.0',
+    date: '2025.07.05',
+    location: '烟台市·烟台体育公园体育场',
+    price: 380,
+    img: new URL('../assets/images/homepage/upcomings/GEM.jpeg', import.meta.url).href,
+  },
+  {
+    name: '孙燕姿《就在日落以后》演唱会',
+    date: '2025.06.13/06.15',
+    location: '北京市·国家体育场-鸟巢',
+    price: 480,
+    img: new URL('../assets/images/homepage/upcomings/SYZ.jpeg', import.meta.url).href,
+  },
+  {
+    name: '汪苏泷 2025 巡回演唱会「十万伏特 2.0」',
+    date: '2025.06.27-06.29',
+    location: '太原市·山西体育中心体育场',
+    price: 380,
+    img: new URL('../assets/images/homepage/upcomings/WSL.jpeg', import.meta.url).href,
+  },
+  {
+    name: '凤凰传奇「吉祥如意」2025 巡回演唱会',
+    date: '2025.06.27-06.29',
+    location: '天津市·天津奥林匹克中心体育场',
+    price: 380,
+    img: new URL('../assets/images/homepage/upcomings/FHCQ.jpeg', import.meta.url).href,
+  },
+]
+
+// 艺术家
+const Artists = [
+  {
+    name: '林俊杰',
+    img: new URL('../assets/images/homepage/artists/JJ.JPG', import.meta.url).href,
+    link: '/artist/jj',
+  },
+  {
+    name: '周杰伦',
+    img: new URL('../assets/images/homepage/artists/Jay.JPG', import.meta.url).href,
+    link: '/artist/jay',
+  },
+  {
+    name: '陶喆',
+    img: new URL('../assets/images/homepage/artists/DT.JPG', import.meta.url).href,
+    link: '/artist/dt',
+  },
+  {
+    name: '王力宏',
+    img: new URL('../assets/images/homepage/artists/WLH.JPG', import.meta.url).href,
+    link: '/artist/wlh',
+  },
+  {
+    name: '邓紫棋',
+    img: new URL('../assets/images/homepage/artists/GEM.JPG', import.meta.url).href,
+    link: '/artist/gem',
+  },
+  {
+    name: '孙燕姿',
+    img: new URL('../assets/images/homepage/artists/SYZ.JPG', import.meta.url).href,
+    link: '/artist/syz',
+  },
+  {
+    name: '五月天',
+    img: new URL('../assets/images/homepage/artists/WYT.JPG', import.meta.url).href,
+    link: '/artist/wyt',
+  },
+  {
+    name: '单依纯',
+    img: new URL('../assets/images/homepage/artists/SYC.JPG', import.meta.url).href,
+    link: '/artist/syc',
   },
 ]
 </script>

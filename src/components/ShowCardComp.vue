@@ -2,14 +2,14 @@
   <div class="show-card">
     <img :src="img" :alt="name" class="show-image" />
     <div class="show-info">
-      <div class="scroll-wrapper">
-        <h3 class="scroll-text" ref="nameRef">{{ name }}</h3>
+      <div class="card-scroll-wrapper">
+        <h3 class="card-scroll-text" ref="nameRef">{{ name }}</h3>
       </div>
-      <div class="scroll-wrapper">
-        <p class="scroll-text" ref="dateRef">{{ date }}</p>
+      <div class="card-scroll-wrapper">
+        <p class="card-scroll-text" ref="dateRef">{{ date }}</p>
       </div>
-      <div class="scroll-wrapper">
-        <p class="scroll-text" ref="locationRef">{{ location }}</p>
+      <div class="card-scroll-wrapper">
+        <p class="card-scroll-text" ref="locationRef">{{ location }}</p>
       </div>
       <button class="btn-purchase">{{ price }}元起</button>
     </div>
@@ -90,7 +90,7 @@ onMounted(() => {
   padding: 1rem;
 }
 
-.scroll-wrapper {
+.card-scroll-wrapper {
   width: 100%;
   overflow: hidden;
   white-space: nowrap;
@@ -98,7 +98,7 @@ onMounted(() => {
   height: 1.5em;
 }
 
-.scroll-text {
+.card-scroll-text {
   display: inline-block;
   transition: transform 0.2s linear;
   will-change: transform;
