@@ -1,23 +1,23 @@
 <template>
-  <div>
-    <Navbar />
-    <div class="home-content">
-      <!-- TODO: 主页内容 -->
-      <!-- 主页轮播宣传海报 -->
-      <HeroSection />
+  <Navbar />
+  <div class="home-content">
+    <!-- 主页轮播宣传海报 -->
+    <HeroSection />
 
-      <!-- 热卖中 -->
-      <ShowCategory title="热卖中🔥" :shows="HotShows" />
-      <!-- 即将推出 -->
-      <ShowCategory title="即将推出🔜" :shows="Upcomings" />
-      <!-- 分类预览 -->
-      <!-- 艺术家 -->
-      <ArtistCategory title="艺术家" :artists="Artists" />
-
-      <!-- 新闻 -->
-      <Footer />
-    </div>
+    <!-- 热卖中 -->
+    <ShowCategory title="热卖中🔥" :shows="HotShows" />
+    <!-- 即将推出 -->
+    <ShowCategory title="即将推出🔜" :shows="Upcomings" />
+    <!-- 艺术家 -->
+    <ArtistCategory title="艺术家" :artists="Artists" />
   </div>
+
+  <!-- FIXME: Test -->
+  <router-link to="/buy-tickets" class="btn-link">
+    <button class="btn-test" style="background: transparent; color: black">测试跳转到购票页</button>
+  </router-link>
+
+  <Footer />
 </template>
 
 <script setup>
