@@ -1,0 +1,145 @@
+.footer {
+  background-color: #f9f9f9;
+  color: #444;
+  padding: 40px 20px 20px;
+  font-size: 0.95rem;
+  box-shadow: inset 0 1px 0 #e0e0e0;
+}
+
+.footer-container {
+  display: flex;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  flex-direction: row;
+  flex-wrap: nowrap;
+}
+
+/* 左侧 LOGO */
+.footer-left {
+  width: 30%;
+  min-width: 250px;
+  display: flex;
+  flex-direction: column;
+}
+
+.footer-brand-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.footer-logo {
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
+}
+
+.footer-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.footer-brand {
+  font-size: 1.8rem;
+  margin: 0;
+}
+
+.footer-slogan {
+  font-size: 1rem;
+  color: #999;
+  margin: 4px 0 0 0;
+}
+
+/* 右侧链接与信息 */
+.footer-right {
+  width: 70%;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.footer-section {
+  flex: 1;
+  min-width: 160px;
+}
+
+.footer-section h3 {
+  font-size: 1.1rem;
+  margin-bottom: 12px;
+  color: #333;
+}
+
+.footer-section ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-section ul li {
+  margin-bottom: 8px;
+}
+
+.footer-section a {
+  color: #555;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.footer-section a:hover {
+  color: #42b983;
+}
+
+/* 快速导航 */
+.footer-links {
+  display: flex;
+  gap: 40px;
+}
+
+.footer-links ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-links li {
+  margin-bottom: 8px;
+}
+
+.footer-links a {
+  text-decoration: none;
+  color: #555;
+  transition: color 0.2s;
+}
+
+.footer-links a:hover {
+  color: #42b983;
+}
+
+/* 关注我们 */
+.footer-social {
+  display: flex;
+  gap: 12px;
+}
+
+.social-icon {
+  font-size: 2rem;
+  margin-right: 10px;
+  color: #555;
+  transition: color 0.2s;
+}
+
+.social-icon:hover {
+  color: #42b983;
+}
+
+/* 底部版权 */
+.footer-bottom {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 0.85rem;
+  color: #999;
+  border-top: 1px solid #e0e0e0;
+  padding-top: 12px;
+}

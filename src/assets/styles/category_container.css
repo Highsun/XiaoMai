@@ -1,0 +1,103 @@
+/* 通用 */
+.category-container {
+  margin: 40px auto;
+  padding: 0 16px;
+  max-width: 1200px;
+}
+
+.category-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 40px;
+}
+
+.category-title {
+  font-size: 1.6rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.more-link {
+  color: #333;
+  margin-bottom: 16px;
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.2s ease;
+}
+
+.more-link:hover {
+  color: #42b983;
+}
+
+/* ShowCategory */
+.card-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+}
+
+/* ArtistCategory */
+.scroll-wrapper {
+  display: flex;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  gap: 12px;
+  position: relative;
+}
+
+.scroll-btn-wrapper {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  position: relative;
+  width: 40px;
+}
+
+.left-btn-wrapper .scroll-btn {
+  position: relative;
+  left: -20px;
+}
+
+.right-btn-wrapper .scroll-btn {
+  position: relative;
+  right: -20px;
+}
+
+.scroll-btn {
+  background: none;
+  border: none;
+  font-size: 1.6rem;
+  cursor: pointer;
+  padding: 0;
+  color: #666;
+  transition: color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+}
+
+.scroll-btn:hover {
+  background: transparent;
+  color: #42b983;
+  outline: none;
+}
+
+.scroll-container {
+  flex: 1;
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 24px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  padding: 20px 0;
+  scrollbar-width: none;
+}
+
+.scroll-container::-webkit-scrollbar {
+  display: none;
+}

@@ -1,0 +1,131 @@
+.hero-section {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+}
+
+.hero-main {
+  flex: 0 0 95%;
+  display: flex;
+  align-items: center;
+}
+
+.nav-btn {
+  flex: 0 0 5%;
+  font-size: 1.8rem;
+  color: #888;
+  cursor: pointer;
+  text-align: center;
+  user-select: none;
+  transition: color 0.2s ease;
+}
+.nav-btn:hover {
+  color: #42b983;
+}
+
+.hero-content {
+  flex: 0 0 36%;
+  padding: 0 1rem;
+}
+.title {
+  font-size: 2.8rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  color: #333;
+}
+.subtitle {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: #666;
+  margin-bottom: 2rem;
+}
+.btn-ticket {
+  background-color: #42b983;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  width: 90%;
+}
+.btn-ticket:hover {
+  background-color: #369c74;
+}
+
+.hero-image {
+  flex: 0 0 54%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.hero-image img {
+  max-width: 90%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+/* 指示器 */
+.hero-indicator {
+  flex: 0 0 5%;
+  margin-top: -108px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+}
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ccc;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+.dot.active {
+  background: #42b983;
+}
+
+/* 动画类 */
+.fade-slide {
+  animation-duration: 0.8s;
+  animation-timing-function: ease-in-out;
+}
+
+.fade-slide-img {
+  animation-duration: 0.8s;
+  animation-timing-function: ease-in-out;
+  animation-delay: 0.15s;
+  animation-fill-mode: both;
+}
+
+.fade-left {
+  animation-name: fadeLeft;
+}
+.fade-right {
+  animation-name: fadeRight;
+}
+
+@keyframes fadeLeft {
+  0% {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeRight {
+  0% {
+    opacity: 0;
+    transform: translateX(-40px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}

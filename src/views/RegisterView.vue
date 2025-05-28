@@ -1,6 +1,6 @@
 <template>
   <div class="auth-page">
-    <img class="background-img" src="../assets/images/poster.jpg" alt="poster" />
+    <img class="background-img" src="../assets/images/auth/poster.jpg" alt="poster" />
 
     <div class="logo-area" @click="goHome" style="cursor: pointer">
       <!-- TODO: 添加小麦LOGO -->
