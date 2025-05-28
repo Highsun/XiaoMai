@@ -13,6 +13,7 @@ import './assets/styles/navbar.css'
 import './assets/styles/hero.css'
 import './assets/styles/category_container.css'
 import './assets/styles/footer.css'
+import './assets/styles/buy_tickets_comps.css'
 
 const app = createApp(App)
 app.use(router)

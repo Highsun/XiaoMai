@@ -1,0 +1,301 @@
+/* 左侧海报样式 */
+.poster-section {
+  flex: 1;
+  background: #fff;
+  margin: 30px 10px;
+}
+.poster-image {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  object-position: bottom;
+  border-radius: 8px;
+}
+
+/* 中间购票界面样式 */
+.main-section {
+  flex: 2;
+  padding: 20px;
+  background: #fff;
+}
+.main-section .title {
+  font-size: 1.8rem;
+  font-weight: bold;
+  margin-bottom: 8px;
+  text-align: left;
+}
+.info {
+  margin-bottom: 12px;
+  color: #333;
+}
+.venue-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  white-space: nowrap;
+}
+.venue-text {
+  font-weight: 500;
+  font-size: 1rem;
+  color: #333;
+}
+.map-btn {
+  background: none;
+  border: none;
+  color: #333;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.2s ease;
+}
+.map-btn:hover {
+  background: transparent;
+  color: #42b983;
+}
+
+.presale {
+  background: #ffeeba;
+  font-weight: bolder;
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  color: #856404;
+}
+.presale p {
+  color: #746435;
+  font-weight: lighter;
+  margin: 10px 10px 0 10px;
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+.options .option-group {
+  margin-bottom: 16px;
+}
+.radio-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.radio-button {
+  position: relative;
+  cursor: pointer;
+  padding: 8px 16px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #f4f4f4;
+  color: #333;
+  font-size: 0.95rem;
+  user-select: none;
+  transition: all 0.2s ease;
+}
+.radio-button input[type='radio'] {
+  display: none;
+}
+.radio-button.active {
+  background-color: #42b983;
+  color: white;
+  border-color: #42b983;
+}
+
+.quantity {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.quantity button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #333;
+  width: 28px;
+  height: 28px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: white;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+.quantity button:hover {
+  background: #f0f0f0;
+}
+.total {
+  font-size: 1.2rem;
+  margin-top: 20px;
+  font-weight: bold;
+  color: #2c3e50;
+}
+.purchase-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+  padding: 0.5rem 0;
+  border-top: 1px solid #ccc;
+}
+.countdown-text {
+  font-size: 1rem;
+  font-weight: bold;
+  white-space: nowrap;
+}
+.buy-button {
+  background-color: #42b983;
+  color: white;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  width: auto;
+  margin-left: auto;
+  flex-shrink: 0;
+  transition: background-color 0.2s ease;
+}
+.buy-button:not(:disabled):hover {
+  background-color: #369c74;
+}
+.buy-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* 右侧信息栏样式 */
+.side-section {
+  flex: 1;
+  padding: 20px;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  margin: 30px 10px 10px 10px;
+  align-self: flex-start;
+}
+.seat-map {
+  margin-bottom: 16px;
+  background-color: #42b983;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+.seat-map:hover {
+  background-color: #38a16c;
+}
+.hints {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.hint-item {
+  padding: 12px;
+  border-radius: 8px;
+  background-color: #f8f8f8;
+  border: 1px solid #eee;
+}
+.hint-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.hint-icon {
+  font-size: 1rem;
+}
+.hint-icon.ok {
+  color: #42b983;
+}
+.hint-icon.no {
+  color: #e74c3c;
+}
+.hint-title {
+  font-weight: 600;
+  font-size: 0.88rem;
+  color: #333;
+  margin: 0;
+}
+.hint-text {
+  font-size: 0.8rem;
+  color: #555;
+  line-height: 1.5;
+  padding-left: 0.4rem;
+}
+
+/* 图片弹窗样式 */
+.map-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.map-popup {
+  position: relative;
+  width: 80vw;
+  height: 80vh;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  z-index: 1000;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.map-popup iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+.map-popup img {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  margin: auto;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+}
+
+.close-icon {
+  position: absolute;
+  top: calc(50% - 40vh - 36px);
+  right: calc(50% - 40vw - 36px);
+  z-index: 1001;
+  color: #333;
+  background: white;
+  border: none;
+  font-size: 1.4rem;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+.close-icon:hover {
+  background: white;
+  color: #42b983;
+}
+.map-fade-enter-active,
+.map-fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+.map-fade-enter-from,
+.map-fade-leave-to {
+  opacity: 0;
+}
+.map-fade-enter-to,
+.map-fade-leave-from {
+  opacity: 1;
+}
