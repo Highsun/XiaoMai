@@ -3,13 +3,16 @@
     <img class="background-img" src="../assets/images/auth/poster.jpg" alt="poster" />
 
     <div class="logo-area" @click="goHome" style="cursor: pointer">
-      <!-- TODO: 添加小麦LOGO -->
       <img src="../assets/logo.png" alt="logo" class="logo-img" />
       <span class="logo-text">小麦</span>
     </div>
 
     <div class="auth-box">
       <h2>登录</h2>
+
+      <!-- 后端通用错误 -->
+      <p v-if="generalError" class="error-msg">{{ generalError }}</p>
+
       <form @submit.prevent="handleLogin" novalidate>
         <div class="form-group" :class="{ error: errors.account }">
           <label for="account">账号</label>
@@ -43,6 +46,7 @@
         </div>
 
         <button type="submit">登录</button>
+
         <p class="hint">
           没有账号？
           <a href="#" @click.prevent="goToRegister">点击注册</a>
@@ -55,19 +59,19 @@
 <script setup>
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
-
-const account = ref('')
-const password = ref('')
-const showPassword = ref(false)
-
-const errors = reactive({
-  account: '',
-  password: '',
-})
+import { login } from '@/services/auth'
 
 const router = useRouter()
 
-// 点击LOGO跳转到首页
+// 表单字段
+const account      = ref('')
+const password     = ref('')
+const showPassword = ref(false)
+
+// 字段级错误和通用错误
+const errors = reactive({ account: '', password: '' })
+const generalError = ref('')
+
 function goHome() {
   router.push('/')
 }
@@ -77,16 +81,16 @@ function togglePasswordVisibility() {
 }
 
 function clearError(field) {
-  errors[field] = ''
+  errors[field]      = ''
+  generalError.value = ''
 }
 
-function handleLogin() {
-  // 清空所有错误提示
-  Object.keys(errors).forEach((key) => {
-    errors[key] = ''
-  })
+async function handleLogin() {
+  // 重置错误
+  Object.keys(errors).forEach(k => (errors[k] = ''))
+  generalError.value = ''
 
-  // 依次验证，遇到第一个错误就返回提示
+  // 前端校验
   if (!account.value.trim()) {
     errors.account = '请输入用户名或邮箱'
     return
@@ -96,9 +100,23 @@ function handleLogin() {
     return
   }
 
-  // TODO: 添加后端登录验证
+  // 调用后端登录接口
+  try {
+    const res = await login({
+      account:  account.value,
+      password: password.value
+    })
+    const token = res.data.access_token
 
-  router.push('/')
+    // 存储 token，后续调用可放到 axios header
+    localStorage.setItem('access_token', token)
+
+    // 登录成功，跳转首页
+    router.push('/')
+  } catch (err) {
+    // 捕获后端返回的错误信息
+    generalError.value = err.response?.data?.msg || '登录失败，请重试'
+  }
 }
 
 function goToRegister() {
@@ -113,9 +131,23 @@ function goToRegister() {
   object-fit: contain;
   margin-right: 12px;
 }
-
 .logo-text {
   color: #fff;
   font-size: 1.8rem;
+}
+.error-msg {
+  color: #e74c3c;
+  font-size: 0.9rem;
+  margin-top: 4px;
+}
+.password-wrapper {
+  position: relative;
+}
+.toggle-password {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
 }
 </style>
