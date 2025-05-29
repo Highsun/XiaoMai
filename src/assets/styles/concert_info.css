@@ -1,0 +1,57 @@
+.info-page {
+  display: flex;
+  gap: 2rem;
+  margin: 0 32px;
+  padding: 2rem;
+}
+
+/* 左侧导航栏 */
+.sidebar {
+  position: sticky;
+  top: 80px;
+  align-self: flex-start;
+  width: 160px;
+  background: #fff;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar li {
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  border-left: 4px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.sidebar li.active {
+  font-weight: bold;
+  color: #2e7d32;
+  border-left-color: #2e7d32;
+  background-color: #e8f5e9;
+}
+
+/* 主内容区 */
+.info-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.info-section {
+  margin-bottom: 20px;
+}
+
+.info-section h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid #ddd;
+  padding-bottom: 0.5rem;
+}
+
+.info-section p {
+  line-height: 1.8;
+  color: #333;
+}

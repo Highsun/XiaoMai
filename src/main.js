@@ -14,6 +14,7 @@ import './assets/styles/hero.css'
 import './assets/styles/category_container.css'
 import './assets/styles/footer.css'
 import './assets/styles/buy_tickets_comps.css'
+import './assets/styles/concert_info.css'
 
 const app = createApp(App)
 app.use(router)
