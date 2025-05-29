@@ -3,13 +3,16 @@
     <img class="background-img" src="../assets/images/auth/poster.jpg" alt="poster" />
 
     <div class="logo-area" @click="goHome" style="cursor: pointer">
-      <!-- TODO: 添加小麦LOGO -->
       <img src="../assets/logo.png" alt="logo" class="logo-img" />
       <span class="logo-text">小麦</span>
     </div>
 
     <div class="auth-box">
       <h2>注册</h2>
+
+      <!-- 后端返回的通用错误提示 -->
+      <p v-if="generalError" class="error-msg">{{ generalError }}</p>
+
       <form @submit.prevent="handleRegister" novalidate>
         <div class="form-group" :class="{ error: errors.username }">
           <label for="username">用户名</label>
@@ -71,80 +74,88 @@
 </template>
 
 <script setup>
-import { reactive, ref } from 'vue'
+import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
+// 导入后端注册接口
+import { register } from '@/services/auth'
 
-const username = ref('')
-const email = ref('')
-const password = ref('')
+const router = useRouter()
+
+// 表单字段
+const username        = ref('')
+const email           = ref('')
+const password        = ref('')
 const confirmPassword = ref('')
 
+// 字段级错误
 const errors = reactive({
   username: '',
   email: '',
   password: '',
   confirmPassword: '',
 })
+// 通用错误（如“用户名已存在”等后端返回）
+const generalError = ref('')
 
-const router = useRouter()
-
-// 点击LOGO跳转到首页
 function goHome() {
   router.push('/')
 }
 
 function clearError(field) {
-  errors[field] = ''
+  errors[field]      = ''
+  generalError.value = ''
 }
 
-function handleRegister() {
-  // 清空所有错误提示
-  Object.keys(errors).forEach((key) => {
-    errors[key] = ''
-  })
+function validateEmail(val) {
+  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  return re.test(val)
+}
 
-  // 依次验证，遇到第一个错误就返回提示
+async function handleRegister() {
+  // 重置所有错误
+  Object.keys(errors).forEach(k => (errors[k] = ''))
+  generalError.value = ''
+
+  // 前端校验
   if (!username.value.trim()) {
     errors.username = '用户名不能为空'
     return
   }
-
   if (!email.value.trim()) {
     errors.email = '邮箱不能为空'
     return
-  } else if (!validateEmail(email.value)) {
+  }
+  if (!validateEmail(email.value)) {
     errors.email = '请输入正确的邮箱格式'
     return
   }
-
   if (!password.value) {
     errors.password = '密码不能为空'
     return
   }
-
   if (!confirmPassword.value) {
     errors.confirmPassword = '请确认密码'
     return
   }
-
   if (password.value !== confirmPassword.value) {
     errors.confirmPassword = '两次输入的密码不一致'
     return
   }
 
-  // TODO: 添加后端注册逻辑
-  console.log('注册信息:', {
-    username: username.value,
-    email: email.value,
-    password: password.value,
-  })
-
-  router.push('/login')
-}
-
-function validateEmail(email) {
-  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  return re.test(email)
+  // 调用后端注册接口
+  try {
+    await register({
+      username:        username.value,
+      email:           email.value,
+      password:        password.value,
+      confirmPassword: confirmPassword.value
+    })
+    // 注册成功，跳转到登录页
+    router.push('/login')
+  } catch (err) {
+    // 捕获并展示后端返回的错误信息
+    generalError.value = err.response?.data?.msg || '注册失败，请重试'
+  }
 }
 
 function goToLogin() {
@@ -159,9 +170,13 @@ function goToLogin() {
   object-fit: contain;
   margin-right: 12px;
 }
-
 .logo-text {
   color: #fff;
   font-size: 1.8rem;
+}
+.error-msg {
+  color: #e74c3c;
+  font-size: 0.9rem;
+  margin-top: 4px;
 }
 </style>
