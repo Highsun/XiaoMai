@@ -10,7 +10,7 @@
     <div class="auth-box">
       <h2>注册</h2>
 
-      <!-- 后端返回的通用错误提示 -->
+      <!-- 后端通用错误 -->
       <p v-if="generalError" class="error-msg">{{ generalError }}</p>
 
       <form @submit.prevent="handleRegister" novalidate>
@@ -53,7 +53,7 @@
         <div class="form-group" :class="{ error: errors.confirmPassword }">
           <label for="confirmPassword">确认密码</label>
           <input
-            v-model="confirmPassword"
+            v-model="confirmPwd"
             id="confirmPassword"
             type="password"
             placeholder="请再次输入密码"
@@ -76,16 +76,13 @@
 <script setup>
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
-// 导入后端注册接口
 import { register } from '@/services/auth'
 
-const router = useRouter()
-
-// 表单字段
-const username        = ref('')
-const email           = ref('')
-const password        = ref('')
-const confirmPassword = ref('')
+const router       = useRouter()
+const username     = ref('')
+const email        = ref('')
+const password     = ref('')
+const confirmPwd   = ref('')
 
 // 字段级错误
 const errors = reactive({
@@ -94,16 +91,20 @@ const errors = reactive({
   password: '',
   confirmPassword: '',
 })
-// 通用错误（如“用户名已存在”等后端返回）
+// 后端通用错误
 const generalError = ref('')
 
 function goHome() {
   router.push('/')
 }
 
+function goToLogin() {
+  router.push('/login')
+}
+
 function clearError(field) {
-  errors[field]      = ''
-  generalError.value = ''
+  errors[field]       = ''
+  generalError.value  = ''
 }
 
 function validateEmail(val) {
@@ -112,11 +113,11 @@ function validateEmail(val) {
 }
 
 async function handleRegister() {
-  // 重置所有错误
+  // 1. 清空之前的错误
   Object.keys(errors).forEach(k => (errors[k] = ''))
   generalError.value = ''
 
-  // 前端校验
+  // 2. 前端校验
   if (!username.value.trim()) {
     errors.username = '用户名不能为空'
     return
@@ -124,8 +125,7 @@ async function handleRegister() {
   if (!email.value.trim()) {
     errors.email = '邮箱不能为空'
     return
-  }
-  if (!validateEmail(email.value)) {
+  } else if (!validateEmail(email.value)) {
     errors.email = '请输入正确的邮箱格式'
     return
   }
@@ -133,33 +133,29 @@ async function handleRegister() {
     errors.password = '密码不能为空'
     return
   }
-  if (!confirmPassword.value) {
+  if (!confirmPwd.value) {
     errors.confirmPassword = '请确认密码'
     return
   }
-  if (password.value !== confirmPassword.value) {
+  if (password.value !== confirmPwd.value) {
     errors.confirmPassword = '两次输入的密码不一致'
     return
   }
 
-  // 调用后端注册接口
+  // 3. 调用后端注册接口
   try {
     await register({
       username:        username.value,
       email:           email.value,
       password:        password.value,
-      confirmPassword: confirmPassword.value
+      confirmPassword: confirmPwd.value,
     })
-    // 注册成功，跳转到登录页
+    // 成功后跳转登录页
     router.push('/login')
   } catch (err) {
-    // 捕获并展示后端返回的错误信息
+    // 400/401… 后端返回的 msg
     generalError.value = err.response?.data?.msg || '注册失败，请重试'
   }
-}
-
-function goToLogin() {
-  router.push('/login')
 }
 </script>
 
@@ -177,6 +173,6 @@ function goToLogin() {
 .error-msg {
   color: #e74c3c;
   font-size: 0.9rem;
-  margin-top: 4px;
+  margin-bottom: 8px;
 }
 </style>
