@@ -1,18 +1,10 @@
-# Core framework
 Flask>=2.3.0
 
-# ORM & Migrations
 Flask-SQLAlchemy>=3.1.1
 Flask-Migrate>=4.1.0
 
-# 密码哈希
 Flask-Bcrypt>=1.0.1
 
-# JWT 认证
 Flask-JWT-Extended>=4.7.1
 
-# 环境变量管理
 python-dotenv>=1.0.0
-
-# 校验邮箱格式：
-# email-validator>=1.2.0
