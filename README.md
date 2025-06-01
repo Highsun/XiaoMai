@@ -145,7 +145,7 @@ python3 -m flask db migrate -m "init users"
 python3 -m flask db upgrade
 ```
 
-> Only do this the first time you deploy our project.
+> Only do THE FIRST LINE (python -m flask db init) for the first time you deploy our project.
 
 ### Run the project
 
