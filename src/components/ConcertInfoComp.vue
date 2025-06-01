@@ -1,7 +1,7 @@
 <template>
   <div class="info-page">
     <!-- 左侧导航 -->
-    <nav class="sidebar">
+    <nav class="info-sidebar">
       <ul>
         <li
           v-for="item in navItems"

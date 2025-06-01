@@ -6,7 +6,7 @@
 }
 
 /* 左侧导航栏 */
-.sidebar {
+.info-sidebar {
   position: sticky;
   top: 80px;
   align-self: flex-start;
@@ -14,20 +14,20 @@
   background: #fff;
 }
 
-.sidebar ul {
+.info-sidebar ul {
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
-.sidebar li {
+.info-sidebar li {
   padding: 0.5rem 1rem;
   cursor: pointer;
   border-left: 4px solid transparent;
   transition: all 0.2s ease;
 }
 
-.sidebar li.active {
+.info-sidebar li.active {
   font-weight: bold;
   color: #2e7d32;
   border-left-color: #2e7d32;

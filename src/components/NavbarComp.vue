@@ -35,7 +35,7 @@
           <div class="dropdown-menu" v-if="menuOpen">
             <div class="dropdown-arrow"></div>
             <ul>
-              <li><a href="#">个人中心</a></li>
+              <li><a href="#" @click.prevent="goToDashBoard">个人中心</a></li>
               <li><a href="#" @click.prevent="goToLogin">登录</a></li>
             </ul>
           </div>
@@ -83,6 +83,11 @@ onBeforeUnmount(() => {
 // 跳转登陆
 function goToLogin() {
   router.push('/login')
+}
+
+// 跳转个人中心
+function goToDashBoard() {
+  router.push('/dashboard')
 }
 </script>
 
