@@ -113,7 +113,7 @@ python -m flask db migrate -m "init users"
 python -m flask db upgrade
 ```
 
-> Only do THE FIRST LINE(python -m flask db init) for the first time you deploy our project.
+> Only do THE FIRST LINE (python -m flask db init) for the first time you deploy our project.
 
 #### macOS/Linux
 
