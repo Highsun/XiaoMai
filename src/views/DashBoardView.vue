@@ -1,6 +1,7 @@
 <template>
   <Navbar />
 
+  <!-- TODO: 全部弄完之后记得组件化 -->
   <div class="dashboard-wrapper">
     <div class="dashboard-container">
       <!-- 左侧侧边栏 -->
@@ -42,9 +43,45 @@
         <Transition name="fade" mode="out-in">
           <div :key="view">
             <div v-if="view === 'account'">
-              <h2>欢迎回来，{{ username }}！</h2>
+              <h2>{{ welcome }} {{ username }}{{ marker }}</h2>
               <div class="personal-info">
-                <!-- TODO: 个人信息修改表单 -->
+                <h4 style="grid-column: 1 / -1; margin: 16px 0">编辑账号信息</h4>
+                <div class="form-group" v-for="field in fields" :key="field.key">
+                  <label :for="field.key">{{ field.label }}</label>
+                  <!-- 性别 -->
+                  <select
+                    v-if="field.key === 'gender'"
+                    :id="field.key"
+                    v-model="formData[field.key]"
+                    :style="{ color: formData.gender ? '#333' : '#aaa' }"
+                  >
+                    <option disabled value="">请选择性别</option>
+                    <option value="男">男</option>
+                    <option value="女">女</option>
+                    <option value="保密">保密</option>
+                  </select>
+                  <!-- 出生日期 -->
+                  <input
+                    v-else-if="field.key === 'birthday'"
+                    type="date"
+                    :id="field.key"
+                    v-model="formData[field.key]"
+                    :max="today"
+                  />
+                  <!-- TODO: “国家和地区”改为三栏联合选择框 -->
+                  <!-- 普通输入框 -->
+                  <input
+                    v-else
+                    type="text"
+                    :id="field.key"
+                    :placeholder="`请输入${field.label}`"
+                    v-model="formData[field.key]"
+                  />
+                </div>
+              </div>
+              <div class="form-actions">
+                <button class="save-btn" @click="saveChanges">保存修改</button>
+                <button class="cancel-btn" @click="cancelChanges">取消</button>
               </div>
             </div>
             <div v-else-if="view === 'tickets'">
@@ -57,7 +94,7 @@
             </div>
             <div v-else-if="view === 'settings'">
               <h2>亲爱的 {{ username }}，</h2>
-              <!-- TODO: 配送地址、观演人管理、订阅管理、修改密码、注销账号 -->
+              <!-- TODO: 配送地址，观演人管理，订阅管理，修改邮箱、手机号、密码，注销账号 -->
             </div>
             <div v-else-if="view === 'help'">
               <h2>亲爱的 {{ username }}，</h2>
@@ -73,14 +110,55 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
 import Navbar from '../components/NavbarComp.vue'
 import Footer from '../components/FooterComp.vue'
 
+import { ref, reactive } from 'vue'
+
 const view = ref('account')
+const welcome = ref('亲爱的')
+const username = ref('小麦用户_89757')
+const marker = ref('，')
 
 function logout() {
+  // TODO: 添加清除用户登录状态的逻辑
+  view.value = 'account'
+  welcome.value = '这里空空如也呢，先登录吧'
+  username.value = ''
+  marker.value = '！'
   alert('已退出登录')
+}
+
+// TODO: 全靠我们伟大的后端了
+const fields = [
+  { key: 'name', label: '姓名' },
+  { key: 'gender', label: '性别' },
+  { key: 'birthday', label: '出生日期' },
+  { key: 'email', label: '国家与地区' },
+]
+
+const formData = reactive({})
+const originalData = {}
+
+fields.forEach((field) => {
+  formData[field.key] = ''
+  originalData[field.key] = ''
+})
+
+const today = new Date().toISOString().split('T')[0]
+
+function saveChanges() {
+  alert('保存成功')
+  // TODO: 接入后端数据库
+  fields.forEach((field) => {
+    originalData[field.key] = formData[field.key]
+  })
+}
+
+function cancelChanges() {
+  fields.forEach((field) => {
+    formData[field.key] = originalData[field.key]
+  })
 }
 </script>
 
@@ -108,6 +186,7 @@ function logout() {
   padding: 24px;
 }
 
+/* 左侧边栏 */
 .sidebar {
   width: 220px;
   display: flex;
@@ -142,7 +221,7 @@ function logout() {
 
 .sidebar li:hover,
 .sidebar li.active {
-  background-color: #e6f0ff;
+  background-color: #e6f9f2;
   font-weight: bold;
 }
 
@@ -193,5 +272,97 @@ function logout() {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+/* 个人信息 */
+.personal-info {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0px 24px;
+  margin-top: 16px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-size: 14px;
+  margin-bottom: 6px;
+  color: #333;
+}
+
+.form-group input {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: border-color 0.3s;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #42b983;
+}
+
+.form-group select {
+  display: block;
+  width: 100%;
+  height: 36px;
+  padding: 0 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #333;
+  background-color: #fff;
+  appearance: none;
+}
+
+.form-group select:focus {
+  outline: none;
+  border-color: #42b983;
+}
+
+.form-group input[type='date'] {
+  height: 36px;
+}
+
+.form-actions {
+  margin-top: 12px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+}
+
+.save-btn,
+.cancel-btn {
+  padding: 10px 20px;
+  width: auto;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  white-space: nowrap;
+  text-align: center;
+  transition: background 0.3s;
+}
+
+.save-btn {
+  background-color: #42b983;
+  color: white;
+}
+
+.save-btn:hover {
+  background-color: #369c74;
+}
+
+.cancel-btn {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+.cancel-btn:hover {
+  background-color: #e0e0e0;
 }
 </style>
