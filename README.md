@@ -63,7 +63,7 @@ v23.7.0
 10.9.2
 ```
 
-#### Project dependency
+#### Vue.js dependency
 
 Execute the following command under the root directory of the project.
 

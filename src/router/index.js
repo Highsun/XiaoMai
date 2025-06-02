@@ -3,6 +3,7 @@ import HomeView from '../views/HomeView.vue'
 import LoginView from '../views/LoginView.vue'
 import RegisterView from '../views/RegisterView.vue'
 import BuyTicketsView from '../views/BuyTicketsView.vue' // FIXME: Test
+import DashBoardView from '@/views/DashBoardView.vue'
 
 const routes = [
   {
@@ -25,6 +26,11 @@ const routes = [
     path: '/buy-tickets',
     name: 'BuyTickets',
     component: BuyTicketsView,
+  },
+  {
+    path: '/dashboard',
+    name: 'Dashboard',
+    component: DashBoardView,
   },
 ]
 
