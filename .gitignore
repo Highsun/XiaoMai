@@ -37,10 +37,7 @@ env/
 venv/
 .mypy_cache/
 .pytest_cache/
-db.sqlite3
-*.db
 
-migrations/
 
 # IDEs and tools
 !.vscode/extensions.json

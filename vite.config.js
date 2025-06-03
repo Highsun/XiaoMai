@@ -3,13 +3,17 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
 
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [vue(), vueDevTools()],
 
   server: {
     proxy: {
+      // 把所有 /api/... 的请求都代理到后端
       '/api': {
+        target: 'http://localhost:8888',
+        changeOrigin: true,
+      },
+      '/uploads': {
         target: 'http://localhost:8888',
         changeOrigin: true,
       },
