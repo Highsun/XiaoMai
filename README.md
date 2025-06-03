@@ -33,160 +33,154 @@ The entire stack emphasizes **ease of deployment**, **development clarity**, and
 
 ## Getting Started
 
-This project is still under development, but if you are interested in our project, you can follow the steps below to run our website in dev-mode.
+This project is under active development. Follow the steps below to set up and run the project in dev-mode.
 
 ### Clone
 
-Execute the following command to clone this repository.
+Clone the repository:
 
 ```bash
 git clone https://github.com/Highsun/XiaoMai.git
+cd XiaoMai
 ```
 
 ### Frontend
 
 #### Node.js and npm
 
-The frontend of our project is based on [Node.js](https://nodejs.org/zh-cn), make sure that your computer has installed the lateset version of Node.js.
-
-You can use the following commands on cmd(Windows) or terminal(macOS) to check whether the installation is successful.
+The frontend relies on [Node.js](https://nodejs.org/). Ensure the latest version is installed:
 
 ```bash
 node -v
 npm -v
 ```
 
-The results should be something like this.
+Example output:
 
 ```text
 v23.7.0
 10.9.2
 ```
 
-#### Vue.js dependency
+#### Install Dependencies
 
-Execute the following command under the root directory of the project.
+Navigate to the project root and install dependencies:
 
 ```bash
 npm install
 ```
 
-This will automatically install all the dependencies of the project in the `package.json`.
-
 ### Backend
 
-We highly recommend that you use [Conda](https://www.anaconda.com/docs/getting-started/miniconda/main) to manage python environment. You can use this tool to isolate a convenient environment to avoid version conflicts.
+We recommend using [Conda](https://www.anaconda.com/docs/getting-started/miniconda/main) or Python's built-in venv to manage dependencies.
 
-#### Common
+#### Common Steps
+
+Navigate to backend:
 
 ```bash
 cd backend
 ```
 
-#### Windows
+#### Virtual Environment
 
-##### 1. Create/Activate venv
+##### Windows
 
-```bash
+```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate
 ```
 
-##### 2. Install dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-##### 3. Configure environment variables
-
-```bash
-$Env:FLASK_APP = "app.py"
-$Env:FLASK_ENV = "development"
-```
-
-##### 4. Initialization
-
-```bash
-python -m flask db init
-python -m flask db migrate -m "init users"
-python -m flask db upgrade
-```
-
-> Only do this the first time you deploy our project.
-
-#### macOS/Linux
-
-##### 1. Create/Activate venv
+##### macOS/Linux
 
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
 ```
 
-##### 2. Install dependencies
+#### Install Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-##### 3. Configure environment variables
+#### Configure Environment Variables
+
+##### Windows
+
+```powershell
+$Env:FLASK_APP = "app.py"
+$Env:FLASK_ENV = "development"
+```
+
+##### macOS/Linux
 
 ```bash
 export FLASK_APP=app.py
 export FLASK_ENV=development
 ```
 
-##### 4. Initialization
+#### Database Initialization
+
+The project includes a pre-initialized SQLite database (`app.db`) and migrations folder (`migrations`). Running database initialization commands is optional and only necessary if you modify the schema:
+
+If it is your first time initializing database migrations, run:
 
 ```bash
-python3 -m flask db init
-python3 -m flask db migrate -m "init users"
-python3 -m flask db upgrade
+flask db init
 ```
 
-> Only do this the first time you deploy our project.
+Then, for subsequent schema changes:
 
-### Run the project
+##### Windows
 
-Enter your back-end path and start the virtual environment(if it exists). Then, execute the following command.
+```powershell
+flask db migrate -m "your migration message"
+flask db upgrade
+```
+
+##### macOS/Linux
 
 ```bash
-flask run --port 8888 # You may choose other port number you like
+flask db migrate -m "your migration message"
+flask db upgrade
 ```
 
-> **⚠️ Warning**:
-> Do not use the port '5000' on macOS since it's the default AirPlay/AirTunes services port of macOS.
+### Run the Project
 
-Open **another** new terminal/cmd windows and execute the following command.
+Start the backend (within `backend/`):
+
+```bash
+flask run --port 8888
+```
+
+> **⚠️ Warning**: Avoid using port `5000` on macOS due to conflicts with AirPlay services.
+
+Start the frontend in a new terminal window (project root):
 
 ```bash
 npm run dev
 ```
 
-Visit the prompted URL(Usually http://localhost:5173/) in the browser to preview the project.
+Visit the URL provided (usually `http://localhost:5173/`) in your browser.
 
-### Options
+### SQLite Database Access
 
-#### SQL access
-
-The back-end uses `SQLite` storage, and the database file is located in `backend/app.db`.
-
-You can use the following command to access to the dataset.
+The SQLite database file is located at `backend/app.db`. To access it:
 
 ```bash
 cd backend
 sqlite3 app.db
 ```
 
-For example, you can access the user table in the following ways.
+Example SQL queries:
 
-```bash
+```sql
 .tables
 SELECT id, username, email, password_hash, created_at FROM users;
 ```
 
-The results would be something like this if you've registered some users.
+Sample output:
 
 ```text
 SQLite version 3.43.2 2023-10-10 13:08:14
@@ -194,6 +188,7 @@ Enter ".help" for usage hints.
 
 1|xiaomai|admin@xiaomai.com|$2b$12$HFq/YalXWJMH3J7.O15w9.oLhorZrkCJgDrAnvQNJpQ1C3o4ouIo6|2025-05-31 06:30:47.568050
 ```
+
 
 ## Membership links
 

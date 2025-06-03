@@ -1,6 +1,10 @@
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
+import axios from 'axios'
+
+// 将所有 axios 请求都指向后端 API
+axios.defaults.baseURL = 'http://localhost:8888'
 
 // fontawesome 图标库
 import '@fortawesome/fontawesome-free/css/all.min.css'
