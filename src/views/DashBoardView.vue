@@ -68,7 +68,51 @@
                     v-model="formData[field.key]"
                     :max="today"
                   />
-                  <!-- TODO: “国家和地区”改为三栏联合选择框 -->
+                  <!-- 省份与城市 -->
+                  <div
+                    v-else-if="field.key === 'location'"
+                    class="location-select-row"
+                    style="display: flex; gap: 12px"
+                  >
+                    <!-- 省 -->
+                    <select
+                      v-model="selectedProvince"
+                      @change="onProvinceChange"
+                      id="province-select"
+                    >
+                      <option disabled value="">请选择省份</option>
+                      <option v-for="province in provinces" :key="province" :value="province">
+                        {{ province }}
+                      </option>
+                    </select>
+
+                    <!-- 市 -->
+                    <select
+                      v-model="selectedCity"
+                      @change="onCityChange"
+                      :disabled="!selectedProvince"
+                      id="city-select"
+                    >
+                      <option disabled value="">请选择城市</option>
+                      <option v-for="city in cities" :key="city" :value="city">
+                        {{ city }}
+                      </option>
+                    </select>
+
+                    <!-- 区/县 -->
+                    <select
+                      v-model="selectedDistrict"
+                      @change="onDistrictChange"
+                      :disabled="!selectedCity"
+                      id="district-select"
+                    >
+                      <option disabled value="">请选择区/县</option>
+                      <option v-for="district in districts" :key="district" :value="district">
+                        {{ district }}
+                      </option>
+                    </select>
+                  </div>
+
                   <!-- 普通输入框 -->
                   <input
                     v-else
@@ -112,16 +156,16 @@
 <script setup>
 import Navbar from '../components/NavbarComp.vue'
 import Footer from '../components/FooterComp.vue'
-
-import { ref, reactive } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
+import locationData from '../assets/data/location-L3.json'
 
 const view = ref('account')
 const welcome = ref('亲爱的')
 const username = ref('小麦用户_89757')
 const marker = ref('，')
 
+// 登出
 function logout() {
-  // TODO: 添加清除用户登录状态的逻辑
   view.value = 'account'
   welcome.value = '这里空空如也呢，先登录吧'
   username.value = ''
@@ -129,36 +173,102 @@ function logout() {
   alert('已退出登录')
 }
 
-// TODO: 全靠我们伟大的后端了
 const fields = [
   { key: 'name', label: '姓名' },
   { key: 'gender', label: '性别' },
   { key: 'birthday', label: '出生日期' },
-  { key: 'email', label: '国家与地区' },
+  { key: 'location', label: '省份与城市' },
 ]
 
-const formData = reactive({})
-const originalData = {}
-
-fields.forEach((field) => {
-  formData[field.key] = ''
-  originalData[field.key] = ''
+// 表单初始值 TODO: 接入后端数据
+const formData = reactive({
+  name: '',
+  gender: '保密',
+  birthday: '',
+  location: '',
 })
 
+// 保存原始数据（用于取消）
+const originalData = {
+  name: formData.name,
+  gender: formData.gender,
+  birthday: formData.birthday,
+  location: formData.location,
+}
+
+// 地区数据
+const provinces = Object.keys(locationData)
+
+const selectedProvince = ref('')
+const selectedCity = ref('')
+const selectedDistrict = ref('')
+
+// 地区列表
+const cities = computed(() => {
+  return selectedProvince.value ? Object.keys(locationData[selectedProvince.value]) : []
+})
+
+const districts = computed(() => {
+  if (selectedProvince.value && selectedCity.value) {
+    return locationData[selectedProvince.value][selectedCity.value] || []
+  }
+  return []
+})
+
+// 初始化省市区
+onMounted(() => {
+  initLocationFromString(formData.location)
+})
+
+// 监听地区变化
+function onProvinceChange() {
+  selectedCity.value = ''
+  selectedDistrict.value = ''
+  updateLocation()
+}
+
+function onCityChange() {
+  selectedDistrict.value = ''
+  updateLocation()
+}
+
+function onDistrictChange() {
+  updateLocation()
+}
+
+// 更新 location 字符串
+function updateLocation() {
+  formData.location = [selectedProvince.value, selectedCity.value, selectedDistrict.value]
+    .filter(Boolean)
+    .join(' / ')
+}
+
+// 根据字符串回显省市区
+function initLocationFromString(str) {
+  const parts = str.split(' / ')
+  selectedProvince.value = parts[0] || ''
+  selectedCity.value = parts[1] || ''
+  selectedDistrict.value = parts[2] || ''
+}
+
+// 日期限制（最大值设为今天）
 const today = new Date().toISOString().split('T')[0]
 
+// 保存修改
 function saveChanges() {
-  alert('保存成功')
-  // TODO: 接入后端数据库
+  updateLocation()
   fields.forEach((field) => {
     originalData[field.key] = formData[field.key]
   })
+  alert('保存成功')
 }
 
+// 取消修改，回滚数据
 function cancelChanges() {
   fields.forEach((field) => {
     formData[field.key] = originalData[field.key]
   })
+  initLocationFromString(formData.location)
 }
 </script>
 
@@ -326,6 +436,23 @@ function cancelChanges() {
 
 .form-group input[type='date'] {
   height: 36px;
+}
+
+.location-select-row select {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  color: #333;
+  background-color: #fff;
+  appearance: none;
+}
+
+.location-select-row select:disabled {
+  color: #aaa;
+  background-color: #f9f9f9;
+  cursor: not-allowed;
 }
 
 .form-actions {
