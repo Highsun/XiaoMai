@@ -128,9 +128,41 @@
                 <button class="cancel-btn" @click="cancelChanges">取消</button>
               </div>
             </div>
-            <div v-else-if="view === 'tickets'">
-              <h2>亲爱的 {{ username }}，</h2>
-              <!-- TODO: 分类展示：未使用、已使用 -->
+            <!-- FIXME: CSS样式还要大改 -->
+            <div v-else-if="view === 'tickets'" class="ticket-section">
+              <h2 class="ticket-heading">亲爱的 {{ username }}，</h2>
+              <h4 style="grid-column: 1 / -1; margin: 32px 0 16px 0">以下是您已订购的演出</h4>
+              <!-- 分类切换按钮 -->
+              <div class="ticket-tabs">
+                <button
+                  v-for="tab in tabs"
+                  :key="tab"
+                  @click="activeTab = tab"
+                  :class="['ticket-tab', { active: activeTab === tab }]"
+                >
+                  {{ tab }}
+                </button>
+              </div>
+              <!-- 演出列表 -->
+              <div v-for="ticket in filteredTickets" :key="ticket.id" class="ticket-item">
+                <!-- 左侧头像+歌手名 -->
+                <div class="ticket-left">
+                  <img :src="ticket.avatar" alt="avatar" class="ticket-avatar" />
+                  <span class="ticket-artist">{{ ticket.artist }}</span>
+                </div>
+                <!-- 中间票务信息部分 -->
+                <div class="ticket-center">
+                  <div><i class="fa-solid fa-calendar-days"></i> {{ ticket.time }}</div>
+                  <div><i class="fa-solid fa-location-dot"></i> {{ ticket.venue }}</div>
+                  <div><i class="fa-solid fa-chair"></i> {{ ticket.seat }}</div>
+                  <div><i class="fa-solid fa-tag"></i> ￥{{ ticket.price }}</div>
+                </div>
+                <!-- 右侧“更多”按钮 -->
+                <div class="ticket-dropdown-container">
+                  <button class="ticket-details-button"><i class="fas fa-ellipsis-v"></i></button>
+                  <!-- TODO: 跳转到票务核销二维码界面，提供核销码下载服务 -->
+                </div>
+              </div>
             </div>
             <div v-else-if="view === 'orders'">
               <h2>亲爱的 {{ username }}，</h2>
@@ -138,7 +170,7 @@
             </div>
             <div v-else-if="view === 'settings'">
               <h2>亲爱的 {{ username }}，</h2>
-              <!-- TODO: 配送地址，观演人管理，订阅管理，修改邮箱、手机号、密码，注销账号 -->
+              <!-- TODO: 观演人管理，订阅管理，修改邮箱、密码，注销账号 -->
             </div>
             <div v-else-if="view === 'help'">
               <h2>亲爱的 {{ username }}，</h2>
@@ -173,11 +205,14 @@ function logout() {
   alert('已退出登录')
 }
 
+// 我的账号
 const fields = [
   { key: 'name', label: '姓名' },
   { key: 'gender', label: '性别' },
   { key: 'birthday', label: '出生日期' },
+  { key: 'phone', label: '手机号' },
   { key: 'location', label: '省份与城市' },
+  { key: 'address', label: '详细地址' },
 ]
 
 // 表单初始值 TODO: 接入后端数据
@@ -270,6 +305,62 @@ function cancelChanges() {
   })
   initLocationFromString(formData.location)
 }
+
+// 我的票夹
+const tabs = ['未使用', '已使用', '已过期']
+const activeTab = ref('未使用')
+
+// TODO: 接入后端数据
+const tickets = ref([
+  {
+    id: 'T123',
+    artist: '周杰伦',
+    avatar: 'src/assets/images/homepage/artists/Jay.JPG',
+    time: '2025-07-20 19:30',
+    venue: '广州体育馆',
+    seat: 'A区 3排 12号',
+    price: 1100,
+    status: '未使用',
+    qr: '',
+  },
+  {
+    id: 'T124',
+    artist: '林俊杰',
+    avatar: 'src/assets/images/homepage/artists/JJ.JPG',
+    time: '2025-05-10 19:00',
+    venue: '深圳大剧院',
+    seat: 'B区 1排 8号',
+    price: 1880,
+    status: '未使用',
+    qr: '',
+  },
+  {
+    id: 'T125',
+    artist: '陶喆',
+    avatar: 'src/assets/images/homepage/artists/DT.JPG',
+    time: '2025-04-01 18:00',
+    venue: '北京工体',
+    seat: 'C区 2排 5号',
+    price: 780,
+    status: '已使用',
+    qr: '',
+  },
+  {
+    id: 'T126',
+    artist: '五月天',
+    avatar: 'src/assets/images/homepage/artists/WYT.JPG',
+    time: '2025-03-23 20:00',
+    venue: '天津之眼',
+    seat: 'D区 6排 19号',
+    price: 580,
+    status: '已过期',
+    qr: '',
+  },
+])
+
+const filteredTickets = computed(() =>
+  tickets.value.filter((ticket) => ticket.status === activeTab.value),
+)
 </script>
 
 <style scoped>
@@ -384,7 +475,7 @@ function cancelChanges() {
   opacity: 0;
 }
 
-/* 个人信息 */
+/* 我的账号 */
 .personal-info {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -491,5 +582,74 @@ function cancelChanges() {
 
 .cancel-btn:hover {
   background-color: #e0e0e0;
+}
+
+/* 我的票夹 */
+.ticket-tabs {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.ticket-tabs button {
+  display: inline-block;
+  padding: 0.5rem 1.5rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: white;
+  color: #333;
+  white-space: nowrap;
+  cursor: pointer;
+  width: auto;
+  min-width: 0;
+  flex: 0 0 auto;
+}
+
+.ticket-tabs button.active {
+  background-color: #42b983;
+  color: white;
+  border-color: #42b983;
+}
+
+.ticket-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #eee;
+  padding: 1rem 0;
+  position: relative;
+}
+
+.ticket-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.ticket-left img {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.ticket-center {
+  flex: 3;
+  display: flex;
+  flex-direction: row;
+  padding: 0 48px;
+  gap: 32px;
+  text-align: center;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.ticket-details-button {
+  color: #42b983;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
 }
 </style>

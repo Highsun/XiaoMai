@@ -49,4 +49,4 @@ venv/
 *.tsbuildinfo
 
 .VSCodeCounter
-BashTools/
+DevTools/
