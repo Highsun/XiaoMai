@@ -128,7 +128,6 @@
                 <button class="cancel-btn" @click="cancelChanges">取消</button>
               </div>
             </div>
-            <!-- FIXME: CSS样式还要大改 -->
             <div v-else-if="view === 'tickets'" class="ticket-section">
               <h2 class="ticket-heading">亲爱的 {{ username }}，</h2>
               <h4 style="grid-column: 1 / -1; margin: 32px 0 16px 0">以下是您已订购的演出</h4>
@@ -158,9 +157,46 @@
                   <div><i class="fa-solid fa-tag"></i> ￥{{ ticket.price }}</div>
                 </div>
                 <!-- 右侧“更多”按钮 -->
-                <div class="ticket-dropdown-container">
-                  <button class="ticket-details-button"><i class="fas fa-ellipsis-v"></i></button>
-                  <!-- TODO: 跳转到票务核销二维码界面，提供核销码下载服务 -->
+                <div class="ticket-dropdown-container" @click.stop>
+                  <button class="ticket-details-button" @click="toggleDropdown(ticket.id)">
+                    <i class="fas fa-ellipsis-v"></i>
+                  </button>
+                  <!-- 悬浮框 -->
+                  <transition name="dropdown-fade">
+                    <div
+                      v-if="dropdownOpenId === ticket.id"
+                      class="ticket-dropdown"
+                      :id="`qr-container-${ticket.id}`"
+                    >
+                      <!-- 核销二维码 -->
+                      <div class="ticket-qr-title">
+                        <div class="ticket-qr-header">
+                          <img src="../assets/logo.png" alt="logo" class="ticket-logo" />
+                          <div>
+                            <p style="color: #666">小麦</p>
+                            <p style="font-size: 10px; color: #666">全球领先的票务代理</p>
+                          </div>
+                        </div>
+                        <h4>扫码入场</h4>
+                      </div>
+                      <div class="ticket-qr-wrapper">
+                        <img :src="ticket.qr" alt="qr-code" class="ticket-qr" />
+                        <a
+                          href="#"
+                          @click.prevent="downloadTicketAsImage(ticket.id)"
+                          class="ticket-download"
+                        >
+                          下载入场凭证
+                        </a>
+                      </div>
+                      <!-- 详细信息 -->
+                      <div class="ticket-info">
+                        <div><strong>座位：</strong>{{ ticket.seat }}</div>
+                        <div><strong>票价：</strong>￥{{ ticket.price }}</div>
+                        <div><strong>XMT-ID：</strong>{{ ticket.id }}</div>
+                      </div>
+                    </div>
+                  </transition>
                 </div>
               </div>
             </div>
@@ -188,7 +224,7 @@
 <script setup>
 import Navbar from '../components/NavbarComp.vue'
 import Footer from '../components/FooterComp.vue'
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted, onBeforeUnmount } from 'vue'
 import locationData from '../assets/data/location-L3.json'
 
 const view = ref('account')
@@ -311,9 +347,10 @@ const tabs = ['未使用', '已使用', '已过期']
 const activeTab = ref('未使用')
 
 // TODO: 接入后端数据
+// TODO: 每条演出信息的核销二维码都要在后端通过加密算法基于演出ID生成，确保唯一性和安全性，目前暂为示例二维码
 const tickets = ref([
   {
-    id: 'T123',
+    id: '20250607001',
     artist: '周杰伦',
     avatar: 'src/assets/images/homepage/artists/Jay.JPG',
     time: '2025-07-20 19:30',
@@ -321,10 +358,10 @@ const tickets = ref([
     seat: 'A区 3排 12号',
     price: 1100,
     status: '未使用',
-    qr: '',
+    qr: 'src/assets/data/已核销.png',
   },
   {
-    id: 'T124',
+    id: '20250607002',
     artist: '林俊杰',
     avatar: 'src/assets/images/homepage/artists/JJ.JPG',
     time: '2025-05-10 19:00',
@@ -332,10 +369,10 @@ const tickets = ref([
     seat: 'B区 1排 8号',
     price: 1880,
     status: '未使用',
-    qr: '',
+    qr: 'src/assets/data/已核销.png',
   },
   {
-    id: 'T125',
+    id: '20250607003',
     artist: '陶喆',
     avatar: 'src/assets/images/homepage/artists/DT.JPG',
     time: '2025-04-01 18:00',
@@ -343,10 +380,10 @@ const tickets = ref([
     seat: 'C区 2排 5号',
     price: 780,
     status: '已使用',
-    qr: '',
+    qr: 'src/assets/data/已核销.png',
   },
   {
-    id: 'T126',
+    id: '20250607004',
     artist: '五月天',
     avatar: 'src/assets/images/homepage/artists/WYT.JPG',
     time: '2025-03-23 20:00',
@@ -354,13 +391,72 @@ const tickets = ref([
     seat: 'D区 6排 19号',
     price: 580,
     status: '已过期',
-    qr: '',
+    qr: 'src/assets/data/已核销.png',
   },
 ])
 
 const filteredTickets = computed(() =>
   tickets.value.filter((ticket) => ticket.status === activeTab.value),
 )
+
+// 控制下拉菜单的显示与隐藏
+const dropdownOpenId = ref(null)
+
+function toggleDropdown(id) {
+  dropdownOpenId.value = dropdownOpenId.value === id ? null : id
+}
+
+function handleClickOutside(event) {
+  const dropdowns = document.querySelectorAll('.ticket-dropdown-container')
+  let clickedInside = false
+  dropdowns.forEach((container) => {
+    if (container.contains(event.target)) {
+      clickedInside = true
+    }
+  })
+
+  if (!clickedInside) {
+    dropdownOpenId.value = null
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside)
+})
+
+onBeforeUnmount(() => {
+  document.removeEventListener('click', handleClickOutside)
+})
+
+// 下载核销二维码为图片
+import html2canvas from 'html2canvas'
+
+async function downloadTicketAsImage(ticketId) {
+  const el = document.getElementById(`qr-container-${ticketId}`)
+  if (!el) return
+
+  const originalBorderImage = el.style.borderImage
+  const originalBorder = el.style.border
+
+  el.style.borderImage = 'none'
+  el.style.border = 'none'
+
+  try {
+    const canvas = await html2canvas(el, {
+      backgroundColor: '#ffffff',
+      scale: 4,
+    })
+    const link = document.createElement('a')
+    link.href = canvas.toDataURL('image/png')
+    link.download = `XMTicket-${ticketId}.png`
+    link.click()
+  } catch (error) {
+    console.error('下载失败:', error)
+  } finally {
+    el.style.borderImage = originalBorderImage
+    el.style.border = originalBorder
+  }
+}
 </script>
 
 <style scoped>
@@ -651,5 +747,93 @@ const filteredTickets = computed(() =>
   border: none;
   font-size: 1.5rem;
   cursor: pointer;
+}
+
+.ticket-dropdown-container {
+  position: relative;
+}
+
+.ticket-dropdown {
+  position: absolute;
+  right: 36px;
+  top: 12px;
+  width: 240px;
+  background: white;
+  border: 2px solid;
+  border-image: linear-gradient(135deg, #42b983, #6a5af9, #ff4d4f, #f9d423) 1;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  padding: 16px;
+  z-index: 100;
+}
+
+.ticket-qr-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.ticket-qr-header {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+}
+
+.ticket-qr-title h4 {
+  font-size: 16px;
+  font-weight: bold;
+  margin: 10px auto;
+  text-align: center;
+}
+
+.ticket-qr-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.ticket-qr {
+  width: 128px;
+  height: 128px;
+  object-fit: contain;
+  margin-bottom: 8px;
+}
+
+.ticket-download {
+  display: inline-block;
+  font-size: 13px;
+  color: #007bff;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.ticket-download:hover {
+  text-decoration: underline;
+}
+
+.ticket-info {
+  text-align: center;
+  font-size: 13px;
+  color: #333;
+  line-height: 1.6;
+}
+
+.dropdown-fade-enter-active,
+.dropdown-fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.dropdown-fade-enter-from,
+.dropdown-fade-leave-to {
+  opacity: 0;
+}
+
+.dropdown-fade-enter-to,
+.dropdown-fade-leave-from {
+  opacity: 1;
 }
 </style>
