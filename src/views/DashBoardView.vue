@@ -8,23 +8,23 @@
       <div class="sidebar card">
         <div class="sidebar-content">
           <ul>
-            <li :class="{ active: view === 'account' }" @click="view = 'account'">
+            <li :class="{ active: view === 'account' }" @click="changeView('account')">
               <i class="fa-solid fa-user icon-fixed"></i>
               <span>我的账号</span>
             </li>
-            <li :class="{ active: view === 'tickets' }" @click="view = 'tickets'">
+            <li :class="{ active: view === 'tickets' }" @click="changeView('tickets')">
               <i class="fa-solid fa-ticket icon-fixed"></i>
               <span>我的票夹</span>
             </li>
-            <li :class="{ active: view === 'orders' }" @click="view = 'orders'">
+            <li :class="{ active: view === 'orders' }" @click="changeView('orders')">
               <i class="fa-solid fa-receipt icon-fixed"></i>
               <span>历史订单</span>
             </li>
-            <li :class="{ active: view === 'settings' }" @click="view = 'settings'">
+            <li :class="{ active: view === 'settings' }" @click="changeView('settings')">
               <i class="fa-solid fa-sliders icon-fixed"></i>
               <span>账号设置</span>
             </li>
-            <li :class="{ active: view === 'help' }" @click="view = 'help'">
+            <li :class="{ active: view === 'help' }" @click="changeView('help')">
               <i class="fa-solid fa-circle-info icon-fixed"></i>
               <span>帮助中心</span>
             </li>
@@ -158,7 +158,11 @@
                 </div>
                 <!-- 右侧“更多”按钮 -->
                 <div class="ticket-dropdown-container" @click.stop>
-                  <button class="ticket-details-button" @click="toggleDropdown(ticket.id)">
+                  <button
+                    class="ticket-details-button"
+                    @click="toggleDropdown(ticket.id)"
+                    title="下载入场凭证"
+                  >
                     <i class="fas fa-ellipsis-v"></i>
                   </button>
                   <!-- 悬浮框 -->
@@ -202,7 +206,38 @@
             </div>
             <div v-else-if="view === 'orders'">
               <h2>亲爱的 {{ username }}，</h2>
-              <!-- TODO: 订单状态：全部、待付款、待收货、待评价、已过期 -->
+              <h4 style="grid-column: 1 / -1; margin: 32px 0 16px 0">以下是您的历史订单</h4>
+              <!-- 分类切换按钮 -->
+              <div class="ticket-tabs">
+                <button
+                  v-for="tab in history_tabs"
+                  :key="tab"
+                  @click="activeTab = tab"
+                  :class="['ticket-tab', { active: activeTab === tab }]"
+                >
+                  {{ tab }}
+                </button>
+              </div>
+              <!-- 演出列表 -->
+              <div v-for="ticket in filteredTickets" :key="ticket.id" class="ticket-item">
+                <!-- 左侧头像+歌手名 -->
+                <div class="ticket-left">
+                  <img :src="ticket.avatar" alt="avatar" class="ticket-avatar" />
+                  <span class="ticket-artist">{{ ticket.artist }}</span>
+                </div>
+                <!-- 中间票务信息部分 -->
+                <div class="ticket-center">
+                  <div><i class="fa-solid fa-calendar-days"></i> {{ ticket.time }}</div>
+                  <div><i class="fa-solid fa-tag"></i> ￥{{ ticket.price }}</div>
+                  <div>订单创建时间: {{ ticket.createtime }}</div>
+                </div>
+                <div class="go-to-perform-detail">
+                  <!-- TODO: 按钮关联到演出详情页 -->
+                  <button class="ticket-details-button" title="查看详情">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                  </button>
+                </div>
+              </div>
             </div>
             <div v-else-if="view === 'settings'">
               <h2>亲爱的 {{ username }}，</h2>
@@ -229,8 +264,18 @@ import locationData from '../assets/data/location-L3.json'
 
 const view = ref('account')
 const welcome = ref('亲爱的')
-const username = ref('小麦用户_89757')
+const username = ref('小麦用户_89757') // TODO: 接入后端数据
 const marker = ref('，')
+
+// 切换视图时同步页面信息
+function changeView(targetView) {
+  view.value = targetView
+  if (targetView === 'tickets') {
+    activeTab.value = tabs[0]
+  } else if (targetView === 'orders') {
+    activeTab.value = history_tabs[0]
+  }
+}
 
 // 登出
 function logout() {
@@ -342,8 +387,10 @@ function cancelChanges() {
   initLocationFromString(formData.location)
 }
 
-// 我的票夹
-const tabs = ['未使用', '已使用', '已过期']
+// 分类票夹、订单管理
+const tabs = ['未使用', '已使用', '已过期'] // 我的票夹
+const history_tabs = ['已付款', '待付款', '待收货', '已取消'] // 历史订单
+
 const activeTab = ref('未使用')
 
 // TODO: 接入后端数据
@@ -351,52 +398,61 @@ const activeTab = ref('未使用')
 const tickets = ref([
   {
     id: '20250607001',
+    createtime: '2025-03-15 12:00:34',
     artist: '周杰伦',
     avatar: 'src/assets/images/homepage/artists/Jay.JPG',
     time: '2025-07-20 19:30',
     venue: '广州体育馆',
     seat: 'A区 3排 12号',
     price: 1100,
-    status: '未使用',
+    status: ['未使用', '已付款'],
     qr: 'src/assets/data/已核销.png',
   },
   {
     id: '20250607002',
+    createtime: '2025-05-26 20:00:22',
     artist: '林俊杰',
     avatar: 'src/assets/images/homepage/artists/JJ.JPG',
     time: '2025-05-10 19:00',
     venue: '深圳大剧院',
     seat: 'B区 1排 8号',
     price: 1880,
-    status: '未使用',
+    status: ['未使用', '已付款'],
     qr: 'src/assets/data/已核销.png',
   },
   {
     id: '20250607003',
+    createtime: '2025-04-25 11:55:57',
     artist: '陶喆',
     avatar: 'src/assets/images/homepage/artists/DT.JPG',
     time: '2025-04-01 18:00',
     venue: '北京工体',
     seat: 'C区 2排 5号',
     price: 780,
-    status: '已使用',
+    status: ['已使用', '已付款'],
     qr: 'src/assets/data/已核销.png',
   },
   {
     id: '20250607004',
+    createtime: '2025-06-01 19:30:47',
     artist: '五月天',
     avatar: 'src/assets/images/homepage/artists/WYT.JPG',
     time: '2025-03-23 20:00',
     venue: '天津之眼',
     seat: 'D区 6排 19号',
     price: 580,
-    status: '已过期',
+    status: ['已过期', '已付款'],
     qr: 'src/assets/data/已核销.png',
   },
 ])
 
 const filteredTickets = computed(() =>
-  tickets.value.filter((ticket) => ticket.status === activeTab.value),
+  tickets.value.filter((ticket) => {
+    if (Array.isArray(ticket.status)) {
+      return ticket.status.includes(activeTab.value)
+    }
+    return ticket.status === activeTab.value
+  }),
 )
 
 // 控制下拉菜单的显示与隐藏
@@ -745,7 +801,7 @@ async function downloadTicketAsImage(ticketId) {
   color: #42b983;
   background: none;
   border: none;
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   cursor: pointer;
 }
 
@@ -835,5 +891,10 @@ async function downloadTicketAsImage(ticketId) {
 .dropdown-fade-enter-to,
 .dropdown-fade-leave-from {
   opacity: 1;
+}
+
+/* 历史订单 */
+.go-to-perform-detail {
+  position: relative;
 }
 </style>

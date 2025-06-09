@@ -24,8 +24,8 @@
 
     <!-- 右侧账号、设置、购物车 -->
     <div class="navbar-right">
-      <button class="icon-btn" title="购物车">
-        <i class="fas fa-shopping-cart"></i>
+      <button class="icon-btn" title="收藏夹">
+        <i class="fa-solid fa-star"></i>
       </button>
       <div class="dropdown-wrapper" ref="menuRef">
         <button class="icon-btn" @click="toggleMenu">
