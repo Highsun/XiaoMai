@@ -1,7 +1,9 @@
+# backend/models.py
+
 from datetime import datetime
 from .extensions import db
 
-# ============ 用户模型（示例，仅做参考） ============
+# ============ 用户模型 ============
 class User(db.Model):
     __tablename__ = 'users'
 
@@ -21,9 +23,9 @@ class User(db.Model):
 
     def to_dict(self):
         return {
-            'id': self.id,
-            'username': self.username,
-            'email': self.email,
+            'id':         self.id,
+            'username':   self.username,
+            'email':      self.email,
             'created_at': self.created_at.strftime('%Y-%m-%d %H:%M:%S')
         }
 
@@ -31,53 +33,77 @@ class User(db.Model):
         return f"<User {self.username}>"
 
 
+# ============ 艺术家 (Artist) 模型 ============
+class Artist(db.Model):
+    __tablename__ = 'artists'
+
+    id         = db.Column(db.Integer, primary_key=True)
+    name       = db.Column(db.String(128), nullable=False)
+    image_path = db.Column(db.String(256), nullable=False)   # 相对 uploads/ 的子路径
+    link       = db.Column(db.String(256), nullable=True)    # 艺术家个人链接
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(
+        db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
+    )
+
+    # 反向关系：一个 Artist 可拥有多场演出
+    shows = db.relationship('Show', back_populates='artist', lazy='dynamic')
+
+    def to_dict(self):
+        return {
+            'id':        self.id,
+            'name':      self.name,
+            'image_url': f"/uploads/{self.image_path}",
+            'link':      self.link
+        }
+
+    def __repr__(self):
+        return f"<Artist {self.name}>"
+
+
 # ============ 演出 (Show) 模型 ============
 class Show(db.Model):
     __tablename__ = 'shows'
 
-    id = db.Column(db.Integer, primary_key=True)
+    id         = db.Column(db.Integer, primary_key=True)
+    title      = db.Column(db.String(128), nullable=False)    # 演出名称
+    start_date = db.Column(db.Date, nullable=False)           # 开始日期
+    end_date   = db.Column(db.Date, nullable=True)            # 结束日期（可选）
+    location   = db.Column(db.String(256), nullable=False)    # 场馆/城市信息
+    price      = db.Column(db.String(64), nullable=False)     # 价格描述
+    status     = db.Column(db.String(32), nullable=False)     # hot / upcoming
+    image_path = db.Column(db.String(256), nullable=False)    # 封面相对路径
 
-    # 演出标题 / 演唱会名称
-    title = db.Column(db.String(128), nullable=False)
+    # —— 库存字段：默认 0，可动态更新 ——
+    inventory  = db.Column(
+        db.Integer,
+        nullable=False,
+        default=0,
+        server_default='0',
+        comment="剩余可售票数"
+    )
 
-    # 演出（开始）日期，例如 "2025-06-15"
-    start_date = db.Column(db.Date, nullable=False)
-
-    # 演出结束日期，可选
-    end_date = db.Column(db.Date, nullable=True)
-
-    # 场馆或城市信息，例如 "北京市·国家体育场-鸟巢"
-    location = db.Column(db.String(256), nullable=False)
-
-    # 价格信息，建议直接使用字符串，例如 "380元起"
-    price = db.Column(db.String(64), nullable=False)
-
-    # 演出状态：用于区分“热卖中（hot）”和“即将推出（upcoming）”
-    status = db.Column(db.String(32), nullable=False)
-
-    # 图像路径：相对于 uploads/ 根目录的子路径，例如 "concerts/DT.JPG"
-    image_path = db.Column(db.String(256), nullable=False)
+    # 外键关联 Artist
+    artist_id  = db.Column(db.Integer, db.ForeignKey('artists.id'), nullable=False)
+    artist     = db.relationship('Artist', back_populates='shows')
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(
-        db.DateTime,
-        default=datetime.utcnow,
-        onupdate=datetime.utcnow
+        db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
     )
 
     def to_dict(self):
-        """
-        序列化时，将 image_path 拼成 "/uploads/..." 相对 URL，前端只管加上域名即可。
-        """
         return {
-            'id': self.id,
-            'title': self.title,
-            'start_date': self.start_date.strftime('%Y-%m-%d'),
-            'end_date': self.end_date.strftime('%Y-%m-%d') if self.end_date else None,
-            'location': self.location,
-            'price': self.price,
-            'status': self.status,
-            'image_url': f"/uploads/{self.image_path}"
+            'id':          self.id,
+            'title':       self.title,
+            'start_date':  self.start_date.strftime('%Y-%m-%d'),
+            'end_date':    self.end_date.strftime('%Y-%m-%d') if self.end_date else None,
+            'location':    self.location,
+            'price':       self.price,
+            'status':      self.status,
+            'image_url':   f"/uploads/{self.image_path}",
+            'artist_id':   self.artist_id,
+            'inventory':   self.inventory
         }
 
     def __repr__(self):
@@ -86,35 +112,46 @@ class Show(db.Model):
         return f"<Show {self.title} ({self.start_date})>"
 
 
-# ============ 艺术家 (Artist) 模型 ============
-class Artist(db.Model):
-    __tablename__ = 'artists'
+# ============ 订单 (Order) 模型 ============
+class Order(db.Model):
+    __tablename__ = 'orders'
 
-    id = db.Column(db.Integer, primary_key=True)
-
-    # 艺术家名称
-    name = db.Column(db.String(128), nullable=False)
-
-    # 图像路径：相对于 uploads/ 根目录的子路径，例如 "artists/Jay.png"
-    image_path = db.Column(db.String(256), nullable=False)
-
-    # 艺术家个人链接，可选，例如个人官网、社交媒体主页等
-    link = db.Column(db.String(256), nullable=True)
-
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(
-        db.DateTime,
-        default=datetime.utcnow,
-        onupdate=datetime.utcnow
+    id          = db.Column(db.Integer, primary_key=True)
+    user_id     = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    total_price = db.Column(db.Numeric(10, 2), nullable=False)
+    status      = db.Column(db.String(32), default='pending', nullable=False)
+    created_at  = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at  = db.Column(
+        db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
     )
 
-    def to_dict(self):
-        return {
-            'id': self.id,
-            'name': self.name,
-            'image_url': f"/uploads/{self.image_path}",
-            'link': self.link
-        }
+    # 关联用户和订单条目
+    user        = db.relationship('User', backref=db.backref('orders', lazy='dynamic'))
+    items       = db.relationship(
+        'OrderItem',
+        back_populates='order',
+        cascade='all, delete-orphan',
+        lazy='joined'
+    )
 
     def __repr__(self):
-        return f"<Artist {self.name}>"
+        return f"<Order id={self.id} user={self.user_id} total={self.total_price}>"
+
+
+# ============ 订单条目 (OrderItem) 模型 ============
+class OrderItem(db.Model):
+    __tablename__ = 'order_items'
+
+    id         = db.Column(db.Integer, primary_key=True)
+    order_id   = db.Column(db.Integer, db.ForeignKey('orders.id'), nullable=False)
+    show_id    = db.Column(db.Integer, db.ForeignKey('shows.id'), nullable=False)
+    quantity   = db.Column(db.Integer, nullable=False)
+    unit_price = db.Column(db.Numeric(10, 2), nullable=False)  # 下单时单价
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    # 关联 Order 和 Show
+    order      = db.relationship('Order', back_populates='items')
+    show       = db.relationship('Show')
+
+    def __repr__(self):
+        return f"<OrderItem order={self.order_id} show={self.show_id} qty={self.quantity}>"
