@@ -16,9 +16,7 @@
 
   <!-- FIXME: Test -->
   <router-link to="/buy-tickets" class="btn-link">
-    <button class="btn-test" style="background: transparent; color: black">
-      测试跳转到购票页
-    </button>
+    <button class="btn-test" style="background: transparent; color: black">测试跳转到购票页</button>
   </router-link>
 
   <Footer />

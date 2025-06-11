@@ -41,7 +41,7 @@
           </div>
         </transition>
       </div>
-      <button class="icon-btn" title="设置">
+      <button class="icon-btn" title="设置" @click="goToSettings">
         <i class="fas fa-cog"></i>
       </button>
     </div>
@@ -88,6 +88,11 @@ function goToLogin() {
 // 跳转个人中心
 function goToDashBoard() {
   router.push('/dashboard')
+}
+
+// 跳转设置
+function goToSettings() {
+  router.push({ name: 'Dashboard', query: { view: 'settings' } })
 }
 </script>
 

@@ -31,7 +31,7 @@
             <ul>
               <li><a href="#">关于小麦</a></li>
               <li><a href="#">隐私政策</a></li>
-              <li><a href="#">帮助中心</a></li>
+              <li><a href="javascript:void(0)" @click="goToHelp">帮助中心</a></li>
             </ul>
             <ul>
               <li><a href="#">在线客服</a></li>
@@ -45,7 +45,11 @@
         <div class="footer-section">
           <h3>关注我们</h3>
           <div class="footer-social">
-            <a href="#" class="social-icon fab fa-github"></a>
+            <a
+              href="https://github.com/Highsun/XiaoMai"
+              class="social-icon fab fa-github"
+              target="_blank"
+            ></a>
             <a href="#" class="social-icon fab fa-weibo"></a>
             <a href="#" class="social-icon fab fa-tiktok"></a>
           </div>
@@ -58,3 +62,13 @@
     </div>
   </footer>
 </template>
+
+<script setup>
+import { useRouter } from 'vue-router'
+const router = useRouter()
+
+// 跳转到帮助中心
+function goToHelp() {
+  router.push({ name: 'Dashboard', query: { view: 'help' } })
+}
+</script>
