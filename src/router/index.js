@@ -32,6 +32,11 @@ const routes = [
     name: 'Dashboard',
     component: DashBoardView,
   },
+  {
+  path: '/category',
+  name: 'Category',
+  component: () => import('@/views/CategoryView.vue')
+  }
 ]
 
 const router = createRouter({

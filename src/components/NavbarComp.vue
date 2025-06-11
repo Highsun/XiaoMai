@@ -9,7 +9,7 @@
       </div>
       <ul class="nav-links">
         <li><a href="#" @click.prevent="goHome">首页</a></li>
-        <li><a href="#">分类</a></li>
+        <li><a href="#" @click.prevent="goToCategory">分类</a></li>
       </ul>
     </div>
 
@@ -79,6 +79,11 @@ onMounted(() => {
 onBeforeUnmount(() => {
   window.removeEventListener('click', handleClickOutside)
 })
+
+// 跳转分类页面
+function goToCategory() {
+  router.push('/category')
+}
 
 // 跳转登陆
 function goToLogin() {
