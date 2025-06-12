@@ -100,6 +100,8 @@
 
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
+const router = useRouter()
 
 // 全局数据
 const title = 'JJ林俊杰 JJ20 FINAL LAP 世界巡回演唱会'
@@ -219,7 +221,18 @@ function restartCountdown() {
 
 function handleBuy() {
   if (!canBuy.value) return
-  alert('当前排队人数较多，请重试！')
+  router.push({
+    name: 'Pay',
+    query: {
+      ticketName: title,
+      city: selectedCity.value,
+      session: selectedSession.value,
+      price: selectedTier.value.price,
+      label: selectedTier.value.label,
+      quantity: quantity.value,
+      total: totalPrice.value
+    }
+  })
 }
 
 onMounted(() => {

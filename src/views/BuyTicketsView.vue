@@ -16,7 +16,12 @@ import FormSection from '../components/buy_tickets_comps/FormSection.vue'
 import InfoSection from '../components/buy_tickets_comps/InfoSection.vue'
 import ConcertInfo from '../components/ConcertInfoComp.vue'
 import Footer from '../components/FooterComp.vue'
+import { onMounted } from 'vue'
+onMounted(() => {
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+})
 </script>
+
 
 <style scoped>
 .ticket-container {
