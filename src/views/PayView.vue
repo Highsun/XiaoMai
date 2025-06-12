@@ -2,38 +2,39 @@
   <div class="pay-container">
     <div class="pay-card">
       <div class="pay-header">
-        <span>请在 <span class="countdown">{{ countdownText }}</span> 内完成支付，否则订单将取消</span>
+        <span
+          >请在 <span class="countdown">{{ countdownText }}</span> 内完成支付，否则订单将取消</span
+        >
       </div>
       <div class="pay-order-info">
         <div>票务：{{ orderInfo.ticketName }}</div>
         <div>订单号：{{ orderInfo.orderId }}</div>
-        <div>支付金额：<span class="pay-amount">￥{{ orderInfo.amount }}</span></div>
+        <div>
+          支付金额：<span class="pay-amount">￥{{ orderInfo.amount }}</span>
+        </div>
       </div>
       <div class="pay-method-title">选择支付平台</div>
       <div class="pay-methods">
         <div
-          :class="['pay-method', {active: payMethod==='alipay'}]"
+          :class="['pay-method', { active: payMethod === 'alipay' }]"
           @click="payMethod = 'alipay'"
         >
-          <img src="@/assets/alipay.png" alt="支付宝" />
+          <img src="@/assets/images/pay/alipay.png" alt="支付宝" />
           <span>支付宝</span>
         </div>
         <div
-          :class="['pay-method', {active: payMethod==='wechat'}]"
+          :class="['pay-method', { active: payMethod === 'wechat' }]"
           @click="payMethod = 'wechat'"
         >
-          <img src="@/assets/wechat.png" alt="微信" />
+          <img src="@/assets/images/pay/wechat.png" alt="微信" />
           <span>微信</span>
         </div>
       </div>
-      <button class="pay-btn" :disabled="countdown === 0" @click="handlePay">
-        下一步
-      </button>
-      <button class="pay-back-btn" @click="router.push('/')">返回首页</button>
-
-      <div v-if="countdown === 0" class="pay-expired-tip">
-        订单已超时，请返回重新下单。
+      <div class="pay-options">
+        <button class="pay-back-btn" @click="router.push('/')">返回首页</button>
+        <button class="pay-btn" :disabled="countdown === 0" @click="handlePay">下一步</button>
       </div>
+      <div v-if="countdown === 0" class="pay-expired-tip">订单已超时，请返回重新下单。</div>
     </div>
   </div>
 </template>
@@ -53,11 +54,11 @@ const orderInfo = ref({
   label: route.query.label || '',
   quantity: route.query.quantity || 1,
   amount: route.query.total || 0,
-  orderId: Date.now().toString()
+  orderId: Date.now().toString(),
 })
 
 const payMethod = ref('alipay')
-const countdown = ref(0 * 60 + 55)
+const countdown = ref(5 * 60 + 0)
 
 // 倒计时
 const countdownText = computed(() => {
@@ -107,7 +108,7 @@ function handlePay() {
 .pay-card {
   background: #fff;
   border-radius: 18px;
-  box-shadow: 0 2px 16px rgba(80,180,120,0.11);
+  box-shadow: 0 2px 16px rgba(80, 180, 120, 0.11);
   width: 500px;
   max-width: 96vw;
   padding: 34px 36px 32px 36px;
@@ -147,8 +148,7 @@ function handlePay() {
 .pay-methods {
   display: flex;
   gap: 30px;
-  margin-top: 10px;
-  margin-bottom: 12px;
+  margin-top: 4px;
 }
 .pay-method {
   display: flex;
@@ -157,7 +157,7 @@ function handlePay() {
   gap: 8px;
   padding: 14px 28px 10px 28px;
   background: #f3f5f7;
-  border-radius: 16px;
+  border-radius: 12px;
   cursor: pointer;
   border: 2px solid transparent;
   transition: border 0.15s;
@@ -166,17 +166,26 @@ function handlePay() {
   width: 80px;
   height: 36px;
 }
+.pay-method span {
+  font-size: 14px;
+}
 .pay-method.active {
   border: 2px solid #37ba77;
   background: #eafcf3;
 }
+.pay-options {
+  display: flex;
+  gap: 16px;
+  margin-top: 10px;
+}
+
 .pay-btn {
-  margin-top: 22px;
+  flex: 1;
   background: #37ba77;
   color: #fff;
-  border-radius: 13px;
+  border-radius: 8px;
   border: none;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 500;
   padding: 10px 0;
   transition: background 0.15s;
@@ -194,17 +203,19 @@ function handlePay() {
   font-weight: 600;
 }
 .pay-back-btn {
-  margin-top: 0;
+  flex: 1;
   background: #f3f5f7;
   color: #37ba77;
-  border-radius: 13px;
+  border-radius: 8px;
   border: none;
   font-size: 16px;
   font-weight: 500;
   padding: 9px 0;
   cursor: pointer;
   width: 100%;
-  transition: background 0.15s, color 0.15s;
+  transition:
+    background 0.15s,
+    color 0.15s;
 }
 .pay-back-btn:hover {
   background: #eafcf3;

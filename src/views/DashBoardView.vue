@@ -168,7 +168,8 @@
             <div v-else-if="view === 'help'">
               <h2>亲爱的 {{ username }}，</h2>
               <h4 style="grid-column: 1 / -1; margin: 32px 0 16px 0">我们可以如何帮助您？</h4>
-              <!-- TODO: 在线客服、用户反馈 -->
+              <FastQA />
+              <CustomerService />
             </div>
           </div>
         </Transition>
@@ -370,6 +371,8 @@ import ChangePassword from '../components/account_settings_comps/ChangePassword.
 import DeleteAccount from '../components/account_settings_comps/DeleteAccount.vue'
 
 // 帮助中心
+import FastQA from '@/components/help_center_comps/FastQ&A.vue'
+import CustomerService from '@/components/help_center_comps/CustomerService.vue'
 </script>
 
 <style scoped>

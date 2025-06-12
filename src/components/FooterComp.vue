@@ -34,7 +34,7 @@
               <li><a href="javascript:void(0)" @click="goToHelp">帮助中心</a></li>
             </ul>
             <ul>
-              <li><a href="#">在线客服</a></li>
+              <li><a href="javascript:void(0)" @click="goToHelp">在线客服</a></li>
               <li><a href="#">联系合作</a></li>
               <li><a href="#">人才招聘</a></li>
             </ul>
