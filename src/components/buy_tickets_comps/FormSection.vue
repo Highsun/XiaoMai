@@ -5,7 +5,8 @@
     <div class="venue-row">
       <span class="venue-text">{{ currentCityData.venue }}</span>
       <button class="map-btn" @click="toggleMap">
-        <i class="fas fa-map-marker-alt"></i><span style="font-size: 1rem"> 在地图上查看</span>
+        <i class="fas fa-map-marker-alt"></i>
+        <span> 在地图上查看</span>
       </button>
     </div>
     <transition name="map-fade">
@@ -25,7 +26,6 @@
     </div>
 
     <div class="options">
-      <!-- 城市 -->
       <div class="option-group">
         <label>城市</label>
         <div class="radio-list">
@@ -41,7 +41,6 @@
         </div>
       </div>
 
-      <!-- 场次 -->
       <div class="option-group">
         <label>场次</label>
         <div class="radio-list">
@@ -57,7 +56,6 @@
         </div>
       </div>
 
-      <!-- 票档 -->
       <div class="option-group">
         <label>票档</label>
         <div class="radio-list">
@@ -66,7 +64,9 @@
             :key="tier.label + tier.price"
             class="radio-button"
             :class="{
-              active: selectedTier.label === tier.label && selectedTier.price === tier.price,
+              active:
+                selectedTier.label === tier.label &&
+                selectedTier.price === tier.price
             }"
           >
             <input type="radio" v-model="selectedTier" :value="tier" />
@@ -75,7 +75,6 @@
         </div>
       </div>
 
-      <!-- 数量 -->
       <div class="option-group">
         <label>数量</label>
         <div class="quantity">
@@ -93,7 +92,14 @@
 
     <div class="purchase-row">
       <p class="countdown-text">距开抢还有：{{ countdownText }}</p>
-      <button class="buy-button" :disabled="!canBuy" @click="handleBuy">立即购买</button>
+      <div class="button-group">
+        <button class="favorite-btn" @click="addToFavorites">
+          加入收藏夹
+        </button>
+        <button class="buy-button" :disabled="!canBuy" @click="handleBuy">
+          立即购买
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -103,13 +109,11 @@ import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 const router = useRouter()
 
-// 全局数据
 const title = 'JJ林俊杰 JJ20 FINAL LAP 世界巡回演唱会'
 const presaleNote = '⚠️ 本商品为预售，正式开票后将第一时间配票'
 const presaleText =
   '预售期间，由于主办未正式开票，下单后无法立即为您配票。一般于演出前1-2周开票，待正式开票后，请您通过订单详情页或者票夹详情，查看票品信息、取票方式等演出相关信息。'
 
-// 城市数据 TODO: 接入数据库
 const cityData = {
   北京: {
     date: '2025.06.28-07.13',
@@ -125,7 +129,7 @@ const cityData = {
       '07.06 19:00',
       '07.11 19:00',
       '07.12 19:00',
-      '07.13 19:00',
+      '07.13 19:00'
     ],
     priceTiers: [
       { label: '看台', price: 380 },
@@ -133,10 +137,10 @@ const cityData = {
       { label: '看台', price: 980 },
       { label: '内场', price: 1380 },
       { label: '内场', price: 1580 },
-      { label: '内场', price: 1880 },
-    ],
+      { label: '内场', price: 1880 }
+    ]
   },
-  韩国仁川: {
+  '韩国仁川': {
     date: '2025.06.14-06.15',
     venue: '韩国仁川·INSPIRE ARENA 迎仕柏综艺馆',
     mapUrl: '',
@@ -147,26 +151,23 @@ const cityData = {
       { label: '坐席', price: 990 },
       { label: '坐席', price: 1390 },
       { label: '坐席', price: 1690 },
-      { label: '坐席', price: 2290 },
-    ],
-  },
+      { label: '坐席', price: 2290 }
+    ]
+  }
 }
 
 const cities = Object.keys(cityData)
 const selectedCity = ref(cities[0])
-
 const currentCityData = computed(() => cityData[selectedCity.value])
 const selectedSession = ref(currentCityData.value.sessions[0])
 const selectedTier = ref(currentCityData.value.priceTiers[0])
 
-// 切换城市时更新默认选项
 watch(selectedCity, (newCity) => {
   selectedSession.value = cityData[newCity].sessions[0]
   selectedTier.value = cityData[newCity].priceTiers[0]
   restartCountdown()
 })
 
-// 数量与票价
 const quantity = ref(1)
 const maxQuantity = 4
 function increaseQty() {
@@ -177,13 +178,11 @@ function decreaseQty() {
 }
 const totalPrice = computed(() => selectedTier.value.price * quantity.value)
 
-// 地图弹窗
 const showMap = ref(false)
 function toggleMap() {
   showMap.value = !showMap.value
 }
 
-// 倒计时逻辑
 const countdownText = ref('')
 const canBuy = ref(false)
 let timer = null
@@ -209,7 +208,9 @@ function updateCountdown() {
   const hours = Math.floor((totalSeconds % 86400) / 3600)
   const minutes = Math.floor((totalSeconds % 3600) / 60)
   const seconds = totalSeconds % 60
-  countdownText.value = `${pad(days)}天 ${pad(hours)}:${pad(minutes)}:${pad(seconds)}`
+  countdownText.value = `${pad(days)}天 ${pad(hours)}:${pad(
+    minutes
+  )}:${pad(seconds)}`
   canBuy.value = false
 }
 
@@ -235,11 +236,79 @@ function handleBuy() {
   })
 }
 
+function addToFavorites() {
+  console.log('加入收藏：', {
+    ticket: title,
+    city: selectedCity.value,
+    session: selectedSession.value,
+    tier: selectedTier.value,
+    quantity: quantity.value
+  })
+}
+
 onMounted(() => {
   restartCountdown()
 })
-
 onUnmounted(() => {
   if (timer) clearInterval(timer)
 })
 </script>
+
+<style scoped>
+.purchase-row {
+  display: flex;
+  align-items: center;
+  margin-top: 24px;
+}
+
+.countdown-text {
+  font-size: 0.95rem;
+  color: #555;
+}
+
+.button-group {
+  margin-left: auto;
+  display: flex;
+  gap: 8px;
+}
+
+.favorite-btn,
+.buy-button {
+  width: 140px;
+  height: 40px;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+
+  /* 新增：Flex 居中内容 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.favorite-btn {
+  background: #fff;
+  color: #26ad62;
+  border: 1px solid #26ad62;
+}
+.favorite-btn:hover {
+  background: #f4fcef;
+  transform: translateY(-1px);
+}
+
+.buy-button {
+  background: #26ad62;
+  color: #fff;
+  border: none;
+}
+.buy-button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+.buy-button:not(:disabled):hover {
+  background: #1f9855;
+  transform: translateY(-1px);
+}
+
+</style>

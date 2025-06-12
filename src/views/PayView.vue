@@ -58,7 +58,7 @@ const orderInfo = ref({
 })
 
 const payMethod = ref('alipay')
-const countdown = ref(5 * 60 + 0)
+const countdown = ref(10 * 60 + 0)
 
 // 倒计时
 const countdownText = computed(() => {
