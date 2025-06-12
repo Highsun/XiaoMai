@@ -24,9 +24,10 @@
 
     <!-- 右侧账号、设置、购物车 -->
     <div class="navbar-right">
-      <button class="icon-btn" title="收藏夹">
+      <button class="icon-btn" title="收藏夹" @click="goToFavorites">
         <i class="fa-solid fa-star"></i>
       </button>
+
       <div class="dropdown-wrapper" ref="menuRef">
         <button class="icon-btn" @click="toggleMenu">
           <i class="fas fa-user-circle"></i>
@@ -83,6 +84,11 @@ onBeforeUnmount(() => {
 // 跳转分类页面
 function goToCategory() {
   router.push('/category')
+}
+
+// 跳转收藏夹
+function goToFavorites() {
+  router.push('/favorites')
 }
 
 // 跳转登陆

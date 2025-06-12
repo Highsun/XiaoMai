@@ -5,6 +5,7 @@ import RegisterView from '../views/RegisterView.vue'
 import BuyTicketsView from '../views/BuyTicketsView.vue' // FIXME: Test
 import DashBoardView from '../views/DashBoardView.vue'
 import PayView from '../views/PayView.vue'
+import FavoritesView from '../views/FavoritesView.vue'
 
 const routes = [
   {
@@ -42,6 +43,11 @@ const routes = [
     path: '/pay',
     name: 'Pay',
     component: PayView,
+  },
+  {
+    path: '/favorites',
+    name: 'Favorites',
+    component: FavoritesView,
   }
 ]
 
