@@ -4,6 +4,7 @@ import LoginView from '../views/LoginView.vue'
 import RegisterView from '../views/RegisterView.vue'
 import BuyTicketsView from '../views/BuyTicketsView.vue' // FIXME: Test
 import DashBoardView from '../views/DashBoardView.vue'
+import PayView from '../views/PayView.vue'
 
 const routes = [
   {
@@ -36,12 +37,21 @@ const routes = [
   path: '/category',
   name: 'Category',
   component: () => import('@/views/CategoryView.vue')
+  },
+  {
+    path: '/pay',
+    name: 'Pay',
+    component: PayView,
   }
 ]
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes,
+  scrollBehavior(to, from, savedPosition) {
+    return { top: 0 }
+  }
 })
+
 
 export default router
