@@ -6,10 +6,22 @@ import axios from 'axios'
 // 将所有 axios 请求都指向后端 API
 axios.defaults.baseURL = 'http://localhost:8888'
 
+// 添加请求拦截器：自动读取本地存储的 token 并附加到每个请求头
+axios.interceptors.request.use(
+  config => {
+    const token = localStorage.getItem('access_token')
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`
+    }
+    return config
+  },
+  error => Promise.reject(error)
+)
+
 // fontawesome 图标库
 import '@fortawesome/fontawesome-free/css/all.min.css'
 
-// CSS 样式表
+// 全局 CSS 样式
 import './assets/styles/base.css'
 import './assets/styles/fonts.css'
 import './assets/styles/auth.css'

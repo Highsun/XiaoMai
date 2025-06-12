@@ -1,10 +1,12 @@
-# backend/routes/auth.py
 from flask import Blueprint, request, jsonify
 from sqlalchemy import or_
 from ..extensions import db
 from ..models import User
 from flask_jwt_extended import create_access_token
 from flask import current_app
+from flask import Blueprint, jsonify
+from flask_jwt_extended import jwt_required, get_jwt_identity
+from ..models import User
 
 
 auth_bp = Blueprint('auth', __name__)
@@ -64,3 +66,18 @@ def login():
     # 4. 生成并返回 JWT
     token = create_access_token(identity=user.id)
     return jsonify(access_token=token), 200
+
+
+@auth_bp.route('/userinfo', methods=['GET'])
+@jwt_required()
+def userinfo():
+    # 从 JWT token 中提取身份（这里是 user.id）
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify(msg='用户不存在'), 404
+
+    return jsonify({
+        "username": user.username,
+        # 你还可以返回 email、avatar_url 等
+    }), 200
