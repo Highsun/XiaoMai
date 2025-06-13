@@ -3,7 +3,6 @@
     <!-- 左侧 Logo + 一级导航 -->
     <div class="navbar-left">
       <div class="logo-title" @click="goHome" style="cursor: pointer">
-        <!-- TODO: 添加小麦LOGO -->
         <img src="../assets/logo.png" alt="logo" class="logo-img" />
         <span class="logo-text">小麦</span>
       </div>
@@ -17,8 +16,14 @@
     <div class="navbar-center">
       <div class="search-box">
         <i class="fas fa-search search-icon"></i>
-        <input type="text" placeholder="搜索演出/艺人" class="search-input" />
-        <button class="search-button">搜 索</button>
+        <input
+          type="text"
+          v-model="searchInput"
+          @keyup.enter="doSearch"
+          placeholder="搜索演出/艺人"
+          class="search-input"
+        />
+        <button class="search-button" @click="doSearch">搜 索</button>
       </div>
     </div>
 
@@ -50,16 +55,13 @@
 </template>
 
 <script setup>
-import { useRouter } from 'vue-router'
+import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+
 const router = useRouter()
+const route = useRoute()
 
-// LOGO跳转主页
-function goHome() {
-  router.push('/')
-}
-
-// 账号下拉菜单
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+// 账号菜单控制
 const menuOpen = ref(false)
 const menuRef = ref(null)
 
@@ -81,29 +83,60 @@ onBeforeUnmount(() => {
   window.removeEventListener('click', handleClickOutside)
 })
 
-// 跳转分类页面
+// 跳转函数
+function goHome() {
+  router.push('/')
+}
+
 function goToCategory() {
   router.push('/category')
 }
 
-// 跳转收藏夹
 function goToFavorites() {
   router.push('/favorites')
 }
 
-// 跳转登陆
 function goToLogin() {
   router.push('/login')
 }
 
-// 跳转个人中心
 function goToDashBoard() {
   router.push('/dashboard')
 }
 
-// 跳转设置
 function goToSettings() {
   router.push({ name: 'Dashboard', query: { view: 'settings' } })
+}
+
+// 搜索输入框状态，与路由 q 参数同步
+const searchInput = ref(route.query.q?.toString() || '')
+
+// 监听路由 q 变化，保持输入框同步（浏览器前进后退）
+watch(
+  () => route.query.q,
+  (newQ) => {
+    const val = newQ?.toString() || ''
+    if (val !== searchInput.value) {
+      searchInput.value = val
+    }
+  },
+)
+
+// 监听输入框变化，如果清空且路由有 q，自动删除 q，恢复无查询参数分类页
+watch(searchInput, (newVal) => {
+  if (newVal.trim() === '' && route.query.q) {
+    const newQuery = { ...route.query }
+    delete newQuery.q
+    router.replace({ path: '/category', query: newQuery })
+  }
+})
+
+// 执行搜索：输入框有内容时跳转带 q 参数路由
+function doSearch() {
+  const val = searchInput.value.trim()
+  if (val) {
+    router.push({ path: '/category', query: { q: val } })
+  }
 }
 </script>
 

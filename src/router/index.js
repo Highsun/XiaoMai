@@ -35,9 +35,9 @@ const routes = [
     component: DashBoardView,
   },
   {
-  path: '/category',
-  name: 'Category',
-  component: () => import('@/views/CategoryView.vue')
+    path: '/category',
+    name: 'Category',
+    component: () => import('@/views/CategoryView.vue'),
   },
   {
     path: '/pay',
@@ -48,7 +48,7 @@ const routes = [
     path: '/favorites',
     name: 'Favorites',
     component: FavoritesView,
-  }
+  },
 ]
 
 const router = createRouter({
@@ -56,8 +56,7 @@ const router = createRouter({
   routes,
   scrollBehavior(to, from, savedPosition) {
     return { top: 0 }
-  }
+  },
 })
-
 
 export default router
