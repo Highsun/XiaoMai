@@ -1,74 +1,108 @@
+from datetime import datetime
 from flask import Blueprint, request, jsonify
-from flask_login import login_required, current_user
-from app import db
-from app.models import Watcher
+from flask_jwt_extended import jwt_required, get_jwt_identity
+from ..extensions import db
+from ..models import Watcher, User
 
-bp = Blueprint('user', __name__)
+user_bp = Blueprint('user', __name__)
 
-@bp.route('/api/user/profile', methods=['GET'])
-@login_required
+
+@user_bp.route('/profile', methods=['GET'])
+@jwt_required()
 def get_profile():
-    return jsonify(code=0, data=current_user.to_dict())
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify(msg='用户不存在'), 404
 
-@bp.route('/api/user/profile', methods=['PUT'])
-@login_required
+    return jsonify({
+        "realname": user.realname,
+        "gender":   user.gender,
+        "birthday": user.birthday.strftime('%Y-%m-%d') if user.birthday else "",
+        "phone":    user.phone,
+        "province": user.province,
+        "city":     user.city,
+        "district": user.district,
+        "address":  user.address
+    }), 200
+
+
+@user_bp.route('/profile', methods=['PUT'])
+@jwt_required()
 def update_profile():
-    data = request.get_json()
-    for field in ['realname','gender','birthday','phone','province','city','district','address']:
-        if field in data:
-            setattr(current_user, field, data[field])
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify(msg='用户不存在'), 404
+
+    data = request.get_json() or {}
+    user.realname = data.get('realname', "")
+    user.gender   = data.get('gender', "保密")
+
+    bday = data.get('birthday', "")
+    try:
+        user.birthday = (
+            datetime.strptime(bday, "%Y-%m-%d").date() if bday else user.birthday
+        )
+    except:
+        user.birthday = datetime(1970, 1, 1).date()
+
+    user.phone    = data.get('phone', "")
+    user.province = data.get('province', "")
+    user.city     = data.get('city', "")
+    user.district = data.get('district', "")
+    user.address  = data.get('address', "")
+
     db.session.commit()
-    return jsonify(code=0, message='更新成功')
+    return jsonify(msg='保存成功'), 200
 
-@bp.route('/api/user/watchers', methods=['GET'])
-@login_required
+
+@user_bp.route('/watchers', methods=['GET'])
+@jwt_required()
 def get_watchers():
-    data = [w.to_dict() for w in current_user.watchers]
-    return jsonify(code=0, data=data)
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+    data = [w.to_dict() for w in user.watchers]
+    return jsonify(code=0, data=data), 200
 
-@bp.route('/api/user/watchers', methods=['POST'])
-@login_required
+
+@user_bp.route('/watchers', methods=['POST'])
+@jwt_required()
 def add_watcher():
-    if current_user.watchers.count() >= 10:
-        return jsonify(code=1, message='最多只能添加 10 位观演人'), 400
-    json = request.get_json()
+    user_id = get_jwt_identity()
+    if User.query.get(user_id).watchers.count() >= 10:
+        return jsonify(msg='最多只能添加 10 位观演人'), 400
+
+    json = request.get_json() or {}
     w = Watcher(
-        user_id   = current_user.id,
+        user_id   = user_id,
         realname  = json.get('realname','').strip(),
         id_number = json.get('id_number','').strip(),
         phone     = json.get('phone','').strip()
     )
     db.session.add(w)
     db.session.commit()
-    return jsonify(code=0, data=w.to_dict())
+    return jsonify(code=0, data=w.to_dict()), 201
 
-@bp.route('/api/user/watchers/<int:wid>', methods=['PUT'])
-@login_required
+
+@user_bp.route('/watchers/<int:wid>', methods=['PUT'])
+@jwt_required()
 def update_watcher(wid):
-    w = Watcher.query.filter_by(id=wid, user_id=current_user.id).first_or_404()
-    json = request.get_json()
+    user_id = get_jwt_identity()
+    w = Watcher.query.filter_by(id=wid, user_id=user_id).first_or_404()
+    json = request.get_json() or {}
     for field in ('realname','id_number','phone'):
         if field in json:
             setattr(w, field, json[field].strip())
     db.session.commit()
-    return jsonify(code=0, data=w.to_dict())
+    return jsonify(code=0, data=w.to_dict()), 200
 
-@bp.route('/api/user/watchers/<int:wid>', methods=['DELETE'])
-@login_required
+
+@user_bp.route('/watchers/<int:wid>', methods=['DELETE'])
+@jwt_required()
 def delete_watcher(wid):
-    w = Watcher.query.filter_by(id=wid, user_id=current_user.id).first_or_404()
+    user_id = get_jwt_identity()
+    w = Watcher.query.filter_by(id=wid, user_id=user_id).first_or_404()
     db.session.delete(w)
     db.session.commit()
-    return jsonify(code=0, message='删除成功')
-
-@bp.route('/api/user/password', methods=['PUT'])
-@login_required
-def change_password():
-    json = request.get_json()
-    old_pw = json.get('old_password','')
-    new_pw = json.get('new_password','')
-    if not current_user.check_password(old_pw):
-        return jsonify(code=1, message='旧密码不正确'), 400
-    current_user.set_password(new_pw)
-    db.session.commit()
-    return jsonify(code=0, message='密码修改成功')
+    return jsonify(code=0, msg='删除成功'), 200

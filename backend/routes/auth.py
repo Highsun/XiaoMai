@@ -1,17 +1,16 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, current_app
 from sqlalchemy import or_
+from datetime import datetime
 from ..extensions import db
 from ..models import User
-from flask_jwt_extended import create_access_token
-from flask import current_app
-from flask import Blueprint, jsonify
-from flask_jwt_extended import jwt_required, get_jwt_identity
-from ..models import User
-from datetime import datetime, date
-
-
+from flask_jwt_extended import (
+    create_access_token,
+    jwt_required,
+    get_jwt_identity,
+)
 
 auth_bp = Blueprint('auth', __name__)
+
 
 @auth_bp.route('/register', methods=['POST'])
 def register():
@@ -47,7 +46,6 @@ def register():
 def login():
     data = request.get_json(silent=True) or {}
     current_app.logger.info(f"💡 login payload → {data}")
-    print("💡 login payload →", data, flush=True)
 
     account  = data.get('account')
     password = data.get('password')
@@ -73,14 +71,15 @@ def login():
 @auth_bp.route('/userinfo', methods=['GET'])
 @jwt_required()
 def userinfo():
-    # 从 JWT token 中提取身份（这里是 user.id）
     user_id = get_jwt_identity()
     user = User.query.get(user_id)
     if not user:
         return jsonify(msg='用户不存在'), 404
 
     return jsonify({
+        "id":       user.id,
         "username": user.username,
+        "email":    user.email,
     }), 200
 
 
@@ -91,19 +90,20 @@ def get_profile():
     user = User.query.get(user_id)
     if not user:
         return jsonify(msg='用户不存在'), 404
+
     return jsonify({
         "realname": user.realname,
-        "gender": user.gender,
+        "gender":   user.gender,
         "birthday": user.birthday.strftime('%Y-%m-%d') if user.birthday else "",
-        "phone": user.phone,
+        "phone":    user.phone,
         "province": user.province,
-        "city": user.city,
+        "city":     user.city,
         "district": user.district,
-        "address": user.address
+        "address":  user.address
     }), 200
 
 
-@auth_bp.route('/profile', methods=['POST'])
+@auth_bp.route('/profile', methods=['PUT'])
 @jwt_required()
 def update_profile():
     user_id = get_jwt_identity()
@@ -112,19 +112,20 @@ def update_profile():
         return jsonify(msg='用户不存在'), 404
 
     data = request.get_json() or {}
-    user.realname  = data.get('realname', "")
-    user.gender    = data.get('gender', "保密")
-    user.birthday  = data.get('birthday', "1970-01-01")
-    if user.birthday:
-        try:
-            user.birthday = datetime.strptime(user.birthday, "%Y-%m-%d").date()
-        except:
-            user.birthday = datetime(1970,1,1).date()
-    user.phone     = data.get('phone', "")
-    user.province  = data.get('province', "")
-    user.city      = data.get('city', "")
-    user.district  = data.get('district', "")
-    user.address   = data.get('address', "")
+    user.realname = data.get('realname', "")
+    user.gender   = data.get('gender', "保密")
+
+    bday = data.get('birthday', "")
+    try:
+        user.birthday = datetime.strptime(bday, "%Y-%m-%d").date() if bday else user.birthday
+    except ValueError:
+        user.birthday = datetime(1970, 1, 1).date()
+
+    user.phone    = data.get('phone', "")
+    user.province = data.get('province', "")
+    user.city     = data.get('city', "")
+    user.district = data.get('district', "")
+    user.address  = data.get('address', "")
 
     db.session.commit()
     return jsonify(msg='保存成功'), 200

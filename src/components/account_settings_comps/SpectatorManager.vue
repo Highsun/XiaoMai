@@ -5,30 +5,35 @@
       您最多可添加 10 位观演人，观演人信息将用于购票和入场验证。
     </p>
 
-    <div v-for="(spectator, index) in spectators" :key="index" class="spectator-row">
+    <!-- 列表 -->
+    <div
+      v-for="(spectator, index) in spectators"
+      :key="spectator.id || index"
+      class="spectator-row"
+    >
       <div class="spectator-field">
         <input
-          v-model="spectator.name"
+          v-model="spectator.realname"
           type="text"
           placeholder="姓名"
           class="spectator-input"
           :readonly="!spectator.editable"
         />
-        <div v-if="spectator.errors?.name" class="error-msg">
-          {{ spectator.errors.name }}
+        <div v-if="spectator.errors?.realname" class="error-msg">
+          {{ spectator.errors.realname }}
         </div>
       </div>
 
       <div class="spectator-field">
         <input
-          v-model="spectator.id"
+          v-model="spectator.id_number"
           type="text"
           placeholder="身份证号"
           class="spectator-input"
           :readonly="!spectator.editable"
         />
-        <div v-if="spectator.errors?.id" class="error-msg">
-          {{ spectator.errors.id }}
+        <div v-if="spectator.errors?.id_number" class="error-msg">
+          {{ spectator.errors.id_number }}
         </div>
       </div>
 
@@ -45,80 +50,134 @@
         </div>
       </div>
 
-      <button class="spectator-icon-btn" @click="removeSpectator(index)">
+      <button class="spectator-icon-btn" @click="onDelete(spectator, index)">
         <i class="fas fa-minus"></i> 删除
       </button>
-      <button class="spectator-icon-btn" @click="toggleEdit(index)">
+      <button class="spectator-icon-btn" @click="onToggleEdit(spectator, index)">
         <i class="fas" :class="spectator.editable ? 'fa-save' : 'fa-edit'"></i>
         {{ spectator.editable ? '保存' : '编辑' }}
       </button>
     </div>
 
     <div class="add-row" v-if="spectators.length < 10">
-      <button class="add-btn" @click="addSpectator"><i class="fas fa-plus"></i> 添加观演人</button>
+      <button class="add-btn" @click="onAdd">
+        <i class="fas fa-plus"></i> 添加观演人
+      </button>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import {
+  fetchWatchers,
+  createWatcher,
+  updateWatcher,
+  deleteWatcher,
+} from '@/services/watcher'
 
-const spectators = ref([{ name: '', id: '', phone: '', editable: true, errors: {} }])
+const spectators = ref([])
 
-function addSpectator() {
-  if (spectators.value.length < 10) {
+// 拉取已有观演人列表
+async function load() {
+  try {
+    const list = await fetchWatchers()
+    // 标记所有项为只读状态
+    spectators.value = list.map(w => ({
+      ...w,
+      editable: false,
+      errors: {},
+    }))
+  } catch (err) {
+    console.error('加载观演人失败', err)
+  }
+}
+onMounted(load)
+
+// 添加新观演人
+async function onAdd() {
+  if (spectators.value.length >= 10) return
+  // 先在后端创建空白记录
+  try {
+    const w = await createWatcher({ realname: '', id_number: '', phone: '' })
     spectators.value.push({
-      name: '',
-      id: '',
-      phone: '',
+      ...w,
       editable: true,
       errors: {},
     })
+  } catch (err) {
+    console.error('添加观演人失败', err)
   }
 }
 
-function removeSpectator(index) {
-  spectators.value.splice(index, 1)
-}
-
-function toggleEdit(index) {
-  const person = spectators.value[index]
-
-  if (person.editable) {
-    // 正在“保存” -> 校验
-    const errors = validateSpectator(person)
-    if (Object.keys(errors).length === 0) {
-      person.editable = false
+// 删除观演人
+async function onDelete(item, idx) {
+  if (item.id) {
+    try {
+      await deleteWatcher(item.id)
+    } catch (err) {
+      console.error('删除失败', err)
+      return
     }
-    person.errors = errors
+  }
+  spectators.value.splice(idx, 1)
+}
+
+// 切换 编辑/保存
+async function onToggleEdit(item, idx) {
+  // 切到保存：校验并调用更新
+  if (item.editable) {
+    const errors = validateSpectator(item)
+    if (Object.keys(errors).length) {
+      item.errors = errors
+      return
+    }
+    try {
+      // 如果已有 id，就更新；否则新建
+      if (item.id) {
+        const updated = await updateWatcher(item.id, {
+          realname: item.realname,
+          id_number: item.id_number,
+          phone: item.phone,
+        })
+        Object.assign(item, updated)
+      } else {
+        const created = await createWatcher({
+          realname: item.realname,
+          id_number: item.id_number,
+          phone: item.phone,
+        })
+        Object.assign(item, created)
+      }
+      item.errors = {}
+      item.editable = false
+    } catch (err) {
+      console.error('保存失败', err)
+    }
   } else {
-    // 切换到“编辑”
-    person.editable = true
-    person.errors = {}
+    // 切到编辑
+    item.editable = true
+    item.errors = {}
   }
 }
 
-function validateSpectator(spectator) {
+// 前端校验
+function validateSpectator(s) {
   const errors = {}
 
-  // 姓名：2~18个汉字
-  const nameRegex = /^[\u4e00-\u9fa5]{2,6}$/
-  if (!nameRegex.test(spectator.name)) {
-    errors.name = '姓名需为 2-6 个汉字'
+  if (!/^[\u4e00-\u9fa5]{2,6}$/.test(s.realname)) {
+    errors.realname = '姓名需为 2-6 个汉字'
   }
-
-  // 身份证号：中国大陆18位，支持末尾X/x
-  const idRegex = /^[1-9]\d{5}(18|19|20)\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])\d{3}[\dXx]$/
-  if (!idRegex.test(spectator.id)) {
-    errors.id = '请输入有效的身份证号'
+  if (
+    !/^[1-9]\d{5}(18|19|20)\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])\d{3}[\dXx]$/.test(
+      s.id_number
+    )
+  ) {
+    errors.id_number = '请输入有效的身份证号'
   }
-
-  // 手机号：以1开头的11位数字
-  const phoneRegex = /^1[3-9]\d{9}$/
-  if (!phoneRegex.test(spectator.phone)) {
+  if (!/^1[3-9]\d{9}$/.test(s.phone)) {
     errors.phone = '请输入有效的手机号'
   }
-
   return errors
 }
 </script>
@@ -209,5 +268,15 @@ function validateSpectator(spectator) {
 
 .add-btn:hover {
   background-color: #369d6f;
+}
+.spectator-manager { /* … */ }
+.spectator-row     { /* … */ }
+.spectator-input   { /* … */ }
+.spectator-icon-btn{ /* … */ }
+.add-btn           { /* … */ }
+.error-msg {
+  color: #c00;
+  font-size: 12px;
+  margin-top: 4px;
 }
 </style>
