@@ -1,7 +1,7 @@
 from flask import Flask, send_from_directory, jsonify
 from flask_cors import CORS
 from .config import Config
-from .extensions import db, migrate, bcrypt, jwt
+from .extensions import db, migrate, bcrypt, jwt, login_manager
 from .routes.show import show_bp
 from .routes.artist import artist_bp
 from .routes.auth import auth_bp
@@ -13,6 +13,8 @@ def create_app():
     app = Flask(__name__, static_folder=None)
     app.config.from_object(Config)
 
+    login_manager.init_app(app)
+    login_manager.login_view = 'auth.login'
     # ----------------------------------
     # ① 确保 UPLOAD_FOLDER 指向 backend/uploads 目录
     # ----------------------------------
