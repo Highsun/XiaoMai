@@ -30,8 +30,7 @@ def create_app():
     # ----------------------------------
     # ② 允许跨域访问 /uploads/* 路径（防止前端跨域被拦截）
     # ----------------------------------
-    CORS(app, resources={r"/api/*": {"origins": "*"},
-                         r"/uploads/*": {"origins": "*"}})
+    CORS(app, supports_credentials=True, resources={r"/api/*": {"origins": "*"}, r"/uploads/*": {"origins": "*"}})
     # ----------------------------------
     # ③ 初始化各类扩展（数据库、迁移、加密、JWT）
     # ----------------------------------

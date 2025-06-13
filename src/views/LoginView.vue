@@ -60,6 +60,8 @@
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { login } from '@/services/auth'
+import { userStore } from '@/stores/userStore.js'
+import axios from 'axios'
 
 const router = useRouter()
 
@@ -107,14 +109,19 @@ async function handleLogin() {
       password: password.value
     })
     const token = res.data.access_token
-
-    // 存储 token，后续调用可放到 axios header
     localStorage.setItem('access_token', token)
 
-    // 登录成功，跳转首页
+    // 新增部分：登录后用 token 获取用户名
+    const userinfoRes = await axios.get('/api/auth/userinfo', {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    const username = userinfoRes.data.username
+
+    // 用 userStore 记录全局状态
+    userStore.login(token, username)
+
     router.push('/')
   } catch (err) {
-    // 捕获后端返回的错误信息
     generalError.value = err.response?.data?.msg || '登录失败，请重试'
   }
 }

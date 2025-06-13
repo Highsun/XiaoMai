@@ -96,7 +96,6 @@ const Upcomings = [
 ]
 
 // —— “艺术家” 部分 ——
-// img 字段指向后端 /uploads/artists/ 目录
 const Artists = [
   {
     name: '林俊杰',

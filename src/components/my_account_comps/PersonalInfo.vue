@@ -8,6 +8,9 @@
         :id="field.key"
         v-model="formData[field.key]"
         :style="{ color: formData.gender ? '#333' : '#aaa' }"
+        :disabled="disabled"
+        @focus="onFocusAny"
+        @change="onUserInput"
       >
         <option disabled value="">请选择性别</option>
         <option value="男">男</option>
@@ -21,6 +24,9 @@
         :id="field.key"
         v-model="formData[field.key]"
         :max="today"
+        :disabled="disabled"
+        @focus="onFocusAny"
+        @input="onUserInput"
       />
       <!-- 省份与城市 -->
       <div
@@ -29,7 +35,12 @@
         style="display: flex; gap: 12px"
       >
         <!-- 省 -->
-        <select v-model="selectedProvince" @change="onProvinceChange" id="province-select">
+        <select
+          v-model="selectedProvince"
+          id="province-select"
+          @focus="onFocusAny"
+          @change="handleProvinceChange"
+        >
           <option disabled value="">请选择省份</option>
           <option v-for="province in provinces" :key="province" :value="province">
             {{ province }}
@@ -38,9 +49,10 @@
         <!-- 市 -->
         <select
           v-model="selectedCity"
-          @change="onCityChange"
-          :disabled="!selectedProvince"
           id="city-select"
+          :disabled="!selectedProvince || disabled"
+          @focus="onFocusAny"
+          @change="handleCityChange"
         >
           <option disabled value="">请选择城市</option>
           <option v-for="city in cities" :key="city" :value="city">
@@ -50,9 +62,10 @@
         <!-- 区/县 -->
         <select
           v-model="selectedDistrict"
-          @change="onDistrictChange"
-          :disabled="!selectedCity"
           id="district-select"
+          :disabled="!selectedCity || disabled"
+          @focus="onFocusAny"
+          @change="handleDistrictChange"
         >
           <option disabled value="">请选择区/县</option>
           <option v-for="district in districts" :key="district" :value="district">
@@ -67,21 +80,51 @@
         :id="field.key"
         :placeholder="`请输入${field.label}`"
         v-model="formData[field.key]"
+        :disabled="disabled"
+        @focus="onFocusAny"
+        @input="onUserInput"
       />
     </div>
   </div>
-  <div class="form-actions">
-    <button class="save-btn" @click="saveChanges">保存修改</button>
-    <button class="cancel-btn" @click="cancelChanges">取消</button>
-  </div>
+<div class="form-actions">
+  <button
+    v-if="isTouched && !disabled"
+    class="save-btn"
+    @click="saveChanges"
+    :disabled="!isDirty || disabled"
+  >
+    保存修改
+  </button>
+  <button
+    v-if="isTouched && !disabled"
+    class="cancel-btn"
+    @click="cancelChanges"
+  >
+    取消
+  </button>
+</div>
+
+
 </template>
 
 <script setup>
-import { reactive, ref, computed, onMounted } from 'vue'
+import { reactive, ref, computed, onMounted, watch } from 'vue'
 import locationData from '../../assets/data/location-L3.json'
+import { defineProps } from 'vue'
+import { getProfile, saveProfile } from '@/services/user'
+import { userStore } from '@/stores/userStore.js'
+
+const props = defineProps({
+  disabled: Boolean
+})
+
+const isTouched = ref(false)
+function onFocusAny() {
+  isTouched.value = true
+}
 
 const fields = [
-  { key: 'name', label: '姓名' },
+  { key: 'realname', label: '姓名' },
   { key: 'gender', label: '性别' },
   { key: 'birthday', label: '出生日期' },
   { key: 'phone', label: '手机号' },
@@ -89,97 +132,160 @@ const fields = [
   { key: 'address', label: '详细地址' },
 ]
 
-// 表单初始值 TODO: 接入后端数据
-const formData = reactive({
-  name: '',
-  gender: '保密',
-  birthday: '',
-  location: '',
-})
-
-// 保存原始数据（用于取消）
-const originalData = {
-  name: formData.name,
-  gender: formData.gender,
-  birthday: formData.birthday,
-  location: formData.location,
-}
-
 // 地区数据
 const provinces = Object.keys(locationData)
-
 const selectedProvince = ref('')
 const selectedCity = ref('')
 const selectedDistrict = ref('')
 
 // 地区列表
-const cities = computed(() => {
-  return selectedProvince.value ? Object.keys(locationData[selectedProvince.value]) : []
-})
+const cities = computed(() => selectedProvince.value ? Object.keys(locationData[selectedProvince.value]) : [])
+const districts = computed(() => selectedProvince.value && selectedCity.value ? locationData[selectedProvince.value][selectedCity.value] || [] : [])
 
-const districts = computed(() => {
-  if (selectedProvince.value && selectedCity.value) {
-    return locationData[selectedProvince.value][selectedCity.value] || []
+// 日期限制
+const today = new Date().toISOString().split('T')[0]
+
+// 支持所有字段
+const formData = reactive({
+  realname: '',
+  gender: '保密',
+  birthday: '',
+  phone: '',
+  province: '',
+  city: '',
+  district: '',
+  address: '',
+  location: '', // 仅用于省市区回显，不提交到后端
+})
+// originalData 用普通对象，专做快照
+let originalData = {}
+
+// 检测脏数据
+const isDirty = computed(() => {
+  for (const key of ['realname', 'gender', 'birthday', 'phone', 'province', 'city', 'district', 'address']) {
+    if (formData[key] !== originalData[key]) return true
   }
-  return []
+  return false
 })
 
 // 初始化省市区
-onMounted(() => {
-  initLocationFromString(formData.location)
-})
+function updateLocation() {
+  formData.location = [selectedProvince.value, selectedCity.value, selectedDistrict.value].filter(Boolean).join(' / ')
+  formData.province = selectedProvince.value
+  formData.city = selectedCity.value
+  formData.district = selectedDistrict.value
+}
+function initLocationFromString(province, city, district) {
+  selectedProvince.value = province || ''
+  selectedCity.value = city || ''
+  selectedDistrict.value = district || ''
+  formData.location = [province, city, district].filter(Boolean).join(' / ')
+}
 
-// 监听地区变化
+// 省市区选择监听
 function onProvinceChange() {
   selectedCity.value = ''
   selectedDistrict.value = ''
   updateLocation()
 }
-
 function onCityChange() {
   selectedDistrict.value = ''
   updateLocation()
 }
-
 function onDistrictChange() {
   updateLocation()
 }
 
-// 更新 location 字符串
-function updateLocation() {
-  formData.location = [selectedProvince.value, selectedCity.value, selectedDistrict.value]
-    .filter(Boolean)
-    .join(' / ')
+// 加载用户信息
+async function loadUserInfo() {
+  try {
+    const { data } = await getProfile()
+    formData.realname = data.realname || ''
+    formData.gender = data.gender || '保密'
+    formData.birthday = data.birthday || ''
+    formData.phone = data.phone || ''
+    formData.province = data.province || ''
+    formData.city = data.city || ''
+    formData.district = data.district || ''
+    formData.address = data.address || ''
+    initLocationFromString(formData.province, formData.city, formData.district)
+    // 深拷贝保存快照
+    originalData = JSON.parse(JSON.stringify(formData))
+  } catch (err) {
+    Object.keys(formData).forEach(k => formData[k] = '')
+    originalData = {}
+    initLocationFromString('', '', '')
+  }
 }
 
-// 根据字符串回显省市区
-function initLocationFromString(str) {
-  const parts = str.split(' / ')
-  selectedProvince.value = parts[0] || ''
-  selectedCity.value = parts[1] || ''
-  selectedDistrict.value = parts[2] || ''
-}
-
-// 日期限制（最大值设为今天）
-const today = new Date().toISOString().split('T')[0]
-
-// 保存修改
-function saveChanges() {
+// 保存
+async function saveChanges() {
   updateLocation()
-  fields.forEach((field) => {
-    originalData[field.key] = formData[field.key]
-  })
-  alert('保存成功')
+  try {
+    await saveProfile({
+      realname: formData.realname,
+      gender: formData.gender,
+      birthday: formData.birthday,
+      phone: formData.phone,
+      province: formData.province || '',
+      city: formData.city || '',
+      district: formData.district || '',
+      address: formData.address
+    })
+    // 保存后用深拷贝快照
+    originalData = JSON.parse(JSON.stringify(formData))
+    isTouched.value = false
+    alert('保存成功')
+  } catch (err) {
+    alert('保存失败: ' + (err.response?.data?.msg || err.message))
+  }
 }
 
-// 取消修改，回滚数据
 function cancelChanges() {
-  fields.forEach((field) => {
-    formData[field.key] = originalData[field.key]
+  // 恢复所有字段
+  Object.keys(formData).forEach(key => {
+    formData[key] = originalData[key] ?? ''
   })
-  initLocationFromString(formData.location)
+  // 恢复省市区选择
+  initLocationFromString(formData.province, formData.city, formData.district)
+  isTouched.value = false
 }
+
+onMounted(() => {
+  loadUserInfo()
+  initLocationFromString(formData.province, formData.city, formData.district)
+})
+watch(() => userStore.isLoggedIn, val => {
+  if (val) loadUserInfo()
+  else {
+    Object.keys(formData).forEach(k => formData[k] = '')
+    originalData = {}
+    initLocationFromString('', '', '')
+  }
+})
+
+function handleProvinceChange() {
+  onFocusAny()
+  onUserInput()
+  onProvinceChange()
+}
+function handleCityChange() {
+  onFocusAny()
+  onUserInput()
+  onCityChange()
+}
+function handleDistrictChange() {
+  onFocusAny()
+  onUserInput()
+  onDistrictChange()
+}
+function onUserInput() {
+  isTouched.value = true
+}
+
 </script>
+
+
 
 <style scoped>
 /* 我的账号 */

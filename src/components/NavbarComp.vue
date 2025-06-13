@@ -37,7 +37,11 @@
             <div class="dropdown-arrow"></div>
             <ul>
               <li><a href="#" @click.prevent="goToDashBoard">个人中心</a></li>
-              <li><a href="#" @click.prevent="goToLogin">登录</a></li>
+              <li>
+                <a href="#" @click.prevent="handleAuth">
+                  {{ userStore.isLoggedIn ? '退出登录' : '登录' }}
+                </a>
+              </li>
             </ul>
           </div>
         </transition>
@@ -50,58 +54,63 @@
 </template>
 
 <script setup>
+import { ref, onMounted, onBeforeUnmount, watchEffect } from 'vue'
 import { useRouter } from 'vue-router'
+import { userStore } from '@/stores/userStore.js'
+
 const router = useRouter()
 
-// LOGO跳转主页
-function goHome() {
-  router.push('/')
+// 登录状态（只加这一段，不影响样式）
+const isLoggedIn = ref(!!localStorage.getItem('access_token'))
+window.addEventListener('storage', () => {
+  isLoggedIn.value = !!localStorage.getItem('access_token')
+})
+watchEffect(() => {
+  isLoggedIn.value = !!localStorage.getItem('access_token')
+})
+
+// 登录/退出登录逻辑
+function handleAuth() {
+  if (userStore.isLoggedIn) {
+    userStore.logout()
+    router.push('/')
+  } else {
+    router.push('/login')
+  }
 }
 
-// 账号下拉菜单
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+
+// 下拉菜单相关
 const menuOpen = ref(false)
 const menuRef = ref(null)
-
 function toggleMenu() {
   menuOpen.value = !menuOpen.value
 }
-
 function handleClickOutside(e) {
   if (menuRef.value && !menuRef.value.contains(e.target)) {
     menuOpen.value = false
   }
 }
-
 onMounted(() => {
   window.addEventListener('click', handleClickOutside)
 })
-
 onBeforeUnmount(() => {
   window.removeEventListener('click', handleClickOutside)
 })
 
-// 跳转分类页面
+// 页面跳转
+function goHome() {
+  router.push('/')
+}
 function goToCategory() {
   router.push('/category')
 }
-
-// 跳转收藏夹
 function goToFavorites() {
   router.push('/favorites')
 }
-
-// 跳转登陆
-function goToLogin() {
-  router.push('/login')
-}
-
-// 跳转个人中心
 function goToDashBoard() {
   router.push('/dashboard')
 }
-
-// 跳转设置
 function goToSettings() {
   router.push({ name: 'Dashboard', query: { view: 'settings' } })
 }

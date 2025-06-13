@@ -12,6 +12,15 @@ class User(db.Model):
     email         = db.Column(db.String(128), unique=True, nullable=False)
     password_hash = db.Column(db.String(128), nullable=False)
     created_at    = db.Column(db.DateTime, default=datetime.utcnow)
+    realname  = db.Column(db.String(64),  default="")
+    gender    = db.Column(db.String(8),   default="保密")
+    birthday  = db.Column(db.Date,        default=datetime(1970,1,1))
+    phone     = db.Column(db.String(20),  default="")
+    province  = db.Column(db.String(32),  default="")
+    city      = db.Column(db.String(32),  default="")
+    district  = db.Column(db.String(32),  default="")
+    address   = db.Column(db.String(128), default="")
+
 
     def set_password(self, pwd: str):
         from .extensions import bcrypt
