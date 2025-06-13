@@ -20,24 +20,38 @@
     </transition>
 
     <p v-if="successMessage" class="success-msg">{{ successMessage }}</p>
+    <p v-if="errorMessage" class="error-msg">{{ errorMessage }}</p>
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { deleteAccount } from '@/services/auth'
+import axios from 'axios'
 
 const showConfirm = ref(false)
 const successMessage = ref('')
+const errorMessage = ref('')
+const router = useRouter()
 
-function confirmDelete() {
+async function confirmDelete() {
   showConfirm.value = false
-  // TODO: 在这里调用后端API进行账号注销
-  setTimeout(() => {
-    successMessage.value = '您的账号已成功注销，感谢您的使用，再会！'
+  successMessage.value = ''
+  errorMessage.value = ''
+  try {
+    const res = await deleteAccount()
+    successMessage.value = res.data.msg || '您的账号已成功注销，感谢您的使用，再会！'
+    // 清除本地登录状态
+    localStorage.removeItem('access_token')
+    delete axios.defaults.headers.common['Authorization']
+    // 跳转登录页
     setTimeout(() => {
-      window.location.href = '/login'
-    }, 2000)
-  }, 500)
+      router.push('/login')
+    }, 1500)
+  } catch (err) {
+    errorMessage.value = err.response?.data?.msg || '注销失败，请重试'
+  }
 }
 </script>
 
@@ -127,6 +141,12 @@ function confirmDelete() {
   margin-top: 12px;
   font-size: 14px;
   color: #42b983;
+}
+
+.error-msg {
+  margin-top: 12px;
+  font-size: 14px;
+  color: #e74c3c;
 }
 
 .fade-enter-active,

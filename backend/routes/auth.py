@@ -103,7 +103,7 @@ def get_profile():
     }), 200
 
 
-@auth_bp.route('/profile', methods=['PUT'])
+@auth_bp.route('/profile', methods=['PUT', 'POST'])
 @jwt_required()
 def update_profile():
     user_id = get_jwt_identity()
@@ -129,3 +129,50 @@ def update_profile():
 
     db.session.commit()
     return jsonify(msg='保存成功'), 200
+
+
+@auth_bp.route('/password', methods=['PUT'])
+@jwt_required()
+def change_password():
+    data = request.get_json() or {}
+    old_pwd     = data.get('old_password', '').strip()
+    new_pwd     = data.get('new_password', '').strip()
+    confirm_pwd = data.get('confirm_password', '').strip()
+
+    # 基本校验
+    if not all([old_pwd, new_pwd, confirm_pwd]):
+        return jsonify(msg='请填写旧密码、新密码及确认密码'), 400
+    if new_pwd != confirm_pwd:
+        return jsonify(msg='两次新密码不一致'), 400
+
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify(msg='用户不存在'), 404
+
+    # 验证旧密码
+    if not user.check_password(old_pwd):
+        return jsonify(msg='旧密码不正确'), 401
+
+    # 设置新密码
+    user.set_password(new_pwd)
+    db.session.commit()
+    return jsonify(msg='密码修改成功'), 200
+
+
+@auth_bp.route('/delete-account', methods=['DELETE'])
+@jwt_required()
+def delete_account():
+    """
+    注销当前用户：删除用户及其所有关联记录
+    """
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify(msg='用户不存在'), 404
+
+    # 删除用户会级联删除 watchers
+    db.session.delete(user)
+    db.session.commit()
+
+    return jsonify(msg='账号已成功注销'), 200
