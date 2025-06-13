@@ -16,37 +16,48 @@
 
   <!-- FIXME: Test -->
   <router-link to="/buy-tickets" class="btn-link">
-    <button class="btn-test" style="background: transparent; color: black">测试跳转到购票页</button>
+    <button class="btn-test" style="background: transparent; color: black">
+      测试跳转到购票页
+    </button>
   </router-link>
 
   <Footer />
 </template>
 
 <script setup>
+import { ref, onMounted } from 'vue'
+import axios from 'axios'
+
 import Navbar from '../components/NavbarComp.vue'
 import HeroSection from '../components/HeroSectionComp.vue'
 import ShowCategory from '../components/ShowCategoryComp.vue'
 import ArtistCategory from '../components/ArtistCategoryComp.vue'
 import Footer from '../components/FooterComp.vue'
 
-import { ref, onMounted } from 'vue'
-import axios from 'axios'
-
+// 响应式数据
 const HotShows = ref([])
 const Upcomings = ref([])
 const Artists = ref([])
 
+/**
+ * 将后端 show 数据格式化为组件需要的 props
+ */
 function formatShowList(data) {
   return data.map((item) => ({
     name: item.title,
     date:
-      item.start_date === item.end_date ? item.start_date : `${item.start_date} - ${item.end_date}`,
+      item.start_date === item.end_date
+        ? item.start_date
+        : `${item.start_date} - ${item.end_date}`,
     location: item.location,
-    price: parseInt(item.price),
+    price: parseInt(item.price, 10),
     img: item.image_url,
   }))
 }
 
+/**
+ * 将后端 artist 数据格式化为组件需要的 props
+ */
 function formatArtistList(data) {
   return data.map((item) => ({
     id: item.id,
@@ -57,6 +68,7 @@ function formatArtistList(data) {
 }
 
 onMounted(async () => {
+  // 同时请求热卖和即将推出
   try {
     const [hotRes, upcomingRes] = await Promise.all([
       axios.get('http://localhost:8888/api/shows/hot'),
@@ -65,19 +77,26 @@ onMounted(async () => {
 
     if (hotRes.data.code === 0) {
       HotShows.value = formatShowList(hotRes.data.data)
+    } else {
+      console.warn('加载热卖演出失败：', hotRes.data.message)
     }
 
     if (upcomingRes.data.code === 0) {
       Upcomings.value = formatShowList(upcomingRes.data.data)
+    } else {
+      console.warn('加载即将推出演出失败：', upcomingRes.data.message)
     }
   } catch (err) {
     console.error('加载演出信息失败：', err)
   }
 
+  // 请求艺术家列表
   try {
     const artistsRes = await axios.get('http://localhost:8888/api/artists/')
     if (artistsRes.data.code === 0) {
       Artists.value = formatArtistList(artistsRes.data.data)
+    } else {
+      console.warn('加载艺术家信息失败：', artistsRes.data.message)
     }
   } catch (err) {
     console.error('加载艺术家信息失败：', err)

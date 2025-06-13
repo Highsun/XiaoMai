@@ -34,7 +34,7 @@
       </button>
 
       <div class="dropdown-wrapper" ref="menuRef">
-        <button class="icon-btn" @click="toggleMenu">
+        <button class="icon-btn" @click="toggleMenu" title="账号">
           <i class="fas fa-user-circle"></i>
         </button>
         <transition name="fade-slide">
@@ -42,11 +42,16 @@
             <div class="dropdown-arrow"></div>
             <ul>
               <li><a href="#" @click.prevent="goToDashBoard">个人中心</a></li>
-              <li><a href="#" @click.prevent="goToLogin">登录</a></li>
+              <li>
+                <a href="#" @click.prevent="handleAuth">
+                  {{ userStore.isLoggedIn ? '退出登录' : '登录' }}
+                </a>
+              </li>
             </ul>
           </div>
         </transition>
       </div>
+
       <button class="icon-btn" title="设置" @click="goToSettings">
         <i class="fas fa-cog"></i>
       </button>
@@ -55,30 +60,46 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
+import { ref, watch, watchEffect, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { userStore } from '@/stores/userStore.js'
 
 const router = useRouter()
 const route = useRoute()
 
-// 账号菜单控制
+// 登录状态（响应 localStorage 变化）
+const isLoggedIn = ref(!!localStorage.getItem('access_token'))
+window.addEventListener('storage', () => {
+  isLoggedIn.value = !!localStorage.getItem('access_token')
+})
+watchEffect(() => {
+  isLoggedIn.value = !!localStorage.getItem('access_token')
+})
+
+// 登录/退出逻辑
+function handleAuth() {
+  if (userStore.isLoggedIn) {
+    userStore.logout()
+    router.push('/')
+  } else {
+    router.push('/login')
+  }
+}
+
+// 下拉菜单控制
 const menuOpen = ref(false)
 const menuRef = ref(null)
-
 function toggleMenu() {
   menuOpen.value = !menuOpen.value
 }
-
 function handleClickOutside(e) {
   if (menuRef.value && !menuRef.value.contains(e.target)) {
     menuOpen.value = false
   }
 }
-
 onMounted(() => {
   window.addEventListener('click', handleClickOutside)
 })
-
 onBeforeUnmount(() => {
   window.removeEventListener('click', handleClickOutside)
 })
@@ -87,31 +108,21 @@ onBeforeUnmount(() => {
 function goHome() {
   router.push('/')
 }
-
 function goToCategory() {
   router.push('/category')
 }
-
 function goToFavorites() {
   router.push('/favorites')
 }
-
-function goToLogin() {
-  router.push('/login')
-}
-
 function goToDashBoard() {
   router.push('/dashboard')
 }
-
 function goToSettings() {
   router.push({ name: 'Dashboard', query: { view: 'settings' } })
 }
 
-// 搜索输入框状态，与路由 q 参数同步
+// 搜索栏 & 路由 q 参数同步
 const searchInput = ref(route.query.q?.toString() || '')
-
-// 监听路由 q 变化，保持输入框同步（浏览器前进后退）
 watch(
   () => route.query.q,
   (newQ) => {
@@ -121,8 +132,6 @@ watch(
     }
   },
 )
-
-// 监听输入框变化，如果清空且路由有 q，自动删除 q，恢复无查询参数分类页
 watch(searchInput, (newVal) => {
   if (newVal.trim() === '' && route.query.q) {
     const newQuery = { ...route.query }
@@ -130,8 +139,6 @@ watch(searchInput, (newVal) => {
     router.replace({ path: '/category', query: newQuery })
   }
 })
-
-// 执行搜索：输入框有内容时跳转带 q 参数路由
 function doSearch() {
   const val = searchInput.value.trim()
   if (val) {
@@ -146,7 +153,6 @@ function doSearch() {
   width: 36px;
   margin-right: 8px;
 }
-
 .logo-text {
   font-size: 1.2rem;
   font-weight: bold;

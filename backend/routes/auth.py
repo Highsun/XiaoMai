@@ -7,6 +7,8 @@ from flask import current_app
 from flask import Blueprint, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from ..models import User
+from datetime import datetime, date
+
 
 
 auth_bp = Blueprint('auth', __name__)
@@ -64,7 +66,7 @@ def login():
         return jsonify(msg='用户名或密码错误'), 401
 
     # 4. 生成并返回 JWT
-    token = create_access_token(identity=user.id)
+    token = create_access_token(identity=str(user.id))
     return jsonify(access_token=token), 200
 
 
@@ -79,5 +81,50 @@ def userinfo():
 
     return jsonify({
         "username": user.username,
-        # 你还可以返回 email、avatar_url 等
     }), 200
+
+
+@auth_bp.route('/profile', methods=['GET'])
+@jwt_required()
+def get_profile():
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify(msg='用户不存在'), 404
+    return jsonify({
+        "realname": user.realname,
+        "gender": user.gender,
+        "birthday": user.birthday.strftime('%Y-%m-%d') if user.birthday else "",
+        "phone": user.phone,
+        "province": user.province,
+        "city": user.city,
+        "district": user.district,
+        "address": user.address
+    }), 200
+
+
+@auth_bp.route('/profile', methods=['POST'])
+@jwt_required()
+def update_profile():
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify(msg='用户不存在'), 404
+
+    data = request.get_json() or {}
+    user.realname  = data.get('realname', "")
+    user.gender    = data.get('gender', "保密")
+    user.birthday  = data.get('birthday', "1970-01-01")
+    if user.birthday:
+        try:
+            user.birthday = datetime.strptime(user.birthday, "%Y-%m-%d").date()
+        except:
+            user.birthday = datetime(1970,1,1).date()
+    user.phone     = data.get('phone', "")
+    user.province  = data.get('province', "")
+    user.city      = data.get('city', "")
+    user.district  = data.get('district', "")
+    user.address   = data.get('address', "")
+
+    db.session.commit()
+    return jsonify(msg='保存成功'), 200

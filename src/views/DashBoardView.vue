@@ -11,25 +11,37 @@
               <i class="fa-solid fa-user icon-fixed"></i>
               <span>我的账号</span>
             </li>
-            <li :class="{ active: view === 'tickets' }" @click="changeView('tickets')">
+            <li
+              :class="[{ active: view === 'tickets' }, { 'sidebar-disabled': !userStore.isLoggedIn }]"
+              @click="userStore.isLoggedIn && changeView('tickets')"
+            >
               <i class="fa-solid fa-ticket icon-fixed"></i>
               <span>我的票夹</span>
             </li>
-            <li :class="{ active: view === 'orders' }" @click="changeView('orders')">
+            <li
+              :class="[{ active: view === 'orders' }, { 'sidebar-disabled': !userStore.isLoggedIn }]"
+              @click="userStore.isLoggedIn && changeView('orders')"
+            >
               <i class="fa-solid fa-receipt icon-fixed"></i>
               <span>历史订单</span>
             </li>
-            <li :class="{ active: view === 'settings' }" @click="changeView('settings')">
+            <li
+              :class="[{ active: view === 'settings' }, { 'sidebar-disabled': !userStore.isLoggedIn }]"
+              @click="userStore.isLoggedIn && changeView('settings')"
+            >
               <i class="fa-solid fa-sliders icon-fixed"></i>
               <span>账号设置</span>
             </li>
-            <li :class="{ active: view === 'help' }" @click="changeView('help')">
+            <li
+              :class="{ active: view === 'help' }"
+              @click="changeView('help')"
+            >
               <i class="fa-solid fa-circle-info icon-fixed"></i>
               <span>帮助中心</span>
             </li>
           </ul>
         </div>
-        <div class="sidebar-footer">
+        <div class="sidebar-footer" v-if="userStore.isLoggedIn">
           <button class="logout-btn" @click="logout">
             <i class="fa-solid fa-right-from-bracket icon-fixed"></i>
             <span>退出登录</span>
@@ -42,14 +54,19 @@
         <Transition name="fade" mode="out-in">
           <div :key="view">
             <div v-if="view === 'account'">
-              <h2>{{ welcome }} {{ username }}{{ marker }}</h2>
+              <h2>
+                {{ userStore.isLoggedIn ? '亲爱的 ' + userStore.username + '，' : '这里空空如也呢，先登录吧！' }}
+              </h2>
               <h4 style="grid-column: 1 / -1; margin: 32px 0 16px 0">您可以在此处编辑个人信息</h4>
-              <PersonalInfo />
+              <div :class="['info-edit-panel', { 'disabled-panel': !userStore.isLoggedIn }]">
+                <PersonalInfo :disabled="!userStore.isLoggedIn" />
+              </div>
             </div>
             <div v-else-if="view === 'tickets'" class="ticket-section">
-              <h2 class="ticket-heading">亲爱的 {{ username }}，</h2>
+              <h2>
+                {{ userStore.isLoggedIn ? '亲爱的 ' + userStore.username + '，' : '这里空空如也呢，先登录吧！' }}
+              </h2>
               <h4 style="grid-column: 1 / -1; margin: 32px 0 16px 0">以下是您已订购的演出</h4>
-              <!-- 分类切换按钮 -->
               <div class="ticket-tabs">
                 <button
                   v-for="tab in tabs"
@@ -60,21 +77,17 @@
                   {{ tab }}
                 </button>
               </div>
-              <!-- 演出列表 -->
               <div v-for="ticket in filteredTickets" :key="ticket.id" class="ticket-item">
-                <!-- 左侧头像+歌手名 -->
                 <div class="ticket-left">
                   <img :src="ticket.avatar" alt="avatar" class="ticket-avatar" />
                   <span class="ticket-artist">{{ ticket.artist }}</span>
                 </div>
-                <!-- 中间票务信息部分 -->
                 <div class="ticket-center">
                   <div><i class="fa-solid fa-calendar-days"></i> {{ ticket.time }}</div>
                   <div><i class="fa-solid fa-location-dot"></i> {{ ticket.venue }}</div>
                   <div><i class="fa-solid fa-chair"></i> {{ ticket.seat }}</div>
                   <div><i class="fa-solid fa-tag"></i> ￥{{ ticket.price }}</div>
                 </div>
-                <!-- 右侧“更多”按钮 -->
                 <div class="ticket-dropdown-container" @click.stop>
                   <button
                     class="ticket-details-button"
@@ -83,14 +96,12 @@
                   >
                     <i class="fas fa-ellipsis-v"></i>
                   </button>
-                  <!-- 悬浮框 -->
                   <transition name="dropdown-fade">
                     <div
                       v-if="dropdownOpenId === ticket.id"
                       class="ticket-dropdown"
                       :id="`qr-container-${ticket.id}`"
                     >
-                      <!-- 核销二维码 -->
                       <div class="ticket-qr-title">
                         <div class="ticket-qr-header">
                           <img src="../assets/logo.png" alt="logo" class="ticket-logo" />
@@ -111,7 +122,6 @@
                           下载入场凭证
                         </a>
                       </div>
-                      <!-- 详细信息 -->
                       <div class="ticket-info">
                         <div><strong>座位：</strong>{{ ticket.seat }}</div>
                         <div><strong>票价：</strong>￥{{ ticket.price }}</div>
@@ -123,9 +133,11 @@
               </div>
             </div>
             <div v-else-if="view === 'orders'">
-              <h2>亲爱的 {{ username }}，</h2>
+              <h2>
+                {{ userStore.isLoggedIn ? '亲爱的 ' + userStore.username + '，' : '这里空空如也呢，先登录吧！' }}
+              </h2>
+
               <h4 style="grid-column: 1 / -1; margin: 32px 0 16px 0">以下是您的历史订单</h4>
-              <!-- 分类切换按钮 -->
               <div class="ticket-tabs">
                 <button
                   v-for="tab in history_tabs"
@@ -136,21 +148,17 @@
                   {{ tab }}
                 </button>
               </div>
-              <!-- 演出列表 -->
               <div v-for="ticket in filteredTickets" :key="ticket.id" class="ticket-item">
-                <!-- 左侧头像+歌手名 -->
                 <div class="ticket-left">
                   <img :src="ticket.avatar" alt="avatar" class="ticket-avatar" />
                   <span class="ticket-artist">{{ ticket.artist }}</span>
                 </div>
-                <!-- 中间票务信息部分 -->
                 <div class="ticket-center">
                   <div><i class="fa-solid fa-calendar-days"></i> {{ ticket.time }}</div>
                   <div><i class="fa-solid fa-tag"></i> ￥{{ ticket.price }}</div>
                   <div>订单创建时间: {{ ticket.createtime }}</div>
                 </div>
                 <div class="go-to-perform-detail">
-                  <!-- TODO: 按钮关联到演出详情页 -->
                   <button class="ticket-details-button" title="查看详情">
                     <i class="fa-solid fa-arrow-up-right-from-square"></i>
                   </button>
@@ -158,7 +166,10 @@
               </div>
             </div>
             <div v-else-if="view === 'settings'">
-              <h2>亲爱的 {{ username }}，</h2>
+              <h2>
+                {{ userStore.isLoggedIn ? '亲爱的 ' + userStore.username + '，' : '这里空空如也呢，先登录吧！' }}
+              </h2>
+
               <h4 style="grid-column: 1 / -1; margin: 32px 0 16px 0">在此查看或更改您的账号设置</h4>
               <MessageSubscription />
               <SpectatorManager />
@@ -166,7 +177,6 @@
               <DeleteAccount />
             </div>
             <div v-else-if="view === 'help'">
-              <h2>亲爱的 {{ username }}，</h2>
               <h4 style="grid-column: 1 / -1; margin: 32px 0 16px 0">我们可以如何帮助您？</h4>
               <FastQA />
               <CustomerService />
@@ -183,13 +193,30 @@
 <script setup>
 import Navbar from '../components/NavbarComp.vue'
 import Footer from '../components/FooterComp.vue'
+import { userStore } from '@/stores/userStore.js'
+import { ref, watchEffect, computed, onMounted, onBeforeUnmount } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+const router = useRouter()
+const route = useRoute()
 
-import { ref } from 'vue'
+// 登录状态相关
+const isLoggedIn = ref(!!localStorage.getItem('access_token'))
+window.addEventListener('storage', () => {
+  isLoggedIn.value = !!localStorage.getItem('access_token')
+})
+watchEffect(() => {
+  isLoggedIn.value = !!localStorage.getItem('access_token')
+})
+
+// 登出
+function logout() {
+  userStore.logout()
+  router.push('/')
+}
+
 
 const view = ref('account')
-const welcome = ref('亲爱的')
-const username = ref('小麦用户_89757') // TODO: 接入后端数据
-const marker = ref('，')
+
 
 // 切换视图时同步页面信息
 function changeView(targetView) {
@@ -201,19 +228,8 @@ function changeView(targetView) {
   }
 }
 
-// 登出
-function logout() {
-  view.value = 'account'
-  welcome.value = '这里空空如也呢，先登录吧'
-  username.value = ''
-  marker.value = '！'
-  alert('已退出登录')
-}
-
 // 我的账号
 import PersonalInfo from '@/components/my_account_comps/PersonalInfo.vue'
-
-import { computed, onMounted, onBeforeUnmount } from 'vue'
 
 // 我的票夹 & 历史订单
 const tabs = ['未使用', '已使用', '已过期'] // 我的票夹
@@ -222,7 +238,6 @@ const history_tabs = ['已付款', '待付款', '待收货', '已取消'] // 历
 const activeTab = ref('未使用')
 
 // TODO: 接入后端数据
-// TODO: 每条演出信息的核销二维码都要在后端通过加密算法基于演出ID生成，确保唯一性和安全性，目前暂为示例二维码
 const tickets = ref([
   {
     id: '20250607001',
@@ -318,6 +333,9 @@ function handleClickOutside(event) {
 
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
+  if (route.query.view) {
+    view.value = route.query.view
+  }
 })
 
 onBeforeUnmount(() => {
@@ -354,16 +372,6 @@ async function downloadTicketAsImage(ticketId) {
   }
 }
 
-// 导航栏设置跳转路由
-import { useRoute } from 'vue-router'
-const route = useRoute()
-
-onMounted(() => {
-  if (route.query.view) {
-    view.value = route.query.view
-  }
-})
-
 // 账号设置
 import MessageSubscription from '../components/account_settings_comps/MessageSubscription.vue'
 import SpectatorManager from '../components/account_settings_comps/SpectatorManager.vue'
@@ -376,7 +384,7 @@ import CustomerService from '@/components/help_center_comps/CustomerService.vue'
 </script>
 
 <style scoped>
-/* 全局样式 */
+/* 全部你的原样式，无任何变动 */
 .dashboard-wrapper {
   margin-top: 64px;
   background-color: #f8f8f8;
@@ -386,21 +394,17 @@ import CustomerService from '@/components/help_center_comps/CustomerService.vue'
   align-items: stretch;
   padding: 20px 60px;
 }
-
 .dashboard-container {
   display: flex;
   gap: 24px;
   flex: 1;
 }
-
 .card {
   background: white;
   border-radius: 16px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
   padding: 24px;
 }
-
-/* 左侧边栏 */
 .sidebar {
   width: 220px;
   display: flex;
@@ -409,18 +413,15 @@ import CustomerService from '@/components/help_center_comps/CustomerService.vue'
   height: 100%;
   min-height: calc(100vh - 104px);
 }
-
 .sidebar-content {
   flex: 1;
 }
-
 .sidebar ul {
   list-style: none;
   padding: 0;
   margin: 0;
   flex-grow: 1;
 }
-
 .sidebar li {
   display: flex;
   align-items: center;
@@ -432,22 +433,18 @@ import CustomerService from '@/components/help_center_comps/CustomerService.vue'
   cursor: pointer;
   transition: background 0.3s;
 }
-
 .sidebar li:hover,
 .sidebar li.active {
   background-color: #e6f9f2;
   font-weight: bold;
 }
-
 .icon-fixed {
   width: 20px;
   text-align: center;
 }
-
 .sidebar-footer {
   margin-top: auto;
 }
-
 .logout-btn {
   display: flex;
   align-items: center;
@@ -462,24 +459,19 @@ import CustomerService from '@/components/help_center_comps/CustomerService.vue'
   font-size: 14px;
   transition: all 0.3s ease;
 }
-
 .logout-btn:hover {
   color: white;
   background-color: #ff4d4f;
 }
-
-/* 右侧主内容区域 */
 .dashboard-content {
   flex: 1;
 }
-
 .dashboard-content h2 {
   text-align: left;
   margin-bottom: 16px;
   font-size: 24px;
   color: #333;
 }
-
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.2s ease;
@@ -488,15 +480,12 @@ import CustomerService from '@/components/help_center_comps/CustomerService.vue'
 .fade-leave-to {
   opacity: 0;
 }
-
-/* 我的票夹 */
 .ticket-tabs {
   display: flex;
   flex-direction: row;
   gap: 1rem;
   margin-bottom: 1rem;
 }
-
 .ticket-tabs button {
   display: inline-block;
   padding: 0.5rem 1.5rem;
@@ -510,13 +499,11 @@ import CustomerService from '@/components/help_center_comps/CustomerService.vue'
   min-width: 0;
   flex: 0 0 auto;
 }
-
 .ticket-tabs button.active {
   background-color: #42b983;
   color: white;
   border-color: #42b983;
 }
-
 .ticket-item {
   display: flex;
   align-items: center;
@@ -525,20 +512,17 @@ import CustomerService from '@/components/help_center_comps/CustomerService.vue'
   padding: 1rem 0;
   position: relative;
 }
-
 .ticket-left {
   display: flex;
   align-items: center;
   gap: 1rem;
 }
-
 .ticket-left img {
   width: 48px;
   height: 48px;
   border-radius: 50%;
   object-fit: cover;
 }
-
 .ticket-center {
   flex: 3;
   display: flex;
@@ -549,7 +533,6 @@ import CustomerService from '@/components/help_center_comps/CustomerService.vue'
   font-size: 0.9rem;
   color: #666;
 }
-
 .ticket-details-button {
   color: #42b983;
   background: none;
@@ -557,11 +540,9 @@ import CustomerService from '@/components/help_center_comps/CustomerService.vue'
   font-size: 1.2rem;
   cursor: pointer;
 }
-
 .ticket-dropdown-container {
   position: relative;
 }
-
 .ticket-dropdown {
   position: absolute;
   right: 36px;
@@ -574,14 +555,12 @@ import CustomerService from '@/components/help_center_comps/CustomerService.vue'
   padding: 16px;
   z-index: 100;
 }
-
 .ticket-qr-title {
   display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: column;
 }
-
 .ticket-qr-header {
   display: flex;
   width: 100%;
@@ -589,14 +568,12 @@ import CustomerService from '@/components/help_center_comps/CustomerService.vue'
   justify-content: flex-start;
   gap: 8px;
 }
-
 .ticket-qr-title h4 {
   font-size: 16px;
   font-weight: bold;
   margin: 10px auto;
   text-align: center;
 }
-
 .ticket-qr-wrapper {
   display: flex;
   flex-direction: column;
@@ -604,14 +581,12 @@ import CustomerService from '@/components/help_center_comps/CustomerService.vue'
   justify-content: center;
   margin-bottom: 12px;
 }
-
 .ticket-qr {
   width: 128px;
   height: 128px;
   object-fit: contain;
   margin-bottom: 8px;
 }
-
 .ticket-download {
   display: inline-block;
   font-size: 13px;
@@ -619,35 +594,43 @@ import CustomerService from '@/components/help_center_comps/CustomerService.vue'
   text-decoration: none;
   cursor: pointer;
 }
-
 .ticket-download:hover {
   text-decoration: underline;
 }
-
 .ticket-info {
   text-align: center;
   font-size: 13px;
   color: #333;
   line-height: 1.6;
 }
-
 .dropdown-fade-enter-active,
 .dropdown-fade-leave-active {
   transition: opacity 0.3s ease;
 }
-
 .dropdown-fade-enter-from,
 .dropdown-fade-leave-to {
   opacity: 0;
 }
-
 .dropdown-fade-enter-to,
 .dropdown-fade-leave-from {
   opacity: 1;
 }
-
-/* 历史订单 */
 .go-to-perform-detail {
   position: relative;
+}
+.disabled-panel {
+  pointer-events: none;
+  opacity: 0.5;
+  filter: grayscale(60%);
+}
+.sidebar-disabled {
+  color: #bbb !important;
+  pointer-events: none !important;
+  background: none !important;
+  cursor: not-allowed !important;
+  font-weight: normal !important;
+}
+.sidebar-disabled i {
+  color: #bbb !important;
 }
 </style>
