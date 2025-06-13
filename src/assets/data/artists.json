@@ -1,0 +1,107 @@
+[
+  {
+    "name": "林俊杰",
+    "image_path": "artists/JJ.JPG",
+    "link": "/artist/linjunjie"
+  },
+  {
+    "name": "周杰伦",
+    "image_path": "artists/Jay.JPG",
+    "link": "/artist/zhoujielun"
+  },
+  {
+    "name": "陶喆",
+    "image_path": "artists/DT.JPG",
+    "link": "/artist/taozhe"
+  },
+  {
+    "name": "王力宏",
+    "image_path": "artists/WLH.JPG",
+    "link": "/artist/wangleehom"
+  },
+  {
+    "name": "邓紫棋",
+    "image_path": "artists/GEM.JPG",
+    "link": "/artist/dengziqi"
+  },
+  {
+    "name": "孙燕姿",
+    "image_path": "artists/SYZ.JPG",
+    "link": "/artist/sunyanzi"
+  },
+  {
+    "name": "五月天",
+    "image_path": "artists/Mayday.JPG",
+    "link": "/artist/mayday"
+  },
+  {
+    "name": "单依纯",
+    "image_path": "artists/DYC.JPG",
+    "link": "/artist/shanyichun"
+  },
+  {
+    "name": "薛之谦",
+    "image_path": "artists/XZQ.JPG",
+    "link": "/artist/xuezhiqian"
+  },
+  {
+    "name": "潘玮柏",
+    "image_path": "artists/PWB.JPG",
+    "link": "/artist/panweibo"
+  },
+  {
+    "name": "黄子弘凡",
+    "image_path": "artists/HZHF.JPG",
+    "link": "/artist/huangzihongfan"
+  },
+  {
+    "name": "张三",
+    "image_path": "artists/zhangsan.JPG",
+    "link": "/artist/zhangsan"
+  },
+  {
+    "name": "李四",
+    "image_path": "artists/lisi.JPG",
+    "link": "/artist/lisi"
+  },
+  {
+    "name": "王五",
+    "image_path": "artists/wangwu.JPG",
+    "link": "/artist/wangwu"
+  },
+  {
+    "name": "李志",
+    "image_path": "artists/lizhi.JPG",
+    "link": "/artist/lizhi"
+  },
+  {
+    "name": "万能青年旅店",
+    "image_path": "artists/wnqnlc.JPG",
+    "link": "/artist/wannengqingnianlvdian"
+  },
+  {
+    "name": "八三夭",
+    "image_path": "artists/basanyao.JPG",
+    "link": "/artist/basanyao"
+  },
+  {
+    "name": "八仙乐队",
+    "image_path": "artists/baxian.JPG",
+    "link": "/artist/baxian"
+  },
+  {
+    "name": "芳文",
+    "image_path": "artists/fangwen.JPG",
+    "link": "/artist/fangwen"
+  },
+  {
+    "name": "林忆莲",
+    "image_path": "artists/linyilian.JPG",
+    "link": "/artist/linyilian"
+  },
+  {
+    "name": "李荣浩",
+    "image_path": "artists/lironghao.JPG",
+    "link": "/artist/lironghao"
+  }
+]

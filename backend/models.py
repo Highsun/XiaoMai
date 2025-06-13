@@ -1,5 +1,6 @@
 from datetime import datetime
 from .extensions import db
+from sqlalchemy.types import JSON
 
 # ============ 用户模型 ============
 class User(db.Model):
@@ -75,6 +76,14 @@ class Watcher(db.Model):
         return f"<Watcher {self.realname} of User {self.user_id}>"
 
 # ============ 艺术家 (Artist) 模型 ============
+# ============ 艺术家模型 ============
+# 多对多中间表
+show_artists = db.Table(
+    'show_artists',
+    db.Column('show_id', db.Integer, db.ForeignKey('shows.id'), primary_key=True),
+    db.Column('artist_id', db.Integer, db.ForeignKey('artists.id'), primary_key=True)
+)
+
 class Artist(db.Model):
     __tablename__ = 'artists'
 
@@ -83,11 +92,10 @@ class Artist(db.Model):
     image_path = db.Column(db.String(256), nullable=False)
     link       = db.Column(db.String(256), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(
-        db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
-    )
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    shows = db.relationship('Show', back_populates='artist', lazy='dynamic')
+    # 反向多对多
+    shows = db.relationship('Show', secondary=show_artists, back_populates='artists', lazy='dynamic')
 
     def to_dict(self):
         return {
@@ -104,43 +112,38 @@ class Artist(db.Model):
 class Show(db.Model):
     __tablename__ = 'shows'
 
-    id         = db.Column(db.Integer, primary_key=True)
-    title      = db.Column(db.String(128), nullable=False)
-    start_date = db.Column(db.Date, nullable=False)
-    end_date   = db.Column(db.Date, nullable=True)
-    location   = db.Column(db.String(256), nullable=False)
-    price      = db.Column(db.String(64), nullable=False)
-    status     = db.Column(db.String(32), nullable=False)
-    image_path = db.Column(db.String(256), nullable=False)
+    id          = db.Column(db.Integer, primary_key=True)
+    title       = db.Column(db.String(128), nullable=False)
+    tag         = db.Column(db.String(32), nullable=False)                   # 新增: '演唱会'/'音乐节'
+    start_date  = db.Column(db.Date, nullable=False)
+    end_date    = db.Column(db.Date, nullable=True)
+    location    = db.Column(db.String(256), nullable=False)
+    price       = db.Column(JSON, nullable=False)                            # 支持多档价格
+    status      = db.Column(db.String(32), nullable=False)                   # 'hot'/'upcoming'
+    ticket_status = db.Column(db.String(32), nullable=False)                 # 新增: '售票中'/'售罄'等
+    image_path  = db.Column(db.String(256), nullable=False)
+    inventory   = db.Column(db.Integer, nullable=False, default=0, server_default='0')
+    created_at  = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at  = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    inventory  = db.Column(
-        db.Integer,
-        nullable=False,
-        default=0,
-        server_default='0',
-        comment="剩余可售票数"
-    )
-
-    artist_id  = db.Column(db.Integer, db.ForeignKey('artists.id'), nullable=False)
-    artist     = db.relationship('Artist', back_populates='shows')
-
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(
-        db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
-    )
+    # 多对多关系
+    artists = db.relationship('Artist', secondary=show_artists, back_populates='shows', lazy='dynamic')
 
     def to_dict(self):
         return {
-            'id':         self.id,
-            'title':      self.title,
-            'start_date': self.start_date.strftime('%Y-%m-%d'),
-            'end_date':   self.end_date.strftime('%Y-%m-%d') if self.end_date else None,
-            'location':   self.location,
-            'price':      self.price,
-            'status':     self.status,
-            'image_url':  f"/uploads/{self.image_path}",
-            'artist_id':  self.artist_id,
-            'inventory':  self.inventory
+            'id':           self.id,
+            'title':        self.title,
+            'tag':          self.tag,
+            'start_date':   self.start_date.strftime('%Y-%m-%d'),
+            'end_date':     self.end_date.strftime('%Y-%m-%d') if self.end_date else None,
+            'location':     self.location,
+            'price':        self.price,  # 前端可直接传数组
+            'status':       self.status,
+            'ticket_status':self.ticket_status,
+            'image_url':    f"/uploads/{self.image_path}",
+            'artist_names': [artist.name for artist in self.artists],
+            'artist_ids':   [artist.id for artist in self.artists],
+            'inventory':    self.inventory
         }
 
     def __repr__(self):

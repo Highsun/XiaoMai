@@ -1,0 +1,200 @@
+[
+  {
+    "title": "JJ20 FINAL LAP 世界巡回演唱会",
+    "tag": "演唱会",
+    "date": "2025.06.28-07.13",
+    "location": "北京市·国家体育场-鸟巢",
+    "price": ["380", "680", "980", "1380", "1580", "1880"],
+    "image_path": "concerts/JJ.png",
+    "status": "hot",
+    "ticket_status": "售票中",
+    "artist_name": ["林俊杰"]
+  },
+  {
+    "title": "周杰伦《嘉年华》巡回演唱会",
+    "tag": "演唱会",
+    "date": "2025.06.27-06.29",
+    "location": "中国香港·香港启德体育园主场馆",
+    "price": ["1100"],
+    "image_path": "concerts/Jay.png",
+    "status": "hot",
+    "ticket_status": "售票中",
+    "artist_name": ["周杰伦"]
+  },
+  {
+    "title": "陶喆 Soul Power II 世界巡回演唱会",
+    "tag": "演唱会",
+    "date": "2025.08.09-08.10",
+    "location": "深圳市·深圳湾体育中心“春茧”体育场",
+    "price": ["380"],
+    "image_path": "concerts/DT.png",
+    "status": "hot",
+    "ticket_status": "售票中",
+    "artist_name": ["陶喆"]
+  },
+  {
+    "title": "王力宏「最好的地方」巡回演唱会",
+    "tag": "演唱会",
+    "date": "2025.07.05-07.06",
+    "location": "苏州市·苏州奥林匹克体育中心体育馆",
+    "price": ["480"],
+    "image_path": "concerts/WLH.png",
+    "status": "hot",
+    "ticket_status": "售票中",
+    "artist_name": ["王力宏"]
+  },
+  {
+    "title": "G.E.M. 邓紫棋 I AM GLORIA 世界巡回演唱会 2.0",
+    "tag": "演唱会",
+    "date": "2025.07.05",
+    "location": "烟台市·烟台体育公园体育场",
+    "price": ["380"],
+    "image_path": "concerts/GEM.jpeg",
+    "status": "upcoming",
+    "ticket_status": "即将开票",
+    "artist_name": ["邓紫棋"]
+  },
+  {
+    "title": "孙燕姿《就在日落以后》演唱会",
+    "tag": "演唱会",
+    "date": "2025.06.13/06.15",
+    "location": "北京市·国家体育场-鸟巢",
+    "price": ["480"],
+    "image_path": "concerts/SYZ.jpeg",
+    "status": "upcoming",
+    "ticket_status": "即将开票",
+    "artist_name": ["孙燕姿"]
+  },
+  {
+    "title": "汪苏泷 2025 巡回演唱会「十万伏特 2.0」",
+    "tag": "演唱会",
+    "date": "2025.06.27-06.29",
+    "location": "太原市·山西体育中心体育场",
+    "price": ["380"],
+    "image_path": "concerts/WSL.jpeg",
+    "status": "upcoming",
+    "ticket_status": "即将开票",
+    "artist_name": ["五月天"]
+  },
+  {
+    "title": "凤凰传奇「吉祥如意」2025 巡回演唱会",
+    "tag": "演唱会",
+    "date": "2025.06.27-06.29",
+    "location": "天津市·天津奥林匹克中心体育场",
+    "price": ["380"],
+    "image_path": "concerts/FHCQ.jpeg",
+    "status": "upcoming",
+    "ticket_status": "即将开票",
+    "artist_name": ["单依纯"]
+  },
+  {
+    "title": "【成都】新蜂音乐节·成都站",
+    "tag": "音乐节",
+    "date": "2025.07.05-07.06",
+    "location": "成都露天音乐公园北广场",
+    "price": ["189", "1197"],
+    "image_path": "concerts/fengmusic.png",
+    "status": "hot",
+    "ticket_status": "售票中",
+    "artist_name": ["薛之谦", "潘玮柏", "黄子弘凡"]
+  },
+  {
+    "title": "【北京】开心水花摇滚音乐大戏《燃烧PLUS》",
+    "tag": "演唱会",
+    "date": "2025.06.29-07.06",
+    "location": "地坛剧场剧场",
+    "price": ["80", "1080"],
+    "image_path": "concerts/rockshow.png",
+    "status": "hot",
+    "ticket_status": "售票中",
+    "artist_name": ["张三", "李四", "王五"]
+  },
+  {
+    "title": "【沈阳】汽水音乐Chill派对",
+    "tag": "音乐节",
+    "date": "2025.06.14-06.15",
+    "location": "沈阳航空航天大学体育场",
+    "price": ["98"],
+    "image_path": "concerts/chillparty.png",
+    "status": "hot",
+    "ticket_status": "售票中",
+    "artist_name": ["李志", "万能青年旅店", "八三夭", "八仙乐队", "芳文"]
+  },
+  {
+    "title": "【哈尔滨】五月天 2025五月天25周年巡回演唱会",
+    "tag": "演唱会",
+    "date": "2025.06.13-06.15",
+    "location": "哈尔滨国际会展体育中心体育场",
+    "price": ["355", "1555"],
+    "image_path": "concerts/mayday.png",
+    "status": "hot",
+    "ticket_status": "售票中",
+    "artist_name": ["五月天"]
+  },
+  {
+    "title": "【青岛】林忆莲《回忆 Resonance》2025巡回演唱会",
+    "tag": "演唱会",
+    "date": "2025.06.29",
+    "location": "青岛市体育中心体育场",
+    "price": ["266", "1288"],
+    "image_path": "concerts/linyilian.png",
+    "status": "hot",
+    "ticket_status": "售罄",
+    "artist_name": ["林忆莲"]
+  },
+  {
+    "title": "【上海】陶喆 Soul Power II 世界巡回演唱会",
+    "tag": "演唱会",
+    "date": "2025.07.12",
+    "location": "上海梅赛德斯奔驰文化中心",
+    "price": ["399", "1299"],
+    "image_path": "concerts/taozhe.png",
+    "status": "hot",
+    "ticket_status": "售票中",
+    "artist_name": ["陶喆"]
+  },
+  {
+    "title": "【深圳】李荣浩 年少有为 演唱会",
+    "tag": "演唱会",
+    "date": "2025.07.20",
+    "location": "深圳湾体育中心",
+    "price": ["299", "999"],
+    "image_path": "concerts/lironghao.png",
+    "status": "hot",
+    "ticket_status": "售票中",
+    "artist_name": ["李荣浩"]
+  },
+  {
+    "title": "【杭州】周杰伦 嘉年华巡回演唱会",
+    "tag": "演唱会",
+    "date": "2025.08.02",
+    "location": "杭州奥体中心",
+    "price": ["520", "2025"],
+    "image_path": "concerts/jaychou.png",
+    "status": "hot",
+    "ticket_status": "售票中",
+    "artist_name": ["周杰伦"]
+  },
+  {
+    "title": "【广州】薛之谦 天外来物巡回演唱会",
+    "tag": "演唱会",
+    "date": "2025.08.08",
+    "location": "广州体育馆",
+    "price": ["299", "1599"],
+    "image_path": "concerts/xuezhiqian.png",
+    "status": "hot",
+    "ticket_status": "售票中",
+    "artist_name": ["薛之谦"]
+  },
+  {
+    "title": "【北京】五月天 Just Rock It！演唱会",
+    "tag": "演唱会",
+    "date": "2025.06.28",
+    "location": "北京鸟巢",
+    "price": ["599", "1599"],
+    "image_path": "concerts/maydaybj.png",
+    "status": "hot",
+    "ticket_status": "售票中",
+    "artist_name": ["五月天"]
+  }
+]
