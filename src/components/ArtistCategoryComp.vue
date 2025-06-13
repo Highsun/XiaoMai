@@ -33,18 +33,23 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import ArtistCard from '../components/ArtistCardComp.vue'
 
 defineProps({
   title: String,
-  artists: Array,
+  artists: {
+    type: Array,
+    default: () => [],
+  },
 })
 
-function goToCategory() {
-  console.log('跳转艺人分类页')
-}
-
+const router = useRouter()
 const scrollContainer = ref(null)
+
+function goToCategory() {
+  router.push('/category')
+}
 
 function scrollLeft() {
   scrollContainer.value.scrollBy({ left: -300, behavior: 'smooth' })

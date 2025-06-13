@@ -55,8 +55,14 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes,
   scrollBehavior(to, from, savedPosition) {
-    return { top: 0 }
+    if (savedPosition) return savedPosition
+    return { left: 0, top: 0 }
   },
+})
+
+// 每次路由完成后，再次把页面拉到最顶部
+router.afterEach(() => {
+  window.scrollTo(0, 0)
 })
 
 export default router
