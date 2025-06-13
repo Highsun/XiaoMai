@@ -8,6 +8,7 @@
     "image_path": "concerts/JJ.png",
     "status": "hot",
     "ticket_status": "售票中",
+    "artists": ["林俊杰"],
     "artist_name": ["林俊杰"]
   },
   {
@@ -19,6 +20,7 @@
     "image_path": "concerts/Jay.png",
     "status": "hot",
     "ticket_status": "售票中",
+    "artists": ["周杰伦"],
     "artist_name": ["周杰伦"]
   },
   {
@@ -30,6 +32,7 @@
     "image_path": "concerts/DT.png",
     "status": "hot",
     "ticket_status": "售票中",
+    "artists": ["陶喆"],
     "artist_name": ["陶喆"]
   },
   {
@@ -41,6 +44,7 @@
     "image_path": "concerts/WLH.png",
     "status": "hot",
     "ticket_status": "售票中",
+    "artists": ["王力宏"],
     "artist_name": ["王力宏"]
   },
   {
@@ -52,6 +56,7 @@
     "image_path": "concerts/GEM.jpeg",
     "status": "upcoming",
     "ticket_status": "即将开票",
+    "artists": ["邓紫棋"],
     "artist_name": ["邓紫棋"]
   },
   {
@@ -63,6 +68,7 @@
     "image_path": "concerts/SYZ.jpeg",
     "status": "upcoming",
     "ticket_status": "即将开票",
+    "artists": ["孙燕姿"],
     "artist_name": ["孙燕姿"]
   },
   {
@@ -74,6 +80,7 @@
     "image_path": "concerts/WSL.jpeg",
     "status": "upcoming",
     "ticket_status": "即将开票",
+    "artists": ["五月天"],
     "artist_name": ["五月天"]
   },
   {
@@ -85,6 +92,7 @@
     "image_path": "concerts/FHCQ.jpeg",
     "status": "upcoming",
     "ticket_status": "即将开票",
+    "artists": ["单依纯"],
     "artist_name": ["单依纯"]
   },
   {
@@ -96,6 +104,7 @@
     "image_path": "concerts/fengmusic.png",
     "status": "hot",
     "ticket_status": "售票中",
+    "artists": ["薛之谦", "潘玮柏", "黄子弘凡"],
     "artist_name": ["薛之谦", "潘玮柏", "黄子弘凡"]
   },
   {
@@ -107,6 +116,7 @@
     "image_path": "concerts/rockshow.png",
     "status": "hot",
     "ticket_status": "售票中",
+    "artists": ["张三", "李四", "王五"],
     "artist_name": ["张三", "李四", "王五"]
   },
   {
@@ -118,6 +128,7 @@
     "image_path": "concerts/chillparty.png",
     "status": "hot",
     "ticket_status": "售票中",
+    "artists": ["李志", "万能青年旅店", "八三夭", "八仙乐队", "芳文"],
     "artist_name": ["李志", "万能青年旅店", "八三夭", "八仙乐队", "芳文"]
   },
   {
@@ -129,6 +140,7 @@
     "image_path": "concerts/mayday.png",
     "status": "hot",
     "ticket_status": "售票中",
+    "artists": ["五月天"],
     "artist_name": ["五月天"]
   },
   {
@@ -140,6 +152,7 @@
     "image_path": "concerts/linyilian.png",
     "status": "hot",
     "ticket_status": "售罄",
+    "artists": ["林忆莲"],
     "artist_name": ["林忆莲"]
   },
   {
@@ -151,6 +164,7 @@
     "image_path": "concerts/taozhe.png",
     "status": "hot",
     "ticket_status": "售票中",
+    "artists": ["陶喆"],
     "artist_name": ["陶喆"]
   },
   {
@@ -162,6 +176,7 @@
     "image_path": "concerts/lironghao.png",
     "status": "hot",
     "ticket_status": "售票中",
+    "artists": ["李荣浩"],
     "artist_name": ["李荣浩"]
   },
   {
@@ -173,6 +188,7 @@
     "image_path": "concerts/jaychou.png",
     "status": "hot",
     "ticket_status": "售票中",
+    "artists": ["周杰伦"],
     "artist_name": ["周杰伦"]
   },
   {
@@ -184,6 +200,7 @@
     "image_path": "concerts/xuezhiqian.png",
     "status": "hot",
     "ticket_status": "售票中",
+    "artists": ["薛之谦"],
     "artist_name": ["薛之谦"]
   },
   {
@@ -195,6 +212,7 @@
     "image_path": "concerts/maydaybj.png",
     "status": "hot",
     "ticket_status": "售票中",
+    "artists": ["五月天"],
     "artist_name": ["五月天"]
   }
 ]

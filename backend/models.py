@@ -76,7 +76,6 @@ class Watcher(db.Model):
         return f"<Watcher {self.realname} of User {self.user_id}>"
 
 # ============ 艺术家 (Artist) 模型 ============
-# ============ 艺术家模型 ============
 # 多对多中间表
 show_artists = db.Table(
     'show_artists',
@@ -114,13 +113,13 @@ class Show(db.Model):
 
     id          = db.Column(db.Integer, primary_key=True)
     title       = db.Column(db.String(128), nullable=False)
-    tag         = db.Column(db.String(32), nullable=False)                   # 新增: '演唱会'/'音乐节'
+    tag         = db.Column(db.String(32), nullable=False)
     start_date  = db.Column(db.Date, nullable=False)
     end_date    = db.Column(db.Date, nullable=True)
     location    = db.Column(db.String(256), nullable=False)
-    price       = db.Column(JSON, nullable=False)                            # 支持多档价格
-    status      = db.Column(db.String(32), nullable=False)                   # 'hot'/'upcoming'
-    ticket_status = db.Column(db.String(32), nullable=False)                 # 新增: '售票中'/'售罄'等
+    price       = db.Column(JSON, nullable=False)
+    status      = db.Column(db.String(32), nullable=False)
+    ticket_status = db.Column(db.String(32), nullable=False)
     image_path  = db.Column(db.String(256), nullable=False)
     inventory   = db.Column(db.Integer, nullable=False, default=0, server_default='0')
     created_at  = db.Column(db.DateTime, default=datetime.utcnow)
@@ -129,6 +128,7 @@ class Show(db.Model):
     # 多对多关系
     artists = db.relationship('Artist', secondary=show_artists, back_populates='shows', lazy='dynamic')
 
+    # FIXME: artist_names 消失
     def to_dict(self):
         return {
             'id':           self.id,
@@ -137,12 +137,12 @@ class Show(db.Model):
             'start_date':   self.start_date.strftime('%Y-%m-%d'),
             'end_date':     self.end_date.strftime('%Y-%m-%d') if self.end_date else None,
             'location':     self.location,
-            'price':        self.price,  # 前端可直接传数组
+            'price':        self.price,
             'status':       self.status,
             'ticket_status':self.ticket_status,
             'image_url':    f"/uploads/{self.image_path}",
-            'artist_names': [artist.name for artist in self.artists],
-            'artist_ids':   [artist.id for artist in self.artists],
+            'artist_names': [artist.name for artist in self.artists.all()],
+            'artist_ids':   [artist.id for artist in self.artists.all()],
             'inventory':    self.inventory
         }
 
