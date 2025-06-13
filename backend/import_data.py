@@ -1,5 +1,3 @@
-# backend/import_data.py
-
 from datetime import datetime
 from backend.app import create_app
 from backend.extensions import db

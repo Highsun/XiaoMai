@@ -23,6 +23,7 @@
 
 <script setup>
 import ShowCard from '../components/ShowCardComp.vue'
+import { useRouter } from 'vue-router'
 
 defineProps({
   title: String,
@@ -32,8 +33,9 @@ defineProps({
   },
 })
 
+const router = useRouter()
+
 function goToCategory() {
-  // TODO: 跳转到分类页的逻辑
-  console.log('跳转分类页')
+  router.push('/category')
 }
 </script>
