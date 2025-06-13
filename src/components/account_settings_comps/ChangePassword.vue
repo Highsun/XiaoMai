@@ -28,6 +28,7 @@
 
 <script setup>
 import { ref } from 'vue'
+import { changePassword } from '@/services/auth'
 
 const oldPassword = ref('')
 const newPassword = ref('')
@@ -36,7 +37,7 @@ const confirmPassword = ref('')
 const error = ref('')
 const success = ref('')
 
-function submitChange() {
+async function submitChange() {
   error.value = ''
   success.value = ''
 
@@ -55,11 +56,21 @@ function submitChange() {
     return
   }
 
-  // TODO: 接入后端API进行密码修改
-  success.value = '密码修改成功！'
-  oldPassword.value = ''
-  newPassword.value = ''
-  confirmPassword.value = ''
+  try {
+    const res = await changePassword({
+      old_password: oldPassword.value,
+      new_password: newPassword.value,
+      confirm_password: confirmPassword.value
+    })
+    success.value = res.msg || '密码修改成功！'
+    // 清空字段
+    oldPassword.value = ''
+    newPassword.value = ''
+    confirmPassword.value = ''
+  } catch (err) {
+    const msg = err.response?.data?.msg || '修改失败，请重试'
+    error.value = msg
+  }
 }
 </script>
 
