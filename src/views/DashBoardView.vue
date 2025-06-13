@@ -279,7 +279,7 @@ const tickets = ref([
     id: '20250607004',
     createtime: '2025-06-01 19:30:47',
     artist: '五月天',
-    avatar: 'src/assets/images/homepage/artists/WYT.JPG',
+    avatar: 'src/assets/images/homepage/artists/Mayday.JPG',
     time: '2025-08-23 20:00',
     venue: '天津之眼',
     seat: 'D区 6排 19号',
