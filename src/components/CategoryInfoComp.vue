@@ -1,7 +1,6 @@
 <template>
   <div class="category-card" @click="goDetail">
-    <img :src="getPoster(concert.poster)" alt="海报" class="category-poster" />
-
+    <img :src="concert.poster" alt="海报" class="category-poster" />
     <div class="category-info">
       <div class="category-title-row">
         <span class="category-title">{{ concert.name }}</span>
@@ -11,7 +10,14 @@
       <div class="category-meta">
         <div class="category-meta-row">
           <span class="category-label">艺人：</span>
-          <span class="category-artist">{{ concert.artist_names }}</span>
+          <span class="category-artist">
+            <template v-if="concert.artist">
+              {{ concert.artist }}
+            </template>
+            <template v-else>
+              {{ concert.artists.join('、') }}
+            </template>
+          </span>
         </div>
         <div class="category-meta-row">
           <span class="category-label">场馆：</span>

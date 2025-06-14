@@ -1,3 +1,5 @@
+# backend/models.py
+
 from datetime import datetime
 from .extensions import db
 from sqlalchemy.types import JSON
@@ -5,7 +7,6 @@ from sqlalchemy.types import JSON
 # ============ 用户模型 ============
 class User(db.Model):
     __tablename__ = 'users'
-
     id            = db.Column(db.Integer, primary_key=True)
     username      = db.Column(db.String(32), unique=True, nullable=False)
     email         = db.Column(db.String(128), unique=True, nullable=False)
@@ -20,9 +21,7 @@ class User(db.Model):
     district      = db.Column(db.String(32),  default="", nullable=False)
     address       = db.Column(db.String(128), default="", nullable=False)
 
-    # —— 关联观演人 ——
-    watchers = db.relationship(
-        'Watcher',
+    watchers = db.relationship('Watcher',
         backref='user',
         cascade='all, delete-orphan',
         lazy='dynamic'
@@ -42,23 +41,15 @@ class User(db.Model):
             'username':   self.username,
             'email':      self.email,
             'created_at': self.created_at.strftime('%Y-%m-%d %H:%M:%S'),
-            # 如果需要，也可以一并返回观演人列表：
-            # 'watchers': [w.to_dict() for w in self.watchers]
         }
 
     def __repr__(self):
         return f"<User {self.username}>"
 
-# ============ 观演人 (Watcher) 模型 ============
 class Watcher(db.Model):
     __tablename__ = 'watchers'
-
     id         = db.Column(db.Integer, primary_key=True)
-    user_id    = db.Column(
-        db.Integer,
-        db.ForeignKey('users.id', ondelete='CASCADE'),
-        nullable=False
-    )
+    user_id    = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
     realname   = db.Column(db.String(64),  nullable=False, default='')
     id_number  = db.Column(db.String(32),  nullable=False, default='')
     phone      = db.Column(db.String(20),  nullable=False, default='')
@@ -75,17 +66,16 @@ class Watcher(db.Model):
     def __repr__(self):
         return f"<Watcher {self.realname} of User {self.user_id}>"
 
-# ============ 艺术家 (Artist) 模型 ============
-# 多对多中间表
+# ============ 多对多中间表 ============
 show_artists = db.Table(
     'show_artists',
-    db.Column('show_id', db.Integer, db.ForeignKey('shows.id'), primary_key=True),
+    db.Column('show_id',   db.Integer, db.ForeignKey('shows.id'),   primary_key=True),
     db.Column('artist_id', db.Integer, db.ForeignKey('artists.id'), primary_key=True)
 )
 
+# ============ 艺术家 (Artist) ============
 class Artist(db.Model):
     __tablename__ = 'artists'
-
     id         = db.Column(db.Integer, primary_key=True)
     name       = db.Column(db.String(128), nullable=False)
     image_path = db.Column(db.String(256), nullable=False)
@@ -93,8 +83,12 @@ class Artist(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    # 反向多对多
-    shows = db.relationship('Show', secondary=show_artists, back_populates='artists', lazy='dynamic')
+    shows = db.relationship(
+        'Show',
+        secondary=show_artists,
+        back_populates='artists',
+        lazy='dynamic'
+    )
 
     def to_dict(self):
         return {
@@ -107,49 +101,64 @@ class Artist(db.Model):
     def __repr__(self):
         return f"<Artist {self.name}>"
 
-# ============ 演出 (Show) 模型 ============
+# ============ 演出 (Show) ============
 class Show(db.Model):
     __tablename__ = 'shows'
-
-    id          = db.Column(db.Integer, primary_key=True)
-    title       = db.Column(db.String(128), nullable=False)
-    tag         = db.Column(db.String(32), nullable=False)
-    start_date  = db.Column(db.Date, nullable=False)
-    end_date    = db.Column(db.Date, nullable=True)
-    location    = db.Column(db.String(256), nullable=False)
-    price       = db.Column(JSON, nullable=False)
-    status      = db.Column(db.String(32), nullable=False)
+    id            = db.Column(db.Integer, primary_key=True)
+    title         = db.Column(db.String(128), nullable=False)
+    tag           = db.Column(db.String(32), nullable=False)
+    start_date    = db.Column(db.Date, nullable=False)
+    end_date      = db.Column(db.Date, nullable=True)
+    location      = db.Column(db.String(256), nullable=False)
+    price         = db.Column(JSON, nullable=False)
+    status        = db.Column(db.String(32), nullable=False)
     ticket_status = db.Column(db.String(32), nullable=False)
-    image_path  = db.Column(db.String(256), nullable=False)
-    inventory   = db.Column(db.Integer, nullable=False, default=0, server_default='0')
-    created_at  = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at  = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    image_path    = db.Column(db.String(256), nullable=False)
+    inventory     = db.Column(db.Integer, nullable=False, default=0, server_default='0')
+    created_at    = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at    = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    # 多对多关系
-    artists = db.relationship('Artist', secondary=show_artists, back_populates='shows', lazy='dynamic')
+    artists = db.relationship(
+        'Artist',
+        secondary=show_artists,
+        back_populates='shows',
+        lazy='dynamic'
+    )
 
-    # FIXME: artist_names 消失
     def to_dict(self):
+        # 1. 拼所有艺人名字
+        names = [a.name for a in self.artists.all()]
+
+        # 2. 拼日期字符串
+        if self.end_date:
+            date_str = f"{self.start_date.strftime('%Y-%m-%d')}-{self.end_date.strftime('%Y-%m-%d')}"
+        else:
+            date_str = self.start_date.strftime('%Y-%m-%d')
+
+        # 3. 拼价格字符串
+        if isinstance(self.price, list):
+            if len(self.price) == 1:
+                price_str = f"{self.price[0]}元"
+            elif len(self.price) > 1:
+                price_str = f"{self.price[0]}-{self.price[-1]}元"
+            else:
+                price_str = ""
+        else:
+            price_str = str(self.price)
+
+        # 4. 返回前端模板想要的字段名
         return {
-            'id':           self.id,
-            'title':        self.title,
-            'tag':          self.tag,
-            'start_date':   self.start_date.strftime('%Y-%m-%d'),
-            'end_date':     self.end_date.strftime('%Y-%m-%d') if self.end_date else None,
-            'location':     self.location,
-            'price':        self.price,
-            'status':       self.status,
-            'ticket_status':self.ticket_status,
-            'image_url':    f"/uploads/{self.image_path}",
-            'artist_names': [artist.name for artist in self.artists.all()],
-            'artist_ids':   [artist.id for artist in self.artists.all()],
-            'inventory':    self.inventory
+            "id":       self.id,            # concert.id
+            "name":     self.title,         # concert.name
+            "tag":      self.tag,           # concert.tag
+            "poster":   self.image_path,    # concert.poster
+            "artist":   "、".join(names),   # concert.artist
+            "location": self.location,      # concert.location
+            "date":     date_str,           # concert.date
+            "price":    price_str,          # concert.price
+            "status":   self.status         # concert.status
         }
 
-    def __repr__(self):
-        if self.end_date:
-            return f"<Show {self.title} ({self.start_date}~{self.end_date})>"
-        return f"<Show {self.title} ({self.start_date})>"
 
 # ============ 订单 (Order) 模型 ============
 class Order(db.Model):

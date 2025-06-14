@@ -1,6 +1,6 @@
 <template>
   <div class="show-card">
-    <img :src="img" :alt="name" class="show-image" />
+    <img :src="getFullImgUrl(img)" :alt="name" class="show-image" />
     <div class="show-info">
       <div class="card-scroll-wrapper">
         <h3 class="card-scroll-text" ref="nameRef">{{ name }}</h3>
@@ -11,16 +11,16 @@
       <div class="card-scroll-wrapper">
         <p class="card-scroll-text" ref="locationRef">{{ location }}</p>
       </div>
-      <button class="btn-purchase">{{ price }}元起</button>
+      <button class="btn-purchase">{{ minPrice }}元起</button>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 
-// ShowCard 数据结构
-defineProps({
+// 接收父组件传入的 props
+const props = defineProps({
   name: String,
   date: String,
   location: String,
@@ -28,36 +28,52 @@ defineProps({
   img: String,
 })
 
+// —— 修正后的 getFullImgUrl ——
+// 如果 path 以 http:// 或 https:// 或者以 / 开头，直接返回；否则拼成 /uploads/xxx
+function getFullImgUrl(path) {
+  if (!path) return ''
+  if (/^(https?:)?\/\//.test(path) || path.startsWith('/')) {
+    return path
+  }
+  return `/uploads/${path}`
+}
+
+// 计算最低价
+const minPrice = computed(() => {
+  const p = props.price
+  if (typeof p === 'number') return p
+  const s = String(p)
+  const nums = s
+    .split(/[^0-9]+/)
+    .map((t) => parseInt(t, 10))
+    .filter((n) => !isNaN(n))
+  return nums.length > 0 ? Math.min(...nums) : ''
+})
+
+// 原滚动文字逻辑不变
 const nameRef = ref(null)
 const dateRef = ref(null)
 const locationRef = ref(null)
-
 function setupScroll(el) {
+  if (!el) return
   const wrapper = el.parentElement
-  const scrollDistance = el.scrollWidth - wrapper.clientWidth
-
-  if (scrollDistance <= 0) return // 没有溢出
-
-  let direction = -1
-  let position = 0
-
-  function animate() {
-    position += direction * 1 // 每帧移动 px
-    el.style.transform = `translateX(${position}px)`
-
-    if (position <= -scrollDistance || position >= 0) {
-      direction *= -1
-      setTimeout(() => requestAnimationFrame(animate), 3000) // 到头停顿3秒
+  const distance = el.scrollWidth - wrapper.clientWidth
+  if (distance <= 0) return
+  let dir = -1, pos = 0
+  function step() {
+    pos += dir
+    el.style.transform = `translateX(${pos}px)`
+    if (pos <= -distance || pos >= 0) {
+      dir = -dir
+      setTimeout(() => requestAnimationFrame(step), 3000)
     } else {
-      requestAnimationFrame(animate)
+      requestAnimationFrame(step)
     }
   }
-
-  requestAnimationFrame(animate)
+  requestAnimationFrame(step)
 }
-
 onMounted(() => {
-  ;[nameRef.value, dateRef.value, locationRef.value].forEach(setupScroll)
+  [nameRef.value, dateRef.value, locationRef.value].forEach(setupScroll)
 })
 </script>
 
@@ -73,23 +89,19 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
 }
-
 .show-card:hover {
   transform: translateY(-10px);
 }
-
 .show-image {
   width: 100%;
   aspect-ratio: 4 / 3;
-  object-position: center 20%;
   object-fit: cover;
+  object-position: center 20%;
 }
-
 .show-info {
   text-align: center;
   padding: 1rem;
 }
-
 .card-scroll-wrapper {
   width: 100%;
   overflow: hidden;
@@ -97,25 +109,11 @@ onMounted(() => {
   position: relative;
   height: 1.5em;
 }
-
 .card-scroll-text {
   display: inline-block;
   transition: transform 0.2s linear;
   will-change: transform;
 }
-
-.show-name {
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: #333;
-}
-
-.show-date,
-.show-location {
-  font-size: 0.95rem;
-  color: #666;
-}
-
 .btn-purchase {
   margin-top: 0.8rem;
   background-color: #42b983;
@@ -126,7 +124,6 @@ onMounted(() => {
   font-size: 0.95rem;
   cursor: pointer;
 }
-
 .btn-purchase:hover {
   background-color: #369c74;
 }
