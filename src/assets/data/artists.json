@@ -55,26 +55,6 @@
     "link": "/artist/huangzihongfan"
   },
   {
-    "name": "张三",
-    "image_path": "artists/zhangsan.JPG",
-    "link": "/artist/zhangsan"
-  },
-  {
-    "name": "李四",
-    "image_path": "artists/lisi.JPG",
-    "link": "/artist/lisi"
-  },
-  {
-    "name": "王五",
-    "image_path": "artists/wangwu.JPG",
-    "link": "/artist/wangwu"
-  },
-  {
-    "name": "李志",
-    "image_path": "artists/lizhi.JPG",
-    "link": "/artist/lizhi"
-  },
-  {
     "name": "万能青年旅店",
     "image_path": "artists/wnqnld.JPG",
     "link": "/artist/wannengqingnianlvdian"
@@ -88,11 +68,6 @@
     "name": "八仙乐队",
     "image_path": "artists/baxian.JPG",
     "link": "/artist/baxian"
-  },
-  {
-    "name": "芳文",
-    "image_path": "artists/fangwen.JPG",
-    "link": "/artist/fangwen"
   },
   {
     "name": "林忆莲",

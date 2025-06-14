@@ -1,6 +1,10 @@
 <template>
   <div class="recommend-card">
-    <img :src="getPoster(concert.poster)" alt="poster" class="recommend-img" />
+    <img
+      :src="getPoster(concert.poster)"
+      :alt="concert.name"
+      class="recommend-img"
+    />
     <div class="recommend-info">
       <div class="recommend-name">{{ concert.name }}</div>
       <div class="recommend-date">{{ concert.date }}</div>
@@ -11,12 +15,23 @@
 
 <script setup>
 const props = defineProps({
-  concert: Object
+  concert: {
+    type: Object,
+    required: true
+  }
 })
 
-function getPoster(name) {
-  // 实际开发中改为服务器路径
-  return `/static/poster/${name}`
+/**
+ * 拼接后端静态资源目录
+ * - 如果传的是完整 URL（http:// 或 https:// 开头），则不改
+ * - 否则在前面加 /uploads/
+ */
+function getPoster(path) {
+  if (!path) return ''
+  if (/^https?:\/\//.test(path)) {
+    return path
+  }
+  return `/uploads/concerts/${path}`
 }
 </script>
 
@@ -48,7 +63,8 @@ function getPoster(name) {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.recommend-date, .recommend-price {
+.recommend-date,
+.recommend-price {
   font-size: 13px;
   color: #3bc586;
 }

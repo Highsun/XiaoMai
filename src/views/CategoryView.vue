@@ -27,7 +27,11 @@
                 >
                   更多 <span style="font-size: 12px">▼</span>
                 </span>
-                <span class="filter-option more-btn" @click="toggleShowCities" v-if="showAllCities">
+                <span
+                  class="filter-option more-btn"
+                  @click="toggleShowCities"
+                  v-if="showAllCities"
+                >
                   收起 <span style="font-size: 12px">▲</span>
                 </span>
               </div>
@@ -98,84 +102,33 @@ dayjs.extend(isBetween)
 import hotCities from '../assets/data/hotCities.json'
 import allCities from '../assets/data/allCities.json'
 
-onMounted(async () => {
-  try {
-    const res = await axios.get('/api/shows/')
-    if (res.data.code === 0) {
-      concerts.value = res.data.data.map((item) => {
-        return {
-          id: item.id,
-          name: item.title,
-          tag: item.tag || '',
-          // FIXME: artist_name 消失
-          artist: Array.isArray(item.artist_names)
-            ? item.artist_names.join('、')
-            : item.artist_names || '',
-          location: item.location,
-          date: item.start_date + (item.end_date ? '-' + item.end_date : ''),
-          price:
-            Array.isArray(item.price) && item.price.length > 0
-              ? (item.price.length === 1
-                  ? item.price[0]
-                  : Math.min(...item.price) + '-' + Math.max(...item.price)) + '元'
-              : '',
-          status: item.ticket_status,
-          poster: '/images/' + item.image_path,
-        }
-      })
-    }
-  } catch (err) {
-    console.error('获取演出列表失败', err)
-  }
-})
-
 const concerts = ref([])
 
-// TODO: 右侧推荐数据
+// 推荐区（不影响此问题，可留空或自行替换）
 const recommendedConcerts = ref([
-  {
-    id: 100,
-    name: '李荣浩 年少有为 演唱会',
-    date: '2025.06.30',
-    poster: 'lironghao.png',
-    price: '299元起',
-  },
-  {
-    id: 101,
-    name: '薛之谦 天外来物巡回演唱会',
-    date: '2025.07.15',
-    poster: 'xuezhiqian.png',
-    price: '399元起',
-  },
-  {
-    id: 102,
-    name: '周杰伦 嘉年华巡回演唱会',
-    date: '2025.08.02',
-    poster: 'jaychou.png',
-    price: '520元起',
-  },
+  { id: 100, name: '李荣浩 年少有为 演唱会', date: '2025.06.30', poster: 'lironghao.png', price: '299元起' },
+  { id: 101, name: '薛之谦 天外来物巡回演唱会', date: '2025.07.15', poster: 'xuezhiqian.png', price: '399元起' },
+  { id: 102, name: '周杰伦 嘉年华巡回演唱会', date: '2025.08.02', poster: 'jaychou.png',   price: '520元起' },
 ])
 
 const showAllCities = ref(false)
-const displayedCities = computed(() => (showAllCities.value ? allCities : hotCities))
-function toggleShowCities() {
+const displayedCities = computed(() =>
+  showAllCities.value ? allCities : hotCities
+)
+const toggleShowCities = () => {
   showAllCities.value = !showAllCities.value
 }
 
-// 时间选项
 const times = ['全部', '今天', '明天', '本周末', '一个月内']
 const selectedCity = ref('全部')
 const selectedTime = ref('全部')
-const selectCity = (city) => (selectedCity.value = city)
-const selectTime = (time) => (selectedTime.value = time)
+const selectCity = (c) => (selectedCity.value = c)
+const selectTime = (t) => (selectedTime.value = t)
 
-// 路由和路由参数
 const route = useRoute()
 const router = useRouter()
 
 const searchInput = ref(route.query.q?.toString() || '')
-
-// 路由 q 同步更新输入框
 watch(
   () => route.query.q,
   (newQ) => {
@@ -184,83 +137,131 @@ watch(
       searchInput.value = val
     }
   },
-  { immediate: true },
+  { immediate: true }
 )
-
-// 输入框变化，清空时删除 q 参数
 watch(searchInput, (newVal) => {
   if (newVal.trim() === '' && route.query.q) {
-    const newQuery = { ...route.query }
-    delete newQuery.q
-    router.replace({ path: route.path, query: newQuery })
+    const nq = { ...route.query }
+    delete nq.q
+    router.replace({ path: route.path, query: nq })
   }
 })
 
 const searchKeyword = computed(() => (route.query.q?.toString() || '').trim())
-
-// 判断是否搜索状态（根据 URL q 参数）
 const isSearching = computed(() => !!searchKeyword.value)
 
-// 主过滤逻辑：搜索 + 分类
-const filteredConcerts = computed(() => {
-  let res = concerts.value
+/** 规范化日期显示 */
+function beautifyDate(str) {
+  if (!str) return ''
+  const m = str.match(/^(\d{4}-\d{2}-\d{2})(?:-(\d{4}-\d{2}-\d{2}))?$/)
+  if (!m) return str.replace(/-/g, '.')
+  const s = m[1].replace(/-/g, '.')
+  const e = m[2] ? m[2].replace(/-/g, '.') : ''
+  return e && s !== e ? `${s} - ${e}` : s
+}
 
-  // 搜索模式下优先匹配 name、artist、location
+/** 规范化价格显示 */
+function beautifyPrice(p) {
+  if (typeof p === 'string') return p
+  if (Array.isArray(p) && p.length > 0) {
+    return p.length === 1
+      ? `${p[0]}元`
+      : `${Math.min(...p)}-${Math.max(...p)}元`
+  }
+  return ''
+}
+
+onMounted(async () => {
+  try {
+    const res = await axios.get('/api/shows/')
+    if (res.data.code !== 0) throw new Error(res.data.message)
+
+    const statusMap = {
+      hot:      '热卖中',
+      upcoming: '即将上架',
+      soldout:  '已售罄',
+      sold_out: '已售罄'
+    }
+
+    concerts.value = res.data.data.map((item) => ({
+      id:       item.id,
+      name:     item.name,
+      tag:      item.tag,
+      artist:   item.artist,
+      // 关键一步：给 CategoryInfoComp 里使用的 fallback 提供数组
+      artists:  item.artist ? item.artist.split('、') : [],
+      location: item.location,
+      date:     beautifyDate(item.date),
+      price:    beautifyPrice(item.price),
+      status:   statusMap[item.status] || item.status || '',
+      poster:   item.poster ? `/uploads/${item.poster}` : ''
+    }))
+  } catch (err) {
+    console.error('获取演出列表失败', err)
+  }
+})
+
+/** 综合搜索 + 筛选逻辑 */
+const filteredConcerts = computed(() => {
+  let list = concerts.value
+
+  // 搜索模式
   if (isSearching.value) {
     const terms = searchKeyword.value.toLowerCase().split(/\s+/)
-    res = res.filter((c) => {
-      const fields = [c.name, c.artist, c.location].join(' ').toLowerCase()
-      return terms.every((term) => fields.includes(term))
-    })
-    return res
+    return list.filter((c) =>
+      terms.every((t) =>
+        [c.name, c.artist, c.location].join(' ')
+          .toLowerCase()
+          .includes(t)
+      )
+    )
   }
 
   // 城市筛选
   if (selectedCity.value !== '全部') {
-    res = res.filter((c) => c.name.includes(selectedCity.value))
+    list = list.filter((c) => c.location.includes(selectedCity.value))
   }
 
   // 时间筛选
   if (selectedTime.value !== '全部') {
     const now = dayjs()
-    let rangeStart, rangeEnd
+    let start, end
 
     switch (selectedTime.value) {
       case '今天':
-        rangeStart = now.startOf('day')
-        rangeEnd = now.endOf('day')
+        start = now.startOf('day')
+        end   = now.endOf('day')
         break
       case '明天':
-        rangeStart = now.add(1, 'day').startOf('day')
-        rangeEnd = now.add(1, 'day').endOf('day')
+        start = now.add(1, 'day').startOf('day')
+        end   = now.add(1, 'day').endOf('day')
         break
       case '本周末':
-        rangeStart = now.day(6).startOf('day')
-        rangeEnd = now.day(7).endOf('day')
+        start = now.day(6).startOf('day')
+        end   = now.day(7).endOf('day')
         break
       case '一个月内':
-        rangeStart = now
-        rangeEnd = now.add(1, 'month').endOf('day')
+        start = now
+        end   = now.add(1, 'month').endOf('day')
         break
       default:
-        rangeStart = null
-        rangeEnd = null
+        start = null
+        end   = null
     }
 
-    res = res.filter((c) => {
-      let [start, end] = c.date.split('-')
-      start = start.trim()
-      end = end ? end.trim() : start
-      if (/^\d{2}\.\d{2}$/.test(end)) {
-        end = start.slice(0, 5) + end
+    list = list.filter((c) => {
+      let [s, e] = c.date.split('-').map((t) => t.trim())
+      if (/^\d{4}\.\d{2}\.\d{2}$/.test(e) === false) {
+        // 单日期或 MM.DD 缩写的情况
+        e = s
       }
-      const startDay = dayjs(start, 'YYYY.MM.DD')
-      const endDay = dayjs(end, 'YYYY.MM.DD')
-      return endDay.isSameOrAfter(rangeStart) && startDay.isSameOrBefore(rangeEnd)
+      const sd = dayjs(s, 'YYYY.MM.DD')
+      const ed = dayjs(e, 'YYYY.MM.DD')
+      return ed.isSameOrAfter(start) && sd.isSameOrBefore(end)
     })
   }
 
-  return res
+  return list
 })
 </script>
 
