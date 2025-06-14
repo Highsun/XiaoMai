@@ -80,7 +80,8 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import axios from 'axios'
+import { onMounted, ref, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import NavbarComp from '../components/NavbarComp.vue'
 import CategoryInfoComp from '../components/CategoryInfoComp.vue'
@@ -97,120 +98,40 @@ dayjs.extend(isBetween)
 import hotCities from '../assets/data/hotCities.json'
 import allCities from '../assets/data/allCities.json'
 
-const concerts = ref([
-  {
-    id: 1,
-    name: '【成都】新蜂音乐节·成都站',
-    tag: '音乐节',
-    artist: '薛之谦, 潘玮柏, 黄子弘凡',
-    location: '成都露天音乐公园北广场',
-    date: '2025.07.05-07.06',
-    price: '189-1197元',
-    status: '售票中',
-    poster: 'fengmusic.png',
-  },
-  {
-    id: 2,
-    name: '【北京】开心水花摇滚音乐大戏《燃烧PLUS》',
-    tag: '演唱会',
-    artist: '张三, 李四, 王五',
-    location: '地坛剧场剧场',
-    date: '2025.06.29-07.06',
-    price: '80-1080元',
-    status: '售票中',
-    poster: 'rockshow.png',
-  },
-  {
-    id: 3,
-    name: '【沈阳】汽水音乐Chill派对',
-    tag: '音乐节',
-    artist: '李志, 万能青年旅店, 八三夭, 八仙乐队, 芳文',
-    location: '沈阳航空航天大学体育场',
-    date: '2025.06.14-06.15',
-    price: '98元',
-    status: '售票中',
-    poster: 'chillparty.png',
-  },
-  {
-    id: 4,
-    name: '【哈尔滨】五月天 2025五月天25周年巡回演唱会',
-    tag: '演唱会',
-    artist: '五月天',
-    location: '哈尔滨国际会展体育中心体育场',
-    date: '2025.06.13-06.15',
-    price: '355-1555元',
-    status: '售票中',
-    poster: 'mayday.png',
-  },
-  {
-    id: 5,
-    name: '【青岛】林忆莲《回忆 Resonance》2025巡回演唱会',
-    tag: '演唱会',
-    artist: '林忆莲',
-    location: '青岛市体育中心体育场',
-    date: '2025.06.29',
-    price: '266-1288元',
-    status: '售罄',
-    poster: 'linyilian.png',
-  },
-  {
-    id: 6,
-    name: '【上海】陶喆 Soul Power II 世界巡回演唱会',
-    tag: '演唱会',
-    artist: '陶喆',
-    location: '上海梅赛德斯奔驰文化中心',
-    date: '2025.07.12',
-    price: '399-1299元',
-    status: '售票中',
-    poster: 'taozhe.png',
-  },
-  {
-    id: 7,
-    name: '【深圳】李荣浩 年少有为 演唱会',
-    tag: '演唱会',
-    artist: '李荣浩',
-    location: '深圳湾体育中心',
-    date: '2025.07.20',
-    price: '299-999元',
-    status: '售票中',
-    poster: 'lironghao.png',
-  },
-  {
-    id: 8,
-    name: '【杭州】周杰伦 嘉年华巡回演唱会',
-    tag: '演唱会',
-    artist: '周杰伦',
-    location: '杭州奥体中心',
-    date: '2025.08.02',
-    price: '520-2025元',
-    status: '售票中',
-    poster: 'jaychou.png',
-  },
-  {
-    id: 9,
-    name: '【广州】薛之谦 天外来物巡回演唱会',
-    tag: '演唱会',
-    artist: '薛之谦',
-    location: '广州体育馆',
-    date: '2025.08.08',
-    price: '299-1599元',
-    status: '售票中',
-    poster: 'xuezhiqian.png',
-  },
-  {
-    id: 10,
-    name: '【北京】五月天 Just Rock It！演唱会',
-    tag: '演唱会',
-    artist: '五月天',
-    location: '北京鸟巢',
-    date: '2025.06.28',
-    price: '599-1599元',
-    status: '售票中',
-    poster: 'maydaybj.png',
-  },
-])
+onMounted(async () => {
+  try {
+    const res = await axios.get('/api/shows/')
+    if (res.data.code === 0) {
+      concerts.value = res.data.data.map((item) => {
+        return {
+          id: item.id,
+          name: item.title,
+          tag: item.tag || '',
+          // FIXME: artist_name 消失
+          artist: Array.isArray(item.artist_names)
+            ? item.artist_names.join('、')
+            : item.artist_names || '',
+          location: item.location,
+          date: item.start_date + (item.end_date ? '-' + item.end_date : ''),
+          price:
+            Array.isArray(item.price) && item.price.length > 0
+              ? (item.price.length === 1
+                  ? item.price[0]
+                  : Math.min(...item.price) + '-' + Math.max(...item.price)) + '元'
+              : '',
+          status: item.ticket_status,
+          poster: '/images/' + item.image_path,
+        }
+      })
+    }
+  } catch (err) {
+    console.error('获取演出列表失败', err)
+  }
+})
 
-// TODO:右侧推荐数据
+const concerts = ref([])
+
+// TODO: 右侧推荐数据
 const recommendedConcerts = ref([
   {
     id: 100,

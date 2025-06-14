@@ -65,21 +65,29 @@ def import_all():
         with open("/Users/highsun/Desktop/Code/XiaoMai/src/assets/data/shows.json", "r", encoding="utf-8") as f:
             raw_shows = json.load(f)
 
+        # FIXME: artist_names 消失
         # 6. 插入所有 Show
         show_objs = []
         for item in raw_shows:
             sd, ed = parse_date_range(item["date"])
             show = Show(
                 title=item["title"],
+                tag=item["tag"],
                 start_date=sd,
                 end_date=ed,
                 location=item["location"],
                 price=item["price"],
                 status=item["status"],
-                image_path=item["image_path"],
-                artist_id=artist_map[item["artist_name"]]
-                # created_at/updated_at 由模型 default 自动填充
+                ticket_status=item["ticket_status"],
+                image_path=item["image_path"]
             )
+
+            # 添加所有相关 artist 对象
+            for name in item["artist_name"]:
+                artist = Artist.query.filter_by(name=name).first()
+                if artist:
+                    show.artists.append(artist)
+
             show_objs.append(show)
 
         db.session.add_all(show_objs)

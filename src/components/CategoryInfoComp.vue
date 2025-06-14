@@ -11,7 +11,7 @@
       <div class="category-meta">
         <div class="category-meta-row">
           <span class="category-label">艺人：</span>
-          <span class="category-artist">{{ concert.artist }}</span>
+          <span class="category-artist">{{ concert.artist_names }}</span>
         </div>
         <div class="category-meta-row">
           <span class="category-label">场馆：</span>
@@ -25,7 +25,7 @@
 
       <div class="category-bottom-row">
         <span class="category-price">{{ concert.price }}</span>
-        <span :class="['category-status', {soldout: concert.status === '售罄'}]">
+        <span :class="['category-status', { soldout: concert.status === '售罄' }]">
           {{ concert.status }}
         </span>
       </div>
@@ -34,16 +34,18 @@
 </template>
 
 <script setup>
-const props = defineProps({
+const { concert } = defineProps({
   concert: {
     type: Object,
-    required: true
-  }
+    required: true,
+  },
 })
+
+console.log('concert in CategoryInfoComp:', concert)
 
 function getPoster(name) {
   // TODO:后端路径
-  return `/static/poster/${name}`;
+  return `/static/poster/${name}`
 }
 
 function goDetail() {
@@ -57,14 +59,16 @@ function goDetail() {
   align-items: flex-start;
   background: #fff;
   border-radius: 20px;
-  box-shadow: 0 4px 18px 0 rgba(55,188,119,0.07);
+  box-shadow: 0 4px 18px 0 rgba(55, 188, 119, 0.07);
   padding: 18px 24px;
   margin-bottom: 16px;
-  transition: box-shadow 0.2s, transform 0.2s;
+  transition:
+    box-shadow 0.2s,
+    transform 0.2s;
   cursor: pointer;
 }
 .category-card:hover {
-  box-shadow: 0 8px 24px 0 rgba(55,188,119,0.15);
+  box-shadow: 0 8px 24px 0 rgba(55, 188, 119, 0.15);
   transform: translateY(-2px) scale(1.02);
 }
 
