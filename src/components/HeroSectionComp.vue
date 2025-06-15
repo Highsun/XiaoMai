@@ -14,7 +14,12 @@
         <h1 class="title">{{ slides[current].title }}</h1>
         <p class="subtitle" v-html="slides[current].description"></p>
 
-        <button class="btn-ticket" @click="goToTickets">立即购票</button>
+        <router-link
+          :to="{ name: 'BuyTickets', params: { id: slides[current].id } }"
+          class="btn-link"
+        >
+          <button class="btn-ticket">立即购票</button>
+        </router-link>
       </div>
 
       <!-- 右侧图片内容 -->
@@ -48,21 +53,23 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 
-// TODO: 后期替换为动态数据
 const slides = [
   {
+    id: 1,
     title: '林俊杰 JJ20 FINAL LAP 世界巡回演唱会',
     description: `《JJ20 世界巡回演唱会》，自2022年11月在新加坡首演以来，便获得了极高评价。2025年，林俊杰将呈现他全新的《JJ20 FINAL LAP 世界巡回演唱会》，此轮巡演的最终回标志着林俊杰20周年音乐生涯的里程碑。<br/><br/>
     立即购票，锁定你的专属座位！⬇️`,
     img: '/uploads/hero_section/JJ20.jpeg',
   },
   {
+    id: 2,
     title: '周杰伦《嘉年华》巡回演唱会',
     description: `亚洲天王周杰伦和他震撼人心的嘉年华演唱会即将登陆！这场演出将汇聚他最具代表性的经典金曲，并结合崭新的舞台设计，势必掀起一场无与伦比的音乐狂欢！<br/><br/>
     立即购票，锁定你的专属座位！⬇️`,
     img: '/uploads/hero_section/Jay.jpg',
   },
   {
+    id: 3,
     title: '陶喆 Soul Power II 世界巡回演唱会',
     description: `台湾R&B教父陶喆携“Soul Power II”世界巡演时隔20年回归！全场交织《爱很简单》《普通朋友》《就是爱你》等跨时代经典与全新编曲，现场即兴与升级舞美共同缔造沉浸式视听盛宴。<br/><br/>
     立即购票，锁定你的专属座位！⬇️`,
@@ -104,11 +111,6 @@ function goTo(i) {
   animationDirection.value = i > current.value ? 'fade-left' : 'fade-right'
   current.value = i
   resetInterval()
-}
-
-function goToTickets() {
-  // TODO: 跳转购票页面的逻辑
-  console.log('跳转购票页')
 }
 
 onMounted(() => {
