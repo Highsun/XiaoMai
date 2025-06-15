@@ -23,6 +23,7 @@ import { ref, onMounted, computed } from 'vue'
 
 // 接收父组件传入的 props
 const props = defineProps({
+  id: [String, Number],
   name: String,
   date: String,
   location: String,

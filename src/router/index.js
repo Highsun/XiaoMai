@@ -23,9 +23,8 @@ const routes = [
     name: 'Register',
     component: RegisterView,
   },
-  // FIXME: Test
   {
-    path: '/buy-tickets',
+    path: '/buy-tickets/:id',
     name: 'BuyTickets',
     component: BuyTicketsView,
   },
