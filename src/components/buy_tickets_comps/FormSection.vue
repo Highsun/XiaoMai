@@ -64,9 +64,7 @@
             :key="tier.label + tier.price"
             class="radio-button"
             :class="{
-              active:
-                selectedTier.label === tier.label &&
-                selectedTier.price === tier.price
+              active: selectedTier.label === tier.label && selectedTier.price === tier.price,
             }"
           >
             <input type="radio" v-model="selectedTier" :value="tier" />
@@ -93,12 +91,8 @@
     <div class="purchase-row">
       <p class="countdown-text">距开抢还有：{{ countdownText }}</p>
       <div class="button-group">
-        <button class="favorite-btn" @click="addToFavorites">
-          加入收藏夹
-        </button>
-        <button class="buy-button" :disabled="!canBuy" @click="handleBuy">
-          立即购买
-        </button>
+        <button class="favorite-btn" @click="addToFavorites">加入收藏夹</button>
+        <button class="buy-button" :disabled="!canBuy" @click="handleBuy">立即购买</button>
       </div>
     </div>
   </div>
@@ -129,7 +123,7 @@ const cityData = {
       '07.06 19:00',
       '07.11 19:00',
       '07.12 19:00',
-      '07.13 19:00'
+      '07.13 19:00',
     ],
     priceTiers: [
       { label: '看台', price: 380 },
@@ -137,10 +131,10 @@ const cityData = {
       { label: '看台', price: 980 },
       { label: '内场', price: 1380 },
       { label: '内场', price: 1580 },
-      { label: '内场', price: 1880 }
-    ]
+      { label: '内场', price: 1880 },
+    ],
   },
-  '韩国仁川': {
+  韩国仁川: {
     date: '2025.06.14-06.15',
     venue: '韩国仁川·INSPIRE ARENA 迎仕柏综艺馆',
     mapUrl: '',
@@ -151,9 +145,9 @@ const cityData = {
       { label: '坐席', price: 990 },
       { label: '坐席', price: 1390 },
       { label: '坐席', price: 1690 },
-      { label: '坐席', price: 2290 }
-    ]
-  }
+      { label: '坐席', price: 2290 },
+    ],
+  },
 }
 
 const cities = Object.keys(cityData)
@@ -208,9 +202,7 @@ function updateCountdown() {
   const hours = Math.floor((totalSeconds % 86400) / 3600)
   const minutes = Math.floor((totalSeconds % 3600) / 60)
   const seconds = totalSeconds % 60
-  countdownText.value = `${pad(days)}天 ${pad(hours)}:${pad(
-    minutes
-  )}:${pad(seconds)}`
+  countdownText.value = `${pad(days)}天 ${pad(hours)}:${pad(minutes)}:${pad(seconds)}`
   canBuy.value = false
 }
 
@@ -231,8 +223,8 @@ function handleBuy() {
       price: selectedTier.value.price,
       label: selectedTier.value.label,
       quantity: quantity.value,
-      total: totalPrice.value
-    }
+      total: totalPrice.value,
+    },
   })
 }
 
@@ -242,7 +234,7 @@ function addToFavorites() {
     city: selectedCity.value,
     session: selectedSession.value,
     tier: selectedTier.value,
-    quantity: quantity.value
+    quantity: quantity.value,
   })
 }
 
@@ -279,7 +271,9 @@ onUnmounted(() => {
   border-radius: 8px;
   font-size: 1rem;
   cursor: pointer;
-  transition: background 0.2s, transform 0.1s;
+  transition:
+    background 0.2s,
+    transform 0.1s;
 
   /* 新增：Flex 居中内容 */
   display: flex;
@@ -310,5 +304,4 @@ onUnmounted(() => {
   background: #1f9855;
   transform: translateY(-1px);
 }
-
 </style>

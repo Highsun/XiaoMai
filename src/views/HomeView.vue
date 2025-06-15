@@ -66,10 +66,14 @@ onMounted(async () => {
       HotShows.value = hotRes.data.data.map((item) => ({
         id: item.id,
         name: item.title,
-        date: beautifyDate(item.date),
+        date: beautifyDate(
+          item.start_date && item.end_date
+            ? `${item.start_date}-${item.end_date}`
+            : item.start_date,
+        ),
         location: item.location,
         price: beautifyPrice(item.price),
-        img: item.poster ? `/uploads/${item.poster}` : '',
+        img: item.image_url ? item.image_url : '',
       }))
     } else {
       console.warn('加载热卖演出失败：', hotRes.data.message)
@@ -80,11 +84,15 @@ onMounted(async () => {
     if (upRes.data.code === 0) {
       Upcomings.value = upRes.data.data.map((item) => ({
         id: item.id,
-        name: item.name,
-        date: beautifyDate(item.date),
+        name: item.title,
+        date: beautifyDate(
+          item.start_date && item.end_date
+            ? `${item.start_date}-${item.end_date}`
+            : item.start_date,
+        ),
         location: item.location,
         price: beautifyPrice(item.price),
-        img: item.poster ? `/uploads/${item.poster}` : '',
+        img: item.image_url ? item.image_url : '',
       }))
     } else {
       console.warn('加载即将推出演出失败：', upRes.data.message)
