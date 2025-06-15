@@ -1,5 +1,3 @@
-# backend/app.py
-
 from flask import Flask, send_from_directory, jsonify
 from flask_cors import CORS
 from .config import Config
