@@ -118,6 +118,11 @@ class Show(db.Model):
     created_at    = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at    = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
+    # —— 新增字段 ——
+    sessions     = db.Column(JSON,           nullable=False, default={},  server_default='{}')
+    price_tiers  = db.Column(JSON,           nullable=False, default={},  server_default='{}')
+    map_url      = db.Column(db.String(256), nullable=False, default='',  server_default='')
+
     artists = db.relationship(
         'Artist',
         secondary=show_artists,
@@ -126,60 +131,50 @@ class Show(db.Model):
     )
 
     def to_dict(self):
-        # 1. 拼所有艺人名字
+        # 原有逻辑不变
         names = [a.name for a in self.artists.all()]
-
-        # 2. 拼日期字符串
         if self.end_date:
             date_str = f"{self.start_date.strftime('%Y-%m-%d')}-{self.end_date.strftime('%Y-%m-%d')}"
         else:
             date_str = self.start_date.strftime('%Y-%m-%d')
-
-        # 3. 拼价格字符串
         if isinstance(self.price, list):
             if len(self.price) == 1:
                 price_str = f"{self.price[0]}元"
-            elif len(self.price) > 1:
-                price_str = f"{self.price[0]}-{self.price[-1]}元"
             else:
-                price_str = ""
+                price_str = f"{self.price[0]}-{self.price[-1]}元"
         else:
             price_str = str(self.price)
 
-        # 4. 返回前端模板想要的字段名
+        # 在 to_dict 里额外返回新字段
         return {
-            "id":       self.id,            # concert.id
-            "name":     self.title,         # concert.name
-            "tag":      self.tag,           # concert.tag
-            "poster":   self.image_path,    # concert.poster
-            "artist":   "、".join(names),   # concert.artist
-            "location": self.location,      # concert.location
-            "date":     date_str,           # concert.date
-            "price":    price_str,          # concert.price
-            "status":   self.status         # concert.status
+            "id":          self.id,
+            "title":       self.title,
+            "tag":         self.tag,
+            "start_date":  self.start_date.strftime('%Y-%m-%d'),
+            "end_date":    self.end_date.strftime('%Y-%m-%d') if self.end_date else None,
+            "location":    self.location,
+            "price":       self.price,
+            "status":      self.status,
+            "ticket_status": self.ticket_status,
+            "image_url":   f"/uploads/{self.image_path}",
+            "artist_names":names,
+            "sessions":    self.sessions,
+            "price_tiers": self.price_tiers,
+            "map_url":     self.map_url
         }
-
 
 # ============ 订单 (Order) 模型 ============
 class Order(db.Model):
     __tablename__ = 'orders'
-
     id          = db.Column(db.Integer, primary_key=True)
     user_id     = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     total_price = db.Column(db.Numeric(10, 2), nullable=False)
     status      = db.Column(db.String(32), default='pending', nullable=False)
     created_at  = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at  = db.Column(
-        db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
-    )
+    updated_at  = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     user  = db.relationship('User', backref=db.backref('orders', lazy='dynamic'))
-    items = db.relationship(
-        'OrderItem',
-        back_populates='order',
-        cascade='all, delete-orphan',
-        lazy='joined'
-    )
+    items = db.relationship('OrderItem', back_populates='order', cascade='all, delete-orphan', lazy='joined')
 
     def __repr__(self):
         return f"<Order id={self.id} user={self.user_id} total={self.total_price}>"
@@ -187,7 +182,6 @@ class Order(db.Model):
 # ============ 订单条目 (OrderItem) 模型 ============
 class OrderItem(db.Model):
     __tablename__ = 'order_items'
-
     id         = db.Column(db.Integer, primary_key=True)
     order_id   = db.Column(db.Integer, db.ForeignKey('orders.id'), nullable=False)
     show_id    = db.Column(db.Integer, db.ForeignKey('shows.id'), nullable=False)
