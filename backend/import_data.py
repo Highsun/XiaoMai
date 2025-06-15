@@ -1,4 +1,3 @@
-
 """
 import_data.py
 
@@ -65,6 +64,7 @@ def import_all():
 
         for item in raw_shows:
             sd, ed = parse_date_range(item["date"])
+            # 创建 Show 对象时，一并初始化新加的三列
             show = Show(
                 title=item["title"],
                 tag=item["tag"],
@@ -74,11 +74,14 @@ def import_all():
                 price=item["price"],
                 status=item["status"],
                 ticket_status=item["ticket_status"],
-                image_path=item["image_path"]
+                image_path=item["image_path"],
+                sessions=item.get("sessions", []),       # JSON 列，默认空列表
+                price_tiers=item.get("price_tiers", []), # JSON 列，默认空列表
+                map_url=item.get("map_url", "")          # 字符串列，默认空字符串
             )
-            # 先把 show 加入 session，再关联 artist
             db.session.add(show)
-            for name in item["artist_name"]:
+            # 关联多对多
+            for name in item.get("artist_name", []):
                 artist = Artist.query.filter_by(name=name).first()
                 if artist:
                     show.artists.append(artist)
