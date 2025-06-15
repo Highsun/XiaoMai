@@ -28,12 +28,12 @@ import ShowCard from '../components/ShowCardComp.vue'
 defineProps({
   title: {
     type: String,
-    required: true
+    required: true,
   },
   shows: {
     type: Array,
-    default: () => []
-  }
+    default: () => [],
+  },
 })
 
 const router = useRouter()
@@ -46,8 +46,8 @@ function goToCategory() {
 /* 最外层容器，给个 max-width 并水平居中 */
 .category-container {
   margin: 24px auto;
-  padding: 0 16px;        /* 给左右留点内边距，避免贴边 */
-  max-width: 1200px;      /* 根据你的设计稿决定宽度 */
+  padding: 0 16px; /* 给左右留点内边距，避免贴边 */
+  max-width: 1200px; /* 根据你的设计稿决定宽度 */
 }
 
 /* 标题区 */
