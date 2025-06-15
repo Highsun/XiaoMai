@@ -5,8 +5,8 @@
     <div class="venue-row">
       <span class="venue-text">{{ currentCityData.venue }}</span>
       <button class="map-btn" @click="toggleMap">
-        <i class="fas fa-map-marker-alt"></i>
-        <span> 在地图上查看</span>
+        <i class="fas fa-map-marker-alt" style="font-size: 16px"></i>
+        <span style="font-size: 16px"> 在地图上查看</span>
       </button>
     </div>
     <transition name="map-fade">
@@ -27,25 +27,10 @@
 
     <div class="options">
       <div class="option-group">
-        <label>城市</label>
-        <div class="radio-list">
-          <label
-            v-for="city in cities"
-            :key="city"
-            class="radio-button"
-            :class="{ active: selectedCity === city }"
-          >
-            <input type="radio" v-model="selectedCity" :value="city" />
-            {{ city }}
-          </label>
-        </div>
-      </div>
-
-      <div class="option-group">
         <label>场次</label>
         <div class="radio-list">
           <label
-            v-for="session in currentCityData.sessions"
+            v-for="session in sessions"
             :key="session"
             class="radio-button"
             :class="{ active: selectedSession === session }"
@@ -99,68 +84,61 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
+
+const props = defineProps({
+  concert: {
+    type: Object,
+    required: true,
+  },
+})
+
 const router = useRouter()
 
-const title = 'JJ林俊杰 JJ20 FINAL LAP 世界巡回演唱会'
+const title = computed(() => props.concert.title)
 const presaleNote = '⚠️ 本商品为预售，正式开票后将第一时间配票'
 const presaleText =
   '预售期间，由于主办未正式开票，下单后无法立即为您配票。一般于演出前1-2周开票，待正式开票后，请您通过订单详情页或者票夹详情，查看票品信息、取票方式等演出相关信息。'
 
-const cityData = {
-  北京: {
-    date: '2025.06.28-07.13',
-    venue: '北京市·国家体育场-鸟巢',
-    mapUrl: '',
-    startTime: '2025-05-28T20:00:00',
-    sessions: [
-      '06.27 19:00',
-      '06.28 19:00',
-      '06.29 19:00',
-      '07.04 19:00',
-      '07.05 19:00',
-      '07.06 19:00',
-      '07.11 19:00',
-      '07.12 19:00',
-      '07.13 19:00',
-    ],
-    priceTiers: [
-      { label: '看台', price: 380 },
-      { label: '看台', price: 680 },
-      { label: '看台', price: 980 },
-      { label: '内场', price: 1380 },
-      { label: '内场', price: 1580 },
-      { label: '内场', price: 1880 },
-    ],
-  },
-  韩国仁川: {
-    date: '2025.06.14-06.15',
-    venue: '韩国仁川·INSPIRE ARENA 迎仕柏综艺馆',
-    mapUrl: '',
-    startTime: '2025-04-22T11:00:00',
-    sessions: ['06.14 19:00', '06.15 19:00'],
-    priceTiers: [
-      { label: '坐席', price: 590 },
-      { label: '坐席', price: 990 },
-      { label: '坐席', price: 1390 },
-      { label: '坐席', price: 1690 },
-      { label: '坐席', price: 2290 },
-    ],
-  },
-}
-
-const cities = Object.keys(cityData)
-const selectedCity = ref(cities[0])
-const currentCityData = computed(() => cityData[selectedCity.value])
-const selectedSession = ref(currentCityData.value.sessions[0])
-const selectedTier = ref(currentCityData.value.priceTiers[0])
-
-watch(selectedCity, (newCity) => {
-  selectedSession.value = cityData[newCity].sessions[0]
-  selectedTier.value = cityData[newCity].priceTiers[0]
-  restartCountdown()
+const currentCityData = computed(() => {
+  return {
+    date: props.concert.start_date + (props.concert.end_date ? '-' + props.concert.end_date : ''),
+    venue: props.concert.location,
+    mapUrl: props.concert.map_url,
+    startTime: props.concert.start_date + 'T00:00:00',
+    priceTiers: props.concert.price_tiers || [],
+  }
 })
+
+// 修正 sessions 处理 - 直接使用 props.concert.sessions
+const sessions = computed(() => {
+  return props.concert.sessions || []
+})
+
+const selectedSession = ref(null)
+const selectedTier = ref(null)
+
+// 初始化选中项
+watch(
+  sessions,
+  (val) => {
+    if (val && val.length > 0 && !selectedSession.value) {
+      selectedSession.value = val[0]
+    }
+  },
+  { immediate: true },
+)
+
+watch(
+  () => currentCityData.value.priceTiers,
+  (val) => {
+    if (val && val.length > 0 && !selectedTier.value) {
+      selectedTier.value = val[0]
+    }
+  },
+  { immediate: true },
+)
 
 const quantity = ref(1)
 const maxQuantity = 4
@@ -170,7 +148,7 @@ function increaseQty() {
 function decreaseQty() {
   if (quantity.value > 1) quantity.value--
 }
-const totalPrice = computed(() => selectedTier.value.price * quantity.value)
+const totalPrice = computed(() => selectedTier.value?.price * quantity.value || 0)
 
 const showMap = ref(false)
 function toggleMap() {
@@ -217,11 +195,10 @@ function handleBuy() {
   router.push({
     name: 'Pay',
     query: {
-      ticketName: title,
-      city: selectedCity.value,
-      session: selectedSession.value,
-      price: selectedTier.value.price,
-      label: selectedTier.value.label,
+      ticketName: title.value,
+      session: selectedSession.value?.session_label || selectedSession.value?.date,
+      price: selectedTier.value?.price,
+      label: selectedTier.value?.label,
       quantity: quantity.value,
       total: totalPrice.value,
     },
@@ -230,8 +207,7 @@ function handleBuy() {
 
 function addToFavorites() {
   console.log('加入收藏：', {
-    ticket: title,
-    city: selectedCity.value,
+    ticket: title.value,
     session: selectedSession.value,
     tier: selectedTier.value,
     quantity: quantity.value,

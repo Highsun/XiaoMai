@@ -174,17 +174,15 @@
 }
 .seat-map {
   margin-bottom: 16px;
-  background-color: #42b983;
-  color: white;
-  border: none;
+  text-align: center;
+  border: 1.5px solid #42b983;
+  background-color: #fff;
+  color: #42b983;
+  font-weight: bold;
   padding: 10px 20px;
   border-radius: 6px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
 }
-.seat-map:hover {
-  background-color: #38a16c;
-}
+
 .hints {
   display: flex;
   flex-direction: column;

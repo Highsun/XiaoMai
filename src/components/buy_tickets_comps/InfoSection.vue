@@ -1,7 +1,7 @@
 <template>
   <!-- 右侧辅助信息 -->
   <div class="side-section">
-    <button class="seat-map" @click="toggleSeatMap">查看座位图</button>
+    <div class="seat-map" disabled>观演须知</div>
     <div class="hints">
       <div v-for="(hint, index) in hints" :key="index" class="hint-item">
         <div class="hint-header">
@@ -15,33 +15,9 @@
       </div>
     </div>
   </div>
-
-  <!-- 座位图弹窗 -->
-  <transition name="map-fade">
-    <div v-if="showSeatMap" class="map-overlay">
-      <div class="map-popup">
-        <img :src="seatMapUrl" alt="暂无座位图" class="seatmap-img" />
-      </div>
-      <button class="close-icon" @click="toggleSeatMap">
-        <i class="fas fa-times"></i>
-      </button>
-    </div>
-  </transition>
 </template>
 
 <script setup>
-// 座位图
-import { ref } from 'vue'
-
-// TODO: 实现跨组件通信，使用FormSection中的城市按钮统一切换数据
-const seatMapUrl = '' // TODO: 添加座位图，接入数据库
-const showSeatMap = ref(false)
-
-function toggleSeatMap() {
-  showSeatMap.value = !showSeatMap.value
-}
-
-// 提示信息
 const hints = [
   {
     type: 'no',
@@ -66,7 +42,7 @@ const hints = [
   {
     type: 'ok',
     title: '电子发票',
-    text: '本项目支持开具电子发票。需要在演出开始前在订单详情页提交发票申请，一般演出结束后1个月左右开具并发送至您的邮箱。', // TODO: 接入数据库
+    text: '本项目支持开具电子发票。需要在演出开始前在订单详情页提交发票申请，一般演出结束后1个月左右开具并发送至您的邮箱。',
   },
 ]
 </script>
