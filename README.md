@@ -6,13 +6,17 @@
 
 ![Platform](https://img.shields.io/badge/platform-Web-yellow.svg)
 ![Status](https://img.shields.io/badge/status-developing-orange.svg)
-![Version](https://img.shields.io/badge/version-v0.1.0-blueviolet.svg)
+![Version](https://img.shields.io/badge/version-v1.0.0-blueviolet.svg)
 
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 
 **Electronic Ticketing System**  
 Software Engineering Course Assignment, 2022  
 University of Electronic Science and Technology of China
+
+> **🎉 The first stable version of Xiaomai has been successfully deployed!**
+>
+> **👉 Visit [Xiaomai official website](http://47.109.154.39/) to explore the project!**
 
 ---
 
@@ -189,13 +193,12 @@ Enter ".help" for usage hints.
 1|xiaomai|admin@xiaomai.com|$2b$12$HFq/YalXWJMH3J7.O15w9.oLhorZrkCJgDrAnvQNJpQ1C3o4ouIo6|2025-05-31 06:30:47.568050
 ```
 
-
 ## Membership links
 
 You can access the repositories of other collaborators in this project through the following link.
 
 - [Maxence](https://github.com/Maxence-29/XiaoMai.git): Backend Dev.
-- [Liangyuwei](https://github.com/wowpwowowowowpodjckdjckdjfkdjfkdjf/XiaoMai.git): Document & API management.
+- [Liangyuwei](https://github.com/wowpwowowowowpodjckdjckdjfkdjfkdjf/XiaoMai.git): Document & deployment manager.
 
 ## License
 
