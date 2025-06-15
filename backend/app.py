@@ -11,6 +11,7 @@ from .routes.auth      import auth_bp
 from .routes.user      import user_bp
 from .routes.orders    import bp as orders_bp
 from .routes.favorites import bp as favorites_bp
+from .routes.payments import bp as payments_bp
 
 import os
 
@@ -56,6 +57,7 @@ def create_app():
     app.register_blueprint(user_bp,       url_prefix='/api/user')
     app.register_blueprint(orders_bp)     # 内部已设置 url_prefix '/api/orders'
     app.register_blueprint(favorites_bp)  # 内部已设置 url_prefix '/api/favorites'
+    app.register_blueprint(payments_bp)  # 支付 / 订单状态
 
     # ⑤ 暴露 uploads/ 下的静态文件
     @app.route('/uploads/<path:filename>')

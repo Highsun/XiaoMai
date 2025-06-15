@@ -1,18 +1,23 @@
 <template>
   <div class="pay-container">
     <div class="pay-card">
+      <!-- 倒计时提示 -->
       <div class="pay-header">
-        <span
-          >请在 <span class="countdown">{{ countdownText }}</span> 内完成支付，否则订单将取消</span
-        >
+        <span>
+          请在 <span class="countdown">{{ countdownText }}</span> 内完成支付，否则订单将取消
+        </span>
       </div>
+
+      <!-- 订单信息 -->
       <div class="pay-order-info">
         <div>票务：{{ orderInfo.ticketName }}</div>
-        <div>订单号：{{ orderInfo.orderId }}</div>
+        <div>订单号：{{ serverOrderId ?? '——' }}</div>
         <div>
           支付金额：<span class="pay-amount">￥{{ orderInfo.amount }}</span>
         </div>
       </div>
+
+      <!-- 支付方式 -->
       <div class="pay-method-title">选择支付平台</div>
       <div class="pay-methods">
         <div
@@ -30,11 +35,30 @@
           <span>微信</span>
         </div>
       </div>
+
+      <!-- 操作按钮 -->
       <div class="pay-options">
-        <button class="pay-back-btn" @click="router.push('/')">返回首页</button>
-        <button class="pay-btn" :disabled="countdown === 0" @click="handlePay">下一步</button>
+        <button
+          class="pay-back-btn"
+          @click="cancelPayment"
+          :disabled="processing"
+        >
+          返回首页
+        </button>
+        <button
+          class="pay-btn"
+          :disabled="countdown === 0 || processing || !serverOrderId"
+          @click="handlePay"
+        >
+          <template v-if="processing">处理中...</template>
+          <template v-else>下一步</template>
+        </button>
       </div>
-      <div v-if="countdown === 0" class="pay-expired-tip">订单已超时，请返回重新下单。</div>
+
+      <!-- 超时提示 -->
+      <div v-if="countdown === 0" class="pay-expired-tip">
+        订单已超时，请返回重新下单。
+      </div>
     </div>
   </div>
 </template>
@@ -42,61 +66,125 @@
 <script setup>
 import { ref, onMounted, computed, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import axios from 'axios'
 
-const router = useRouter()
-const route = useRoute()
+const router        = useRouter()
+const route         = useRoute()
 
-const orderInfo = ref({
+// 从 URL query 拿到参数，并做类型转换
+const orderInfo = {
+  showId:     Number(route.query.show_id || 0),
   ticketName: route.query.ticketName || '小麦演唱会门票',
-  city: route.query.city || '',
-  session: route.query.session || '',
-  price: route.query.price || 0,
-  label: route.query.label || '',
-  quantity: route.query.quantity || 1,
-  amount: route.query.total || 0,
-  orderId: Date.now().toString(),
-})
+  session:    route.query.session    || '',
+  quantity:   Number(route.query.quantity || 1),
+  amount:     Number(route.query.total || 0),
+}
 
-const payMethod = ref('alipay')
-const countdown = ref(10 * 60 + 0)
+// 后台返回的真实订单 ID
+const serverOrderId = ref(null)
 
-// 倒计时
+const payMethod  = ref('alipay')
+const countdown  = ref(10 * 60)
+const processing = ref(false)
+
 const countdownText = computed(() => {
-  const min = String(Math.floor(countdown.value / 60)).padStart(2, '0')
-  const sec = String(countdown.value % 60).padStart(2, '0')
-  return `${min}分${sec}秒`
+  const m = String(Math.floor(countdown.value / 60)).padStart(2, '0')
+  const s = String(countdown.value % 60).padStart(2, '0')
+  return `${m}分${s}秒`
 })
 
 let timer = null
-onMounted(() => {
+
+onMounted(async () => {
+  // 启动倒计时
   timer = setInterval(() => {
-    if (countdown.value > 0) {
-      countdown.value -= 1
-    } else {
-      clearInterval(timer)
-    }
+    if (countdown.value > 0) countdown.value--
+    else clearInterval(timer)
   }, 1000)
+
+  // 在后端创建订单，获取真正的 ID
+  try {
+    const res = await axios.post(
+      '/api/payments/create',
+      {
+        show_id:  orderInfo.showId,
+        amount:   orderInfo.amount,
+        quantity: orderInfo.quantity,
+        session:  orderInfo.session
+      },
+      {
+        headers: {
+          Authorization: 'Bearer ' + localStorage.getItem('access_token')
+        }
+      }
+    )
+    if (res.data.code === 0) {
+      serverOrderId.value = res.data.order_id
+    } else {
+      console.error('创建订单返回错误', res.data)
+    }
+  } catch (err) {
+    console.error('创建订单失败', err)
+  }
 })
 
 onUnmounted(() => {
   if (timer) clearInterval(timer)
 })
 
-// 支付逻辑
-function handlePay() {
-  if (countdown.value === 0) {
-    alert('订单已超时，请重新下单')
-    router.push('/category') // 返回首页
-    return
+async function handlePay() {
+  if (countdown.value === 0 || processing.value || !serverOrderId.value) return
+  processing.value = true
+
+  try {
+    await axios.post(
+      '/api/payments/complete',
+      {
+        order_id: serverOrderId.value,
+        items: [
+          {
+            show_id:    orderInfo.showId,
+            quantity:   orderInfo.quantity,
+            unit_price: orderInfo.amount
+          }
+        ]
+      },
+      {
+        headers: {
+          Authorization: 'Bearer ' + localStorage.getItem('access_token')
+        }
+      }
+    )
+    router.push({ path: '/dashboard', query: { view: 'tickets' } })
+  } catch (err) {
+    alert('支付失败，请重试')
+    console.error('完成支付失败', err)
+    processing.value = false
   }
-  // 模拟支付跳转成功
-  alert(`支付成功！您选择了${payMethod.value === 'alipay' ? '支付宝' : '微信'}。`)
-  // 这里可跳转到订单详情或订单成功页
-  router.push('/dashboard')
+}
+
+async function cancelPayment() {
+  if (!processing.value && serverOrderId.value) {
+    try {
+      await axios.post(
+        '/api/payments/cancel',
+        { order_id: serverOrderId.value },
+        {
+          headers: {
+            Authorization: 'Bearer ' + localStorage.getItem('access_token')
+          }
+        }
+      )
+    } catch (err) {
+      console.error('取消订单失败', err)
+    }
+  }
+  router.push('/')
 }
 </script>
 
 <style scoped>
+/* —— 以下样式保持不动 —— */
 .pay-container {
   display: flex;
   justify-content: center;
@@ -178,7 +266,6 @@ function handlePay() {
   gap: 16px;
   margin-top: 10px;
 }
-
 .pay-btn {
   flex: 1;
   background: #37ba77;

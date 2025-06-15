@@ -99,10 +99,24 @@
         </button>
       </div>
     </div>
+
+    <!-- 登录提示文字 -->
     <div class="fav-feedback">
-      <span v-if="favError" class="fav-msg error">{{ favError }}</span>
-      <span v-else-if="favSuccess" class="fav-msg success">收藏成功</span>
+      <span v-if="showLoginPrompt" class="fav-msg login">请先登录</span>
     </div>
+
+    <!-- 登录提示弹窗 -->
+    <transition name="fade">
+      <div v-if="showLoginPrompt" class="login-overlay">
+        <div class="login-box">
+          <p>请先登录后再进行此操作</p>
+          <div class="login-actions">
+            <button class="btn primary" @click="goLogin">去登录</button>
+            <button class="btn cancel" @click="showLoginPrompt = false">取消</button>
+          </div>
+        </div>
+      </div>
+    </transition>
   </div>
 </template>
 
@@ -111,25 +125,14 @@ import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 
-// Props：从父组件传入的演出对象
-const props = defineProps({
-  concert: { type: Object, required: true }
-})
+const props = defineProps({ concert: { type: Object, required: true } })
 const router = useRouter()
 
-// —————————————————————————————————
-// 购票页原有逻辑（标题、倒计时、选项等）
-// —————————————————————————————————
-
-// 标题
+// — 上半部分：原有购票逻辑 —
 const title = computed(() => props.concert.title)
-
-// 预售信息
 const presaleNote = '⚠️ 本商品为预售，正式开票后将第一时间配票'
 const presaleText =
   '预售期间，由于主办未正式开票，下单后无法立即为您配票。一般于演出前1-2周开票，待正式开票后，请您通过订单详情页或者票夹详情，查看票品信息、取票方式等演出相关信息。'
-
-// 当前城市数据封装
 const currentCityData = computed(() => ({
   date:
     props.concert.start_date +
@@ -140,7 +143,6 @@ const currentCityData = computed(() => ({
   priceTiers: props.concert.price_tiers || []
 }))
 
-// 场次列表
 const sessions = computed(() => props.concert.sessions || [])
 const selectedSession = ref(null)
 watch(
@@ -149,7 +151,6 @@ watch(
   { immediate: true }
 )
 
-// 票档列表
 const selectedTier = ref(null)
 watch(
   () => currentCityData.value.priceTiers,
@@ -157,39 +158,35 @@ watch(
   { immediate: true }
 )
 
-// 数量
 const quantity = ref(1)
 const maxQuantity = 4
 function increaseQty() { if (quantity.value < maxQuantity) quantity.value++ }
 function decreaseQty() { if (quantity.value > 1) quantity.value-- }
 
-// 计算总价
 const totalPrice = computed(() =>
   (selectedTier.value?.price || 0) * quantity.value
 )
 
-// 地图弹窗
 const showMap = ref(false)
 function toggleMap() { showMap.value = !showMap.value }
 
-// 倒计时 / 是否可购
 const countdownText = ref('')
 const canBuy = ref(false)
 let timer = null
 function pad(n) { return n.toString().padStart(2, '0') }
 function updateCountdown() {
   const start = new Date(currentCityData.value.startTime).getTime()
-  const diff  = start - Date.now()
+  const diff = start - Date.now()
   if (diff <= 0) {
     countdownText.value = '00天 00:00:00'
     canBuy.value = true
     clearInterval(timer)
     return
   }
-  const s  = Math.floor(diff / 1000)
-  const d  = Math.floor(s / 86400)
-  const h  = Math.floor((s % 86400) / 3600)
-  const m  = Math.floor((s % 3600) / 60)
+  const s = Math.floor(diff / 1000)
+  const d = Math.floor(s / 86400)
+  const h = Math.floor((s % 86400) / 3600)
+  const m = Math.floor((s % 3600) / 60)
   const ss = s % 60
   countdownText.value = `${pad(d)}天 ${pad(h)}:${pad(m)}:${pad(ss)}`
   canBuy.value = false
@@ -199,13 +196,19 @@ function restartCountdown() {
   updateCountdown()
   timer = setInterval(updateCountdown, 1000)
 }
+onMounted(() => restartCountdown())
+onUnmounted(() => clearInterval(timer))
 
-// 立即购买
 function handleBuy() {
   if (!canBuy.value) return
+  if (!localStorage.getItem('access_token')) {
+    showLoginPrompt.value = true
+    return
+  }
   router.push({
     name: 'Pay',
     query: {
+      show_id: String(props.concert.id),
       ticketName: title.value,
       session: selectedSession.value,
       price: selectedTier.value.price,
@@ -216,22 +219,18 @@ function handleBuy() {
   })
 }
 
-onMounted(() => restartCountdown())
-onUnmounted(() => clearInterval(timer))
+// — 下半部分：收藏夹逻辑 & 登录提示 —
+const favPending       = ref(false)
+const hasFav           = ref(false)
+const showLoginPrompt  = ref(false)
 
-// —————————————————————————————————
-// 收藏夹逻辑
-// —————————————————————————————————
+function goLogin() {
+  showLoginPrompt.value = false
+  router.push({ name: 'Login' })
+}
 
-const favPending = ref(false)
-const favError   = ref('')
-const favSuccess = ref(false)
-const hasFav     = ref(false)
-
-// 查询收藏状态
 async function checkIfFav() {
   favPending.value = true
-  favError.value   = ''
   try {
     const res = await axios.get('/api/favorites/is_fav', {
       params: { show_id: props.concert.id },
@@ -239,59 +238,40 @@ async function checkIfFav() {
     })
     hasFav.value = res.data.code === 0 && res.data.data.is_fav
   } catch {
-    favError.value = '无法获取收藏状态'
+    // 未登录时不报错
   }
   favPending.value = false
 }
 
-// 添加收藏
 async function addToFavorites() {
-  favError.value   = ''
-  favSuccess.value = false
   favPending.value = true
   try {
-    const res = await axios.post(
-      '/api/favorites/add',
+    await axios.post('/api/favorites/add',
       { show_id: props.concert.id },
       { headers: { Authorization: 'Bearer ' + localStorage.getItem('access_token') } }
     )
-    if (res.data.code === 0) {
-      hasFav.value    = true
-      favSuccess.value = true
-    } else {
-      favError.value  = res.data.msg || '收藏失败'
-    }
-  } catch {
-    favError.value = '收藏失败，请稍后重试'
-  }
+    hasFav.value = true
+  } catch {}
   favPending.value = false
 }
 
-// 取消收藏
 async function removeFromFavorites() {
-  favError.value   = ''
-  favSuccess.value = false
   favPending.value = true
   try {
-    const res = await axios.post(
-      '/api/favorites/remove',
+    await axios.post('/api/favorites/remove',
       { show_id: props.concert.id },
       { headers: { Authorization: 'Bearer ' + localStorage.getItem('access_token') } }
     )
-    if (res.data.code === 0) {
-      hasFav.value     = false
-      favSuccess.value = true
-    } else {
-      favError.value   = res.data.msg || '取消失败'
-    }
-  } catch {
-    favError.value = '取消失败，请稍后重试'
-  }
+    hasFav.value = false
+  } catch {}
   favPending.value = false
 }
 
-// 切换收藏/取消
 function handleFavoriteClick() {
+  if (!localStorage.getItem('access_token')) {
+    showLoginPrompt.value = true
+    return
+  }
   if (favPending.value) return
   hasFav.value ? removeFromFavorites() : addToFavorites()
 }
@@ -306,32 +286,26 @@ onMounted(() => checkIfFav())
   align-items: center;
   margin-top: 24px;
 }
-
 .countdown-text {
   font-size: 0.95rem;
   color: #555;
 }
-
 .button-group {
   display: flex;
   gap: 8px;
 }
-
-/* 收藏 & 购买 按钮通用 */
 .favorite-btn,
 .buy-button {
   width: 140px;
   height: 40px;
   border-radius: 8px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background 0.2s, transform 0.1s;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
 }
-
-/* 收藏按钮 */
 .favorite-btn {
   background: #fff;
   color: #26ad62;
@@ -346,8 +320,6 @@ onMounted(() => checkIfFav())
   border-color: #bbb;
   color: #bbb;
 }
-
-/* 购买按钮 */
 .buy-button {
   background: #26ad62;
   color: #fff;
@@ -361,18 +333,74 @@ onMounted(() => checkIfFav())
   transform: translateY(-1px);
 }
 
-/* 反馈提示 */
+/* 登录提示文字 */
 .fav-feedback {
   margin-top: 8px;
   min-height: 18px;
 }
-.fav-msg {
+.fav-msg.login {
   font-size: 0.85rem;
+  color: #e67e22;
 }
-.fav-msg.error {
-  color: #e74c3c;
+
+/* 登录弹窗覆盖层 */
+.login-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
 }
-.fav-msg.success {
-  color: #27ae60;
+.login-box {
+  background: #fff;
+  padding: 24px;
+  border-radius: 12px;
+  text-align: center;
+  min-width: 260px;
+}
+.login-box p {
+  margin-bottom: 16px;
+  font-size: 1rem;
+  color: #333;
+}
+.login-actions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 8px;
+}
+.login-actions .btn {
+  flex: 1;
+  padding: 8px 0;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.login-actions .btn.primary {
+  background: #26ad62;
+  color: #fff;
+  border: 1px solid #26ad62;
+}
+.login-actions .btn.primary:hover {
+  background: #1f9855;
+}
+.login-actions .btn.cancel {
+  background: #fff;
+  color: #333;
+  border: 1px solid #ccc;
+}
+.login-actions .btn.cancel:hover {
+  background: #f0f0f0;
+}
+
+/* 渐入动画 */
+.fade-enter-active, .fade-leave-active {
+  transition: opacity .2s;
+}
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
 }
 </style>

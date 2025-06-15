@@ -2,7 +2,13 @@
   <div>
     <NavbarComp />
 
-    <div class="fav-list">
+    <!-- 未登录时，只展示文字提示 -->
+    <div v-if="!isLoggedIn" class="login-prompt">
+      <p>请先登录，才可查看收藏～</p>
+    </div>
+
+    <!-- 已登录时，展示收藏列表 -->
+    <div v-else class="fav-list">
       <router-link
         v-for="item in favorites"
         :key="item.id"
@@ -19,10 +25,7 @@
         <div class="favorite-price">￥{{ item.price }}</div>
       </router-link>
 
-      <div
-        v-if="favorites.length === 0"
-        class="no-fav-tip"
-      >
+      <div v-if="favorites.length === 0" class="no-fav-tip">
         暂无收藏，快去添加吧～
       </div>
     </div>
@@ -30,12 +33,17 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import NavbarComp from '../components/NavbarComp.vue'
 import axios from 'axios'
 
+// 登录状态
+const isLoggedIn = computed(() => !!localStorage.getItem('access_token'))
+
+// 收藏列表
 const favorites = ref([])
 
+// 格式化价格
 function formatPrice(p) {
   if (typeof p === 'string') return p.replace(/元$/, '')
   if (Array.isArray(p) && p.length) {
@@ -46,13 +54,19 @@ function formatPrice(p) {
   return p != null ? String(p) : '--'
 }
 
+// 格式化日期
 function formatDate(show) {
   const s = show.start_date
   const e = show.end_date
   return e && e !== s ? `${s} - ${e}` : s
 }
 
-onMounted(async () => {
+// 拉取收藏
+async function fetchFavorites() {
+  if (!isLoggedIn.value) {
+    favorites.value = []
+    return
+  }
   try {
     const res = await axios.get('/api/favorites/list', {
       headers: { Authorization: 'Bearer ' + localStorage.getItem('access_token') }
@@ -68,15 +82,27 @@ onMounted(async () => {
           img:   show.image_url
         }
       })
+    } else {
+      favorites.value = []
     }
-  } catch (err) {
-    console.error('获取收藏列表失败', err)
+  } catch {
     favorites.value = []
   }
-})
+}
+
+onMounted(fetchFavorites)
 </script>
 
 <style scoped>
+/* 未登录提示 */
+.login-prompt {
+  padding: 200px 0;
+  text-align: center;
+  color: #555;
+  font-size: 1rem;
+}
+
+/* 卡片列表布局 */
 .fav-list {
   display: grid;
   grid-template-columns: repeat(4, 208px);
@@ -84,6 +110,7 @@ onMounted(async () => {
   justify-content: center;
   padding: 165px 0 54px;
 }
+
 .favorite-info-card {
   display: flex;
   flex-direction: column;
@@ -101,6 +128,7 @@ onMounted(async () => {
   box-shadow: 0 7px 28px rgba(56,186,118,0.18);
   transform: translateY(-3px) scale(1.025);
 }
+
 .favorite-cover {
   width: 100%;
   height: 140px;
@@ -108,6 +136,7 @@ onMounted(async () => {
   object-position: top center;
   background: #f6f8f7;
 }
+
 .favorite-title {
   margin: 12px 8px 4px;
   font-size: 15px;
@@ -119,12 +148,14 @@ onMounted(async () => {
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
 .favorite-date {
   font-size: 12px;
   color: #7ec6a7;
   text-align: center;
   margin-bottom: 1px;
 }
+
 .favorite-price {
   font-size: 13.5px;
   font-weight: 700;
@@ -135,6 +166,7 @@ onMounted(async () => {
   margin: 6px 0 12px;
   box-shadow: 0 1px 3px rgba(230,245,234,0.67);
 }
+
 .no-fav-tip {
   grid-column: 1 / -1;
   text-align: center;
@@ -142,6 +174,8 @@ onMounted(async () => {
   margin-top: 40px;
   font-size: 14px;
 }
+
+/* 响应式适配 */
 @media (max-width: 1100px) {
   .fav-list { grid-template-columns: repeat(3, 208px) }
 }
