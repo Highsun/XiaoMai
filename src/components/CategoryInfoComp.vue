@@ -1,6 +1,8 @@
 <template>
   <div class="category-card" @click="goDetail">
-    <img :src="concert.poster" alt="海报" class="category-poster" />
+    <!-- 使用后端 image_url 字段（带有 /uploads/ 前缀） -->
+    <img :src="concert.image_url" alt="海报" class="category-poster" />
+
     <div class="category-info">
       <div class="category-title-row">
         <span class="category-title">{{ concert.name }}</span>
@@ -11,12 +13,7 @@
         <div class="category-meta-row">
           <span class="category-label">艺人：</span>
           <span class="category-artist">
-            <template v-if="concert.artist">
-              {{ concert.artist }}
-            </template>
-            <template v-else>
-              {{ concert.artists.join('、') }}
-            </template>
+            {{ (concert.artists && concert.artists.length > 0) ? concert.artists.join('、') : '-' }}
           </span>
         </div>
         <div class="category-meta-row">
@@ -31,7 +28,7 @@
 
       <div class="category-bottom-row">
         <span class="category-price">{{ concert.price }}</span>
-        <span :class="['category-status', { soldout: concert.status === '售罄' }]">
+        <span :class="['category-status', { soldout: concert.status === '已售罄' }]">
           {{ concert.status }}
         </span>
       </div>
@@ -40,22 +37,22 @@
 </template>
 
 <script setup>
-const { concert } = defineProps({
+import { useRouter } from 'vue-router'
+
+const props = defineProps({
   concert: {
     type: Object,
     required: true,
   },
 })
 
-console.log('concert in CategoryInfoComp:', concert)
-
-function getPoster(name) {
-  // TODO:后端路径
-  return `/static/poster/${name}`
-}
+const router = useRouter()
 
 function goDetail() {
-  // TODO:跳转详情页
+  // 跳转到详情页
+  if (props.concert.id) {
+    router.push(`/buy-tickets/${props.concert.id}`)
+  }
 }
 </script>
 
