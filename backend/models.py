@@ -198,3 +198,23 @@ class OrderItem(db.Model):
 
     def __repr__(self):
         return f"<OrderItem order={self.order_id} show={self.show_id} qty={self.quantity}>"
+
+# ============ 收藏夹（Favorites） ============
+class Favorite(db.Model):
+    __tablename__ = 'favorites'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    show_id = db.Column(db.Integer, db.ForeignKey('shows.id'), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    user = db.relationship('User', backref=db.backref('favorites', lazy='dynamic', cascade='all, delete-orphan'))
+    show = db.relationship('Show')
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'show_id': self.show_id,
+            'created_at': self.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+            'show': self.show.to_dict()  # 可直接把演出信息嵌入
+        }

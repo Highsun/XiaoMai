@@ -123,7 +123,7 @@ def import_all():
                 "seat_number": "C区 2排 5号",
                 "price": 780,
                 "status": "paid",
-                "ticket_status": "已使用",
+                "ticket_status": "未使用",
                 "qr_code": "/uploads/已核销.png",
                 "order_time": "2025-04-25 11:55:57",
                 "expire_at": "2025-04-28 23:59:59"

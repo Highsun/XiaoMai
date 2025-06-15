@@ -142,39 +142,52 @@
               </div>
             </div>
 
-            <!-- 历史订单 -->
-            <div v-else-if="view === 'orders'">
-              <h2>
-                {{ userStore.isLoggedIn ? '亲爱的 ' + userStore.username + '，' : '这里空空如也呢，先登录吧！' }}
-              </h2>
-              <h4 style="grid-column: 1 / -1; margin: 32px 0 16px 0">以下是您的历史订单</h4>
-              <div class="ticket-tabs">
+          <!-- 历史订单 -->
+          <div v-else-if="view === 'orders'">
+            <h2>
+              {{ userStore.isLoggedIn
+                ? '亲爱的 ' + userStore.username + '，'
+                : '这里空空如也呢，先登录吧！' }}
+            </h2>
+            <h4 style="grid-column: 1 / -1; margin: 32px 0 16px 0">
+              以下是您的历史订单
+            </h4>
+            <div class="ticket-tabs">
+              <button
+                v-for="tab in history_tabs"
+                :key="tab"
+                @click="activeTab = tab"
+                :class="['ticket-tab', { active: activeTab === tab }]"
+              >
+                {{ tab }}
+              </button>
+            </div>
+            <div
+              v-for="ticket in filteredTickets"
+              :key="ticket.id"
+              class="ticket-item"
+            >
+              <div class="ticket-left">
+                <img :src="ticket.avatar" alt="avatar" class="ticket-avatar" />
+                <span class="ticket-artist">{{ ticket.artist }}</span>
+              </div>
+              <div class="ticket-center">
+                <div><i class="fa-solid fa-calendar-days"></i> {{ ticket.time }}</div>
+                <div><i class="fa-solid fa-tag"></i> ￥{{ ticket.price }}</div>
+                <div>订单创建时间: {{ ticket.createtime }}</div>
+              </div>
+              <!-- 修改点：点击时路由跳转到对应演出抢票页 -->
+              <div class="go-to-perform-detail">
                 <button
-                  v-for="tab in history_tabs"
-                  :key="tab"
-                  @click="activeTab = tab"
-                  :class="['ticket-tab', { active: activeTab === tab }]"
+                  class="ticket-details-button"
+                  title="查看详情"
+                  @click="router.push(`/buy-tickets/${ticket.show_id}`)"
                 >
-                  {{ tab }}
+                  <i class="fa-solid fa-arrow-up-right-from-square"></i>
                 </button>
               </div>
-              <div v-for="ticket in filteredTickets" :key="ticket.id" class="ticket-item">
-                <div class="ticket-left">
-                  <img :src="ticket.avatar" alt="avatar" class="ticket-avatar" />
-                  <span class="ticket-artist">{{ ticket.artist }}</span>
-                </div>
-                <div class="ticket-center">
-                  <div><i class="fa-solid fa-calendar-days"></i> {{ ticket.time }}</div>
-                  <div><i class="fa-solid fa-tag"></i> ￥{{ ticket.price }}</div>
-                  <div>订单创建时间: {{ ticket.createtime }}</div>
-                </div>
-                <div class="go-to-perform-detail">
-                  <button class="ticket-details-button" title="查看详情">
-                    <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                  </button>
-                </div>
-              </div>
             </div>
+          </div>
 
             <!-- 账号设置 -->
             <div v-else-if="view === 'settings'">

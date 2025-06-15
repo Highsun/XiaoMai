@@ -2,6 +2,7 @@
   <Navbar />
   <div class="ticket-container" v-if="concertData">
     <PosterSection />
+    <!-- 传入 concertData 到 FormSection -->
     <FormSection :concert="concertData" />
     <InfoSection />
   </div>
@@ -16,12 +17,12 @@ import axios from 'axios'
 
 import Navbar from '../components/NavbarComp.vue'
 import PosterSection from '../components/buy_tickets_comps/PosterSection.vue'
-import FormSection from '../components/buy_tickets_comps/FormSection.vue'
-import InfoSection from '../components/buy_tickets_comps/InfoSection.vue'
-import ConcertInfo from '../components/ConcertInfoComp.vue'
-import Footer from '../components/FooterComp.vue'
+import FormSection   from '../components/buy_tickets_comps/FormSection.vue'
+import InfoSection   from '../components/buy_tickets_comps/InfoSection.vue'
+import ConcertInfo   from '../components/ConcertInfoComp.vue'
+import Footer        from '../components/FooterComp.vue'
 
-const route = useRoute()
+const route       = useRoute()
 const concertData = ref(null)
 
 onMounted(async () => {
