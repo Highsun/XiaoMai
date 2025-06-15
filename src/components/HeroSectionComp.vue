@@ -13,6 +13,7 @@
       >
         <h1 class="title">{{ slides[current].title }}</h1>
         <p class="subtitle" v-html="slides[current].description"></p>
+
         <button class="btn-ticket" @click="goToTickets">立即购票</button>
       </div>
 

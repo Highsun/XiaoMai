@@ -14,13 +14,6 @@
     <ArtistCategory title="艺术家" :artists="Artists" />
   </div>
 
-  <!-- FIXME: Test -->
-  <router-link to="/buy-tickets" class="btn-link">
-    <button class="btn-test" style="background: transparent; color: black">
-      测试跳转到购票页
-    </button>
-  </router-link>
-
   <Footer />
 </template>
 
@@ -35,9 +28,9 @@ import ArtistCategory from '../components/ArtistCategoryComp.vue'
 import Footer from '../components/FooterComp.vue'
 
 // —— 响应式数据 ——
-const HotShows  = ref([])
+const HotShows = ref([])
 const Upcomings = ref([])
-const Artists   = ref([])
+const Artists = ref([])
 
 // —— 工具函数 ——
 function beautifyDate(str) {
@@ -59,16 +52,10 @@ function beautifyPrice(p) {
 }
 
 // —— 计算属性：限量展示 ——
-const hotShowsLimited = computed(() =>
-  HotShows.value
-    .filter(s => Boolean(s.img))
-    .slice(0, 8)
-)
+const hotShowsLimited = computed(() => HotShows.value.filter((s) => Boolean(s.img)).slice(0, 8))
 
 const upcomingShowsLimited = computed(() =>
-  Upcomings.value
-    .filter(s => Boolean(s.img))
-    .slice(0, 4)
+  Upcomings.value.filter((s) => Boolean(s.img)).slice(0, 4),
 )
 
 onMounted(async () => {
@@ -76,13 +63,13 @@ onMounted(async () => {
     // 拉热卖中
     const hotRes = await axios.get('/api/shows/hot')
     if (hotRes.data.code === 0) {
-      HotShows.value = hotRes.data.data.map(item => ({
-        id:       item.id,
-        name:     item.name,
-        date:     beautifyDate(item.date),
+      HotShows.value = hotRes.data.data.map((item) => ({
+        id: item.id,
+        name: item.name,
+        date: beautifyDate(item.date),
         location: item.location,
-        price:    beautifyPrice(item.price),
-        img:      item.poster ? `/uploads/${item.poster}` : ''
+        price: beautifyPrice(item.price),
+        img: item.poster ? `/uploads/${item.poster}` : '',
       }))
     } else {
       console.warn('加载热卖演出失败：', hotRes.data.message)
@@ -91,13 +78,13 @@ onMounted(async () => {
     // 拉即将推出
     const upRes = await axios.get('/api/shows/upcoming')
     if (upRes.data.code === 0) {
-      Upcomings.value = upRes.data.data.map(item => ({
-        id:       item.id,
-        name:     item.name,
-        date:     beautifyDate(item.date),
+      Upcomings.value = upRes.data.data.map((item) => ({
+        id: item.id,
+        name: item.name,
+        date: beautifyDate(item.date),
         location: item.location,
-        price:    beautifyPrice(item.price),
-        img:      item.poster ? `/uploads/${item.poster}` : ''
+        price: beautifyPrice(item.price),
+        img: item.poster ? `/uploads/${item.poster}` : '',
       }))
     } else {
       console.warn('加载即将推出演出失败：', upRes.data.message)
@@ -106,11 +93,11 @@ onMounted(async () => {
     // 拉艺术家
     const artRes = await axios.get('/api/artists/')
     if (artRes.data.code === 0) {
-      Artists.value = artRes.data.data.map(item => ({
-        id:   item.id,
+      Artists.value = artRes.data.data.map((item) => ({
+        id: item.id,
         name: item.name,
-        img:  item.image_url,
-        link: item.link
+        img: item.image_url,
+        link: item.link,
       }))
     } else {
       console.warn('加载艺术家信息失败：', artRes.data.message)

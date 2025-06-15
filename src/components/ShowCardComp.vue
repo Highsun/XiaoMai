@@ -11,7 +11,9 @@
       <div class="card-scroll-wrapper">
         <p class="card-scroll-text" ref="locationRef">{{ location }}</p>
       </div>
-      <button class="btn-purchase">{{ minPrice }}元起</button>
+      <router-link :to="`/buy-tickets/${id}`" class="btn-link">
+        <button class="btn-purchase">{{ minPrice }}元起</button>
+      </router-link>
     </div>
   </div>
 </template>
@@ -59,7 +61,8 @@ function setupScroll(el) {
   const wrapper = el.parentElement
   const distance = el.scrollWidth - wrapper.clientWidth
   if (distance <= 0) return
-  let dir = -1, pos = 0
+  let dir = -1,
+    pos = 0
   function step() {
     pos += dir
     el.style.transform = `translateX(${pos}px)`
@@ -73,7 +76,7 @@ function setupScroll(el) {
   requestAnimationFrame(step)
 }
 onMounted(() => {
-  [nameRef.value, dateRef.value, locationRef.value].forEach(setupScroll)
+  ;[nameRef.value, dateRef.value, locationRef.value].forEach(setupScroll)
 })
 </script>
 
