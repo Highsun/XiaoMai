@@ -27,11 +27,7 @@
                 >
                   更多 <span style="font-size: 12px">▼</span>
                 </span>
-                <span
-                  class="filter-option more-btn"
-                  @click="toggleShowCities"
-                  v-if="showAllCities"
-                >
+                <span class="filter-option more-btn" @click="toggleShowCities" v-if="showAllCities">
                   收起 <span style="font-size: 12px">▲</span>
                 </span>
               </div>
@@ -80,6 +76,8 @@
         </div>
       </div>
     </div>
+
+    <Footer />
   </div>
 </template>
 
@@ -94,6 +92,7 @@ import dayjs from 'dayjs'
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter'
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore'
 import isBetween from 'dayjs/plugin/isBetween'
+import Footer from '../components/FooterComp.vue'
 dayjs.extend(isSameOrAfter)
 dayjs.extend(isSameOrBefore)
 dayjs.extend(isBetween)
@@ -106,15 +105,31 @@ const concerts = ref([])
 
 // 推荐区（不影响此问题，可留空或自行替换）
 const recommendedConcerts = ref([
-  { id: 15, name: '李荣浩 年少有为 演唱会', date: '2025.06.30', poster: 'lironghao.png', price: '299元起' },
-  { id: 17, name: '薛之谦 天外来物巡回演唱会', date: '2025.07.15', poster: 'xuezhiqian.png', price: '399元起' },
-  { id: 2, name: '周杰伦 嘉年华巡回演唱会', date: '2025.08.02', poster: 'jaychou.png',   price: '520元起' },
+  {
+    id: 15,
+    name: '李荣浩 年少有为 演唱会',
+    date: '2025.06.30',
+    poster: 'lironghao.png',
+    price: '299元起',
+  },
+  {
+    id: 17,
+    name: '薛之谦 天外来物巡回演唱会',
+    date: '2025.07.15',
+    poster: 'xuezhiqian.png',
+    price: '399元起',
+  },
+  {
+    id: 2,
+    name: '周杰伦 嘉年华巡回演唱会',
+    date: '2025.08.02',
+    poster: 'jaychou.png',
+    price: '520元起',
+  },
 ])
 
 const showAllCities = ref(false)
-const displayedCities = computed(() =>
-  showAllCities.value ? allCities : hotCities
-)
+const displayedCities = computed(() => (showAllCities.value ? allCities : hotCities))
 const toggleShowCities = () => {
   showAllCities.value = !showAllCities.value
 }
@@ -137,7 +152,7 @@ watch(
       searchInput.value = val
     }
   },
-  { immediate: true }
+  { immediate: true },
 )
 watch(searchInput, (newVal) => {
   if (newVal.trim() === '' && route.query.q) {
@@ -155,15 +170,13 @@ function beautifyDate(start, end) {
   if (!start) return ''
   const s = (start || '').replace(/-/g, '.')
   const e = (end || '').replace(/-/g, '.')
-  return (e && e !== s) ? `${s} - ${e}` : s
+  return e && e !== s ? `${s} - ${e}` : s
 }
 /** 规范化价格显示 */
 function beautifyPrice(p) {
   if (typeof p === 'string') return p
   if (Array.isArray(p) && p.length > 0) {
-    return p.length === 1
-      ? `${p[0]}元`
-      : `${Math.min(...p)}-${Math.max(...p)}元`
+    return p.length === 1 ? `${p[0]}元` : `${Math.min(...p)}-${Math.max(...p)}元`
   }
   return p ? `${p}元` : ''
 }
@@ -175,22 +188,22 @@ onMounted(async () => {
     if (res.data.code !== 0) throw new Error(res.data.message)
 
     const statusMap = {
-      hot:      '热卖中',
+      hot: '热卖中',
       upcoming: '即将上架',
-      soldout:  '已售罄',
-      sold_out: '已售罄'
+      soldout: '已售罄',
+      sold_out: '已售罄',
     }
 
     concerts.value = res.data.data.map((item) => ({
-      id:        item.id,
-      name:      item.title,
-      tag:       item.tag,
-      artists:   item.artist_names || [],
-      artist:    (item.artist_names && item.artist_names.length > 0) ? item.artist_names.join('、') : '',
-      location:  item.location,
-      date:      beautifyDate(item.start_date, item.end_date),
-      price:     beautifyPrice(item.price),
-      status:    statusMap[item.status] || item.status || '',
+      id: item.id,
+      name: item.title,
+      tag: item.tag,
+      artists: item.artist_names || [],
+      artist: item.artist_names && item.artist_names.length > 0 ? item.artist_names.join('、') : '',
+      location: item.location,
+      date: beautifyDate(item.start_date, item.end_date),
+      price: beautifyPrice(item.price),
+      status: statusMap[item.status] || item.status || '',
       image_url: item.image_url,
       // 可扩展字段
       // sessions:  item.sessions,
@@ -210,11 +223,7 @@ const filteredConcerts = computed(() => {
   if (isSearching.value) {
     const terms = searchKeyword.value.toLowerCase().split(/\s+/)
     return list.filter((c) =>
-      terms.every((t) =>
-        [c.name, c.artist, c.location].join(' ')
-          .toLowerCase()
-          .includes(t)
-      )
+      terms.every((t) => [c.name, c.artist, c.location].join(' ').toLowerCase().includes(t)),
     )
   }
 
@@ -231,23 +240,23 @@ const filteredConcerts = computed(() => {
     switch (selectedTime.value) {
       case '今天':
         start = now.startOf('day')
-        end   = now.endOf('day')
+        end = now.endOf('day')
         break
       case '明天':
         start = now.add(1, 'day').startOf('day')
-        end   = now.add(1, 'day').endOf('day')
+        end = now.add(1, 'day').endOf('day')
         break
       case '本周末':
         start = now.day(6).startOf('day')
-        end   = now.day(7).endOf('day')
+        end = now.day(7).endOf('day')
         break
       case '一个月内':
         start = now
-        end   = now.add(1, 'month').endOf('day')
+        end = now.add(1, 'month').endOf('day')
         break
       default:
         start = null
-        end   = null
+        end = null
     }
 
     list = list.filter((c) => {

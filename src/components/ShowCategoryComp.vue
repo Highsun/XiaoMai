@@ -58,15 +58,6 @@ function goToCategory() {
   align-items: center;
   margin-bottom: 16px;
 }
-.category-title {
-  font-size: 20px;
-  font-weight: bold;
-}
-.more-link {
-  font-size: 14px;
-  color: #3bc586;
-  cursor: pointer;
-}
 
 /* 关键：卡片列表 */
 .card-list {

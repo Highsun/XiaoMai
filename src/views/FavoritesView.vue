@@ -15,26 +15,23 @@
         :to="`/buy-tickets/${item.id}`"
         class="favorite-info-card"
       >
-        <img
-          class="favorite-cover"
-          :src="item.img"
-          :alt="item.title"
-        />
+        <img class="favorite-cover" :src="item.img" :alt="item.title" />
         <div class="favorite-title">{{ item.title }}</div>
         <div class="favorite-date">{{ item.date }}</div>
         <div class="favorite-price">￥{{ item.price }}</div>
       </router-link>
 
-      <div v-if="favorites.length === 0" class="no-fav-tip">
-        暂无收藏，快去添加吧～
-      </div>
+      <div v-if="favorites.length === 0" class="no-fav-tip">暂无收藏，快去添加吧～</div>
     </div>
+
+    <Footer />
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import NavbarComp from '../components/NavbarComp.vue'
+import Footer from '../components/FooterComp.vue'
 import axios from 'axios'
 
 // 登录状态
@@ -69,17 +66,17 @@ async function fetchFavorites() {
   }
   try {
     const res = await axios.get('/api/favorites/list', {
-      headers: { Authorization: 'Bearer ' + localStorage.getItem('access_token') }
+      headers: { Authorization: 'Bearer ' + localStorage.getItem('access_token') },
     })
     if (res.data.code === 0 && Array.isArray(res.data.data)) {
-      favorites.value = res.data.data.map(fav => {
+      favorites.value = res.data.data.map((fav) => {
         const show = fav.show
         return {
-          id:    show.id,
+          id: show.id,
           title: show.title,
-          date:  formatDate(show),
+          date: formatDate(show),
           price: formatPrice(show.price),
-          img:   show.image_url
+          img: show.image_url,
         }
       })
     } else {
@@ -118,14 +115,16 @@ onMounted(fetchFavorites)
   width: 208px;
   background: #fff;
   border-radius: 16px;
-  box-shadow: 0 2px 16px rgba(56,186,118,0.10);
+  box-shadow: 0 2px 16px rgba(56, 186, 118, 0.1);
   overflow: hidden;
   cursor: pointer;
   text-decoration: none;
-  transition: box-shadow .2s, transform .1s;
+  transition:
+    box-shadow 0.2s,
+    transform 0.1s;
 }
 .favorite-info-card:hover {
-  box-shadow: 0 7px 28px rgba(56,186,118,0.18);
+  box-shadow: 0 7px 28px rgba(56, 186, 118, 0.18);
   transform: translateY(-3px) scale(1.025);
 }
 
@@ -164,7 +163,7 @@ onMounted(fetchFavorites)
   border-radius: 8px;
   padding: 1.5px 18px;
   margin: 6px 0 12px;
-  box-shadow: 0 1px 3px rgba(230,245,234,0.67);
+  box-shadow: 0 1px 3px rgba(230, 245, 234, 0.67);
 }
 
 .no-fav-tip {
@@ -177,16 +176,22 @@ onMounted(fetchFavorites)
 
 /* 响应式适配 */
 @media (max-width: 1100px) {
-  .fav-list { grid-template-columns: repeat(3, 208px) }
+  .fav-list {
+    grid-template-columns: repeat(3, 208px);
+  }
 }
 @media (max-width: 780px) {
-  .fav-list { grid-template-columns: repeat(2, 208px) }
+  .fav-list {
+    grid-template-columns: repeat(2, 208px);
+  }
 }
 @media (max-width: 540px) {
   .fav-list {
     grid-template-columns: 1fr;
     padding: 18px 0 36px;
   }
-  .favorite-info-card { width: 90vw }
+  .favorite-info-card {
+    width: 90vw;
+  }
 }
 </style>
