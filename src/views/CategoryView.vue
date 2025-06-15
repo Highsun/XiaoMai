@@ -71,7 +71,7 @@
           <router-link
             v-for="item in recommendedConcerts"
             :key="item.id"
-            :to="`/concert/${item.id}`"
+            :to="`/buy-tickets/${item.id}`"
             class="recommend-link"
             style="text-decoration: none"
           >
