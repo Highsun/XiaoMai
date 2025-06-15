@@ -106,9 +106,9 @@ const concerts = ref([])
 
 // 推荐区（不影响此问题，可留空或自行替换）
 const recommendedConcerts = ref([
-  { id: 100, name: '李荣浩 年少有为 演唱会', date: '2025.06.30', poster: 'lironghao.png', price: '299元起' },
-  { id: 101, name: '薛之谦 天外来物巡回演唱会', date: '2025.07.15', poster: 'xuezhiqian.png', price: '399元起' },
-  { id: 102, name: '周杰伦 嘉年华巡回演唱会', date: '2025.08.02', poster: 'jaychou.png',   price: '520元起' },
+  { id: 15, name: '李荣浩 年少有为 演唱会', date: '2025.06.30', poster: 'lironghao.png', price: '299元起' },
+  { id: 17, name: '薛之谦 天外来物巡回演唱会', date: '2025.07.15', poster: 'xuezhiqian.png', price: '399元起' },
+  { id: 2, name: '周杰伦 嘉年华巡回演唱会', date: '2025.08.02', poster: 'jaychou.png',   price: '520元起' },
 ])
 
 const showAllCities = ref(false)
@@ -150,16 +150,13 @@ watch(searchInput, (newVal) => {
 const searchKeyword = computed(() => (route.query.q?.toString() || '').trim())
 const isSearching = computed(() => !!searchKeyword.value)
 
-/** 规范化日期显示 */
-function beautifyDate(str) {
-  if (!str) return ''
-  const m = str.match(/^(\d{4}-\d{2}-\d{2})(?:-(\d{4}-\d{2}-\d{2}))?$/)
-  if (!m) return str.replace(/-/g, '.')
-  const s = m[1].replace(/-/g, '.')
-  const e = m[2] ? m[2].replace(/-/g, '.') : ''
-  return e && s !== e ? `${s} - ${e}` : s
+/** 规范化日期显示：start_date/end_date => 'YYYY.MM.DD' 或 'YYYY.MM.DD - YYYY.MM.DD' */
+function beautifyDate(start, end) {
+  if (!start) return ''
+  const s = (start || '').replace(/-/g, '.')
+  const e = (end || '').replace(/-/g, '.')
+  return (e && e !== s) ? `${s} - ${e}` : s
 }
-
 /** 规范化价格显示 */
 function beautifyPrice(p) {
   if (typeof p === 'string') return p
@@ -168,9 +165,10 @@ function beautifyPrice(p) {
       ? `${p[0]}元`
       : `${Math.min(...p)}-${Math.max(...p)}元`
   }
-  return ''
+  return p ? `${p}元` : ''
 }
 
+// !!! 适配后端的所有字段
 onMounted(async () => {
   try {
     const res = await axios.get('/api/shows/')
@@ -184,17 +182,20 @@ onMounted(async () => {
     }
 
     concerts.value = res.data.data.map((item) => ({
-      id:       item.id,
-      name:     item.name,
-      tag:      item.tag,
-      artist:   item.artist,
-      // 关键一步：给 CategoryInfoComp 里使用的 fallback 提供数组
-      artists:  item.artist ? item.artist.split('、') : [],
-      location: item.location,
-      date:     beautifyDate(item.date),
-      price:    beautifyPrice(item.price),
-      status:   statusMap[item.status] || item.status || '',
-      poster:   item.poster ? `/uploads/${item.poster}` : ''
+      id:        item.id,
+      name:      item.title,
+      tag:       item.tag,
+      artists:   item.artist_names || [],
+      artist:    (item.artist_names && item.artist_names.length > 0) ? item.artist_names.join('、') : '',
+      location:  item.location,
+      date:      beautifyDate(item.start_date, item.end_date),
+      price:     beautifyPrice(item.price),
+      status:    statusMap[item.status] || item.status || '',
+      image_url: item.image_url,
+      // 可扩展字段
+      // sessions:  item.sessions,
+      // price_tiers: item.price_tiers,
+      // map_url:   item.map_url,
     }))
   } catch (err) {
     console.error('获取演出列表失败', err)
@@ -266,6 +267,7 @@ const filteredConcerts = computed(() => {
 </script>
 
 <style scoped>
+/* 样式原样 */
 .category-container {
   display: flex;
   flex-direction: row;
