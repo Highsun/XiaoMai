@@ -6,6 +6,8 @@ from .routes.show import show_bp
 from .routes.artist import artist_bp
 from .routes.auth import auth_bp
 from .routes.user import user_bp  # 新增用户路由
+from backend.routes.orders import bp as orders_bp
+
 import os
 
 def create_app():
@@ -52,6 +54,7 @@ def create_app():
     app.register_blueprint(artist_bp, url_prefix='/api/artists')
     app.register_blueprint(auth_bp,   url_prefix='/api/auth')
     app.register_blueprint(user_bp,   url_prefix='/api/user')  # 注册用户资料 & 观演人管理接口
+    app.register_blueprint(orders_bp)
 
     # ----------------------------------
     # ⑤ 暴露 uploads/ 目录下的静态文件

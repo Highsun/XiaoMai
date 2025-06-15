@@ -53,6 +53,7 @@
       <div class="dashboard-content card">
         <Transition name="fade" mode="out-in">
           <div :key="view">
+            <!-- 账号信息 -->
             <div v-if="view === 'account'">
               <h2>
                 {{ userStore.isLoggedIn ? '亲爱的 ' + userStore.username + '，' : '这里空空如也呢，先登录吧！' }}
@@ -62,6 +63,8 @@
                 <PersonalInfo :disabled="!userStore.isLoggedIn" />
               </div>
             </div>
+
+            <!-- 我的票夹 -->
             <div v-else-if="view === 'tickets'" class="ticket-section">
               <h2>
                 {{ userStore.isLoggedIn ? '亲爱的 ' + userStore.username + '，' : '这里空空如也呢，先登录吧！' }}
@@ -88,7 +91,12 @@
                   <div><i class="fa-solid fa-chair"></i> {{ ticket.seat }}</div>
                   <div><i class="fa-solid fa-tag"></i> ￥{{ ticket.price }}</div>
                 </div>
-                <div class="ticket-dropdown-container" @click.stop>
+                <!-- 只有未使用状态下显示下拉和二维码 -->
+                <div
+                  v-if="ticket.ticket_status === '未使用'"
+                  class="ticket-dropdown-container"
+                  @click.stop
+                >
                   <button
                     class="ticket-details-button"
                     @click="toggleDropdown(ticket.id)"
@@ -130,13 +138,15 @@
                     </div>
                   </transition>
                 </div>
+                <!-- 已使用/已过期：不显示下拉和二维码，按钮也不显示 -->
               </div>
             </div>
+
+            <!-- 历史订单 -->
             <div v-else-if="view === 'orders'">
               <h2>
                 {{ userStore.isLoggedIn ? '亲爱的 ' + userStore.username + '，' : '这里空空如也呢，先登录吧！' }}
               </h2>
-
               <h4 style="grid-column: 1 / -1; margin: 32px 0 16px 0">以下是您的历史订单</h4>
               <div class="ticket-tabs">
                 <button
@@ -165,17 +175,20 @@
                 </div>
               </div>
             </div>
+
+            <!-- 账号设置 -->
             <div v-else-if="view === 'settings'">
               <h2>
                 {{ userStore.isLoggedIn ? '亲爱的 ' + userStore.username + '，' : '这里空空如也呢，先登录吧！' }}
               </h2>
-
               <h4 style="grid-column: 1 / -1; margin: 32px 0 16px 0">在此查看或更改您的账号设置</h4>
               <MessageSubscription />
               <SpectatorManager />
               <ChangePassword />
               <DeleteAccount />
             </div>
+
+            <!-- 帮助中心 -->
             <div v-else-if="view === 'help'">
               <h4 style="grid-column: 1 / -1; margin: 32px 0 16px 0">我们可以如何帮助您？</h4>
               <FastQA />
@@ -193,14 +206,25 @@
 <script setup>
 import Navbar from '../components/NavbarComp.vue'
 import Footer from '../components/FooterComp.vue'
+import MessageSubscription from '../components/account_settings_comps/MessageSubscription.vue'
+import SpectatorManager from '../components/account_settings_comps/SpectatorManager.vue'
+import ChangePassword from '../components/account_settings_comps/ChangePassword.vue'
+import DeleteAccount from '../components/account_settings_comps/DeleteAccount.vue'
+import PersonalInfo from '@/components/my_account_comps/PersonalInfo.vue'
+import FastQA from '@/components/help_center_comps/FastQ&A.vue'
+import CustomerService from '@/components/help_center_comps/CustomerService.vue'
+
 import { userStore } from '@/stores/userStore.js'
 import { ref, watchEffect, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import axios from 'axios'
+import html2canvas from 'html2canvas'
+
 const router = useRouter()
 const route = useRoute()
 
-// 登录状态相关
 const isLoggedIn = ref(!!localStorage.getItem('access_token'))
+
 window.addEventListener('storage', () => {
   isLoggedIn.value = !!localStorage.getItem('access_token')
 })
@@ -214,109 +238,44 @@ function logout() {
   router.push('/')
 }
 
-
 const view = ref('account')
-
-
-// 切换视图时同步页面信息
-function changeView(targetView) {
-  view.value = targetView
-  if (targetView === 'tickets') {
-    activeTab.value = tabs[0]
-  } else if (targetView === 'orders') {
-    activeTab.value = history_tabs[0]
-  }
-}
-
-// 我的账号
-import PersonalInfo from '@/components/my_account_comps/PersonalInfo.vue'
-
-// 我的票夹 & 历史订单
-const tabs = ['未使用', '已使用', '已过期'] // 我的票夹
-const history_tabs = ['已付款', '待付款', '待收货', '已取消'] // 历史订单
-
+const tabs = ['未使用', '已使用', '已过期']
+const history_tabs = ['交易成功', '已取消']
 const activeTab = ref('未使用')
 
-// TODO: 接入后端数据
-const tickets = ref([
-  {
-    id: '20250607001',
-    createtime: '2025-03-15 12:00:34',
-    artist: '周杰伦',
-    avatar: 'src/assets/images/homepage/artists/Jay.JPG',
-    time: '2025-07-20 19:30',
-    venue: '广州体育馆',
-    seat: 'A区 3排 12号',
-    price: 1100,
-    status: ['待付款'],
-    qr: 'src/assets/data/已核销.png',
-  },
-  {
-    id: '20250607002',
-    createtime: '2025-05-26 20:00:22',
-    artist: '林俊杰',
-    avatar: 'src/assets/images/homepage/artists/JJ.JPG',
-    time: '2025-05-10 19:00',
-    venue: '深圳大剧院',
-    seat: 'B区 1排 8号',
-    price: 1880,
-    status: ['未使用', '已付款', '待收货'],
-    qr: 'src/assets/data/已核销.png',
-  },
-  {
-    id: '20250607003',
-    createtime: '2025-04-25 11:55:57',
-    artist: '陶喆',
-    avatar: 'src/assets/images/homepage/artists/DT.JPG',
-    time: '2025-04-01 18:00',
-    venue: '北京工体',
-    seat: 'C区 2排 5号',
-    price: 780,
-    status: ['已使用', '已付款'],
-    qr: 'src/assets/data/已核销.png',
-  },
-  {
-    id: '20250607004',
-    createtime: '2025-06-01 19:30:47',
-    artist: '五月天',
-    avatar: 'src/assets/images/homepage/artists/Mayday.JPG',
-    time: '2025-08-23 20:00',
-    venue: '天津之眼',
-    seat: 'D区 6排 19号',
-    price: 580,
-    status: ['已过期', '已付款'],
-    qr: 'src/assets/data/已核销.png',
-  },
-  {
-    id: '20250607005',
-    createtime: '2025-06-10 11:30:27',
-    artist: '单依纯',
-    avatar: 'src/assets/images/homepage/artists/SYC.JPG',
-    time: '2025-09-19 19:00',
-    venue: '香港启德',
-    seat: 'VIP-2区 2排 34号',
-    price: 1380,
-    status: ['已取消'],
-    qr: '',
-  },
-])
+// 订单英文状态转中文
+const statusMap = {
+  'paid': '交易成功',
+  'cancelled': '已取消'
+}
 
-const filteredTickets = computed(() =>
-  tickets.value.filter((ticket) => {
-    if (Array.isArray(ticket.status)) {
-      return ticket.status.includes(activeTab.value)
-    }
-    return ticket.status === activeTab.value
-  }),
-)
+// 票夹&订单数据
+const tickets = ref([])
 
-// 控制下拉菜单的显示与隐藏
+// 过滤
+const filteredTickets = computed(() => {
+  if (view.value === 'tickets') {
+    return tickets.value.filter(
+      ticket =>
+        ticket.ticket_status === activeTab.value &&
+        ticket.order_status === 'paid'
+    )
+  }
+  if (view.value === 'orders') {
+    // 显示所有订单
+    return tickets.value.filter(
+      ticket => statusMap[ticket.order_status] === activeTab.value
+    )
+  }
+  return []
+})
+
+
+// 下拉菜单控制
 const dropdownOpenId = ref(null)
-
 function toggleDropdown(id) {
   dropdownOpenId.value = dropdownOpenId.value === id ? null : id
 }
-
 function handleClickOutside(event) {
   const dropdowns = document.querySelectorAll('.ticket-dropdown-container')
   let clickedInside = false
@@ -325,36 +284,19 @@ function handleClickOutside(event) {
       clickedInside = true
     }
   })
-
   if (!clickedInside) {
     dropdownOpenId.value = null
   }
 }
 
-onMounted(() => {
-  document.addEventListener('click', handleClickOutside)
-  if (route.query.view) {
-    view.value = route.query.view
-  }
-})
-
-onBeforeUnmount(() => {
-  document.removeEventListener('click', handleClickOutside)
-})
-
 // 下载核销二维码为图片
-import html2canvas from 'html2canvas'
-
 async function downloadTicketAsImage(ticketId) {
   const el = document.getElementById(`qr-container-${ticketId}`)
   if (!el) return
-
   const originalBorderImage = el.style.borderImage
   const originalBorder = el.style.border
-
   el.style.borderImage = 'none'
   el.style.border = 'none'
-
   try {
     const canvas = await html2canvas(el, {
       backgroundColor: '#ffffff',
@@ -372,19 +314,56 @@ async function downloadTicketAsImage(ticketId) {
   }
 }
 
-// 账号设置
-import MessageSubscription from '../components/account_settings_comps/MessageSubscription.vue'
-import SpectatorManager from '../components/account_settings_comps/SpectatorManager.vue'
-import ChangePassword from '../components/account_settings_comps/ChangePassword.vue'
-import DeleteAccount from '../components/account_settings_comps/DeleteAccount.vue'
+// 数据请求：获取票夹和订单数据
+async function fetchTickets() {
+  if (!userStore.isLoggedIn) {
+    tickets.value = []
+    return
+  }
+  try {
+    const res = await axios.get('/api/orders/my-tickets', {
+      headers: { Authorization: 'Bearer ' + localStorage.getItem('access_token') }
+    })
+    if (res.data.code === 0 && Array.isArray(res.data.data)) {
+      tickets.value = res.data.data
+    } else {
+      tickets.value = []
+    }
+  } catch (err) {
+    console.error('获取票夹失败', err)
+    tickets.value = []
+  }
+}
 
-// 帮助中心
-import FastQA from '@/components/help_center_comps/FastQ&A.vue'
-import CustomerService from '@/components/help_center_comps/CustomerService.vue'
+// 切换视图时同步页面信息
+function changeView(targetView) {
+  view.value = targetView
+  if (targetView === 'tickets') {
+    activeTab.value = tabs[0]
+    fetchTickets()
+  } else if (targetView === 'orders') {
+    activeTab.value = history_tabs[0]
+    fetchTickets()
+  }
+}
+
+// 首次挂载拉取
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside)
+  if (route.query.view) {
+    view.value = route.query.view
+  }
+  fetchTickets()
+})
+
+onBeforeUnmount(() => {
+  document.removeEventListener('click', handleClickOutside)
+})
+
 </script>
 
 <style scoped>
-/* 全部你的原样式，无任何变动 */
+/* 你的全部样式，无任何变动 */
 .dashboard-wrapper {
   margin-top: 64px;
   background-color: #f8f8f8;
