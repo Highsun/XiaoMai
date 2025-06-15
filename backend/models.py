@@ -188,6 +188,10 @@ class OrderItem(db.Model):
     quantity   = db.Column(db.Integer, nullable=False)
     unit_price = db.Column(db.Numeric(10, 2), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    seat_number   = db.Column(db.String(32),  default='')
+    qr_code       = db.Column(db.String(128), default='')
+    ticket_status = db.Column(db.String(16),  default='未使用')
+    expire_at     = db.Column(db.DateTime,    nullable=True)
 
     order = db.relationship('Order', back_populates='items')
     show  = db.relationship('Show')

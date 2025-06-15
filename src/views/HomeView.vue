@@ -65,7 +65,7 @@ onMounted(async () => {
     if (hotRes.data.code === 0) {
       HotShows.value = hotRes.data.data.map((item) => ({
         id: item.id,
-        name: item.name,
+        name: item.title,
         date: beautifyDate(item.date),
         location: item.location,
         price: beautifyPrice(item.price),
