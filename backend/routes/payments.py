@@ -1,5 +1,3 @@
-# backend/routes/payments.py
-
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from ..models import db, Order, OrderItem, Show
@@ -71,16 +69,11 @@ def complete_order():
         if not show:
             continue
 
-        # 随机座位号：X区 YY排 ZZ号
         area = random.choice(['A','B','C','D','E'])
         row  = random.randint(1,30)
         num  = random.randint(1,20)
         oi.seat_number = f"{area}区 {row}排 {num}号"
-
-        # 统一二维码
         oi.qr_code = '/uploads/已核销.png'
-
-        # 过期时间 = 演出 start_date +1 天 的 23:59:59
         expire_day = show.start_date + timedelta(days=1)
         oi.expire_at = datetime.combine(expire_day, datetime.max.time()).replace(microsecond=0)
 
