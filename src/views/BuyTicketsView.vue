@@ -22,7 +22,6 @@ onMounted(() => {
 })
 </script>
 
-
 <style scoped>
 .ticket-container {
   margin: 64px 60px 30px 60px;

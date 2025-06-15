@@ -11,6 +11,7 @@
       <ShowCard
         v-for="(item, index) in shows"
         :key="index"
+        :id="item.id"
         :name="item.name"
         :date="item.date"
         :location="item.location"

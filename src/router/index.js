@@ -27,6 +27,7 @@ const routes = [
     path: '/buy-tickets/:id',
     name: 'BuyTickets',
     component: BuyTicketsView,
+    props: true,
   },
   {
     path: '/dashboard',
