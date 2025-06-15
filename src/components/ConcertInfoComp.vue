@@ -16,28 +16,6 @@
 
     <!-- 主内容 -->
     <div class="info-content">
-      <!-- 项目详情 -->
-      <section id="details" class="info-section" ref="detailsRef">
-        <h2>项目详情</h2>
-        <div>
-          // ⚠️ 警告！人、证、票核验不通过无法入场...<br /><br />
-          2025年，林俊杰将呈现他全新的《JJ林俊杰JJ20 FINAL LAP
-          世界巡回演唱会》。此轮巡演的最终回标志着林俊杰20周年音乐生涯的里程碑。<br /><br />
-          // 来点我哥的绝美帅照<br /><br />
-          《JJ 林俊杰 JJ20 世界巡回演唱会》自
-          2022年11月在新加坡首演以来，便获得了极高评价。随之拉队到上海、悉尼、巴黎、伦敦和纽约等城市也场场爆满，至今完成近100场演出，屡创票房新高，吸引了来自世界各地的观众前往"圣所"。继12月末在新加坡通过两场叫好又叫座的盛大演出正式启动"JJ20
-          FINAL LAP 世界巡回演唱会" 后，JJ 火力全开继续带着华流走向世界。<br /><br />
-          // 再来一张，嘻嘻<br /><br />
-          除了脍炙人口的抒情歌曲，歌迷据能透过音乐感受 JJ 这
-          21年来的成长、蜕变以及他在音乐创作上不断地进化。本次演唱会将在服装和舞台设计方面带来全新的升级，包括拉近了JJ与歌迷距离的延伸舞台，呈现更加震撼的视听体验。据
-          JJ 在新加坡首站演出之后透露，FINAL LAP
-          巡演将不断更新演变，更是令所有观众朋友们期待拉满。<br /><br />
-          // 不够不够，还要还要<br /><br />
-          终局落幕之前与你约定好在对的时间点一起圆满经历, 共同感受《JJ 林俊杰 JJ20 FINAL LAP
-          世界巡回演唱会》的绝美视听飨宴！<br /><br />
-        </div>
-      </section>
-
       <!-- 购票须知 -->
       <section id="ticket" class="info-section" ref="ticketRef">
         <h2>购票须知</h2>
@@ -81,8 +59,6 @@
           请于演出前约120分钟入场。<br /><br />
           <span style="font-size: 14px; color: #555">最低演出曲目</span><br />
           20<br /><br />
-          <span style="font-size: 14px; color: #555">主要演员</span><br />
-          林俊杰<br /><br />
           <span style="font-size: 14px; color: #555">最低演出时长</span><br />
           120分钟<br /><br />
           <span style="font-size: 14px; color: #555">禁止携带物品</span><br />
@@ -101,7 +77,6 @@
 import { ref, onMounted, onUnmounted, nextTick } from 'vue'
 
 const navItems = [
-  { id: 'details', label: '项目详情' },
   { id: 'ticket', label: '购票须知' },
   { id: 'entry', label: '观演须知' },
 ]
